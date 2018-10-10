@@ -162,8 +162,6 @@ classdef Block < handle
         slash
         
         CGV
-        
-        logText
     end
     
     properties(Dependent)
@@ -188,7 +186,6 @@ classdef Block < handle
             self.dsRate = project.dsRate;
             self.params = project.params;
             self.sRate = project.sRate;
-            self.logText = getLogTextStruct();
             
             self.uniqueName = self.extractUniqueName(subject, fileName);
             self.sourceAddress = self.extractSourceAddress(subject, ...
@@ -487,7 +484,7 @@ classdef Block < handle
         end
         
         function writeLog(self, automagic)
-            text = self.logText;
+            text = getLogTextStruct();
             fileID = fopen([self.imageAddress '_log.txt'],'w');
             if(isfield(automagic, 'prep'))
                 if strcmp(automagic.prep.performed, 'yes')
@@ -602,7 +599,9 @@ classdef Block < handle
             fprintf(fileID, sprintf(text.highvar.desc, automagic.highVarianceRejection.sd));
             fprintf(fileID, '\n');
             
-            fprintf(fileID, sprintf(text.quality.desc, automagic.qualityScore.OHA, automagic.qualityScore.THV, automagic.qualityScore.CHV));
+            fprintf(fileID, sprintf(text.quality.OHA, sprintf('%0.6f ', automagic.qualityScores.OHA)));
+            fprintf(fileID, sprintf(text.quality.THV, sprintf('%0.6f ', automagic.qualityScores.THV)));
+            fprintf(fileID, sprintf(text.quality.CHV, sprintf('%0.6f ', automagic.qualityScores.CHV)));
             fprintf(fileID, '\n');
             
             if isfield(automagic, 'interpolation')

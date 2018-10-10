@@ -219,9 +219,9 @@ classdef Project < handle
             defVParam = self.CGV.DefaultVisualisationParams;
             p = inputParser;
             addParameter(p,'CalcQualityParams', defVParam.CalcQualityParams, @isstruct);
-            addParameter(p,'dsRate', defVParam.dsRate, @isnum);
+            addParameter(p,'dsRate', defVParam.dsRate, @isnumeric);
             addParameter(p,'RateQualityParams', defVParam.RateQualityParams, @isstruct);
-            addParameter(p,'COLOR_SCALE', defVParam.COLOR_SCALE, @isnum);
+            addParameter(p,'COLOR_SCALE', defVParam.COLOR_SCALE, @isnumeric);
             parse(p, vParams);
             vParams = p.Results;
             
