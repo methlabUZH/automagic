@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 19-Sep-2018 15:34:06
+% Last Modified by GUIDE v2.5 10-Oct-2018 10:35:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1876,3 +1876,30 @@ function notchcheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of notchcheckbox
+
+
+% --- Executes on button press in loadpushbutton.
+function loadpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to loadpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+state_path = loadConfigGUI();
+if isempty(state_path)
+   return 
+end
+
+if exist(state_path, 'file') == 2
+    project = load(state_path);
+end
+
+if ~ exist('project', 'var')
+    return
+end
+
+params = project.self.params;
+vParams = project.self.vParams;
+
+handles = set_gui(handles, params, vParams);
+
+% Update handles structure
+guidata(hObject, handles);

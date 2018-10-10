@@ -83,7 +83,7 @@ function statepushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [name, project_path, ~] = uigetfile('load');
-    % If user cancelled the process, choose the previous project
+% If user cancelled the process, choose the previous project
 if( name ~= 0 )
     path = strcat(project_path, name);
     set(handles.stateedit, 'String', path)

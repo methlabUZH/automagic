@@ -265,7 +265,7 @@ end
 
 % Special case of Load Project
 if(strcmp(name, handles.CGV.LOAD_PROJECT.LIST_NAME))
-    [data_path, state_path] = load_gui();
+    [data_path, state_path] = loadGUI();
     splt = strsplit(state_path, '/');
     jne = strjoin(splt(1:end-1), '/');
     project_path = strcat(jne, '/');
@@ -288,7 +288,7 @@ if(strcmp(name, handles.CGV.LOAD_PROJECT.LIST_NAME))
             % After load addresses must be updated as this system may have
             % a diferent adsresses than the system where project has been
             % created.
-            self.UpdateAddressesFormStateFile(project_path, data_path);
+            self.updateAddressesFormStateFile(project_path, data_path);
             handles.projectList(name) = self;
         else
             popup_msg(['This project already exists. You can not ',...
@@ -771,7 +771,7 @@ end
 switch choice
     case 'Load'
         project = load(Project.makeStateAddress(projectFolder));
-        project.UpdateAddressesFormStateFile(projectFolder, self.dataFolder);
+        project.updateAddressesFormStateFile(projectFolder, self.dataFolder);
     case 'Over Write'
         if( exist(Project.makeStateAddress(projectFolder), 'file'))
             load(Project.makeStateAddress(projectFolder));

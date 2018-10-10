@@ -140,6 +140,9 @@ classdef Project < handle
         % preprocessing/preprocess.m
         params
         
+        % Visualisation parameters. These are used mainly in ratingGUI
+        vParams
+        
         % List of names of all preprocessed blocks so far.
         processedList
          
@@ -216,6 +219,7 @@ classdef Project < handle
             self.colorScale = defVis.COLOR_SCALE;
             self.dsRate = vParams.dsRate;
             self.params = params;
+            self.vParams = vParams;
             self = self.createRatingStructure();
         end
     end
