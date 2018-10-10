@@ -223,7 +223,7 @@ if( exist( project.resultFolder, 'dir'))
         set(handles.mainGUI, 'pointer', 'arrow')
     end
 else
-    popup_msg('The project folder does not exists or is not reachable.'...
+    popup_msg('The study folder does not exists or is not reachable.'...
         , 'Error');
 end
 
@@ -291,7 +291,7 @@ if(strcmp(name, handles.CGV.LOAD_PROJECT.LIST_NAME))
             self.updateAddressesFormStateFile(project_path, data_path);
             handles.projectList(name) = self;
         else
-            popup_msg(['This project already exists. You can not ',...
+            popup_msg(['This study already exists. You can not ',...
                 'reload it unless it is deleted.'], 'Error');
         end
         
@@ -322,7 +322,7 @@ handles.currentProject = Index;
 if ~ exist(project.stateAddress, 'file')
     if(  ~ exist(project.resultFolder, 'dir') )
         % This can happen when data is on a server and connecton is lost
-        popup_msg(['The project folder is unreachable or deleted. ' ...
+        popup_msg(['The study folder is unreachable or deleted. ' ...
                         project.resultFolder], 'Error');
         
         set(handles.projectname, 'String', name);
@@ -343,7 +343,7 @@ if ~ exist(project.stateAddress, 'file')
     else
         % If the state_file is deleted, remove this project
         popup_msg(['The state_file does not exist anymore.',...
-            'You must create a new project.'], 'Error');
+            'You must create a new study.'], 'Error');
         remove(handles.projectList, name);
         handles.currentProject = 1;
         set(handles.existingpopupmenu,...
@@ -694,7 +694,7 @@ if( strcmp(dataFolder, handles.CGV.NEW_PROJECT.DATA_FOLDER) || ...
         strcmp(projectFolder, handles.CGV.NEW_PROJECT.FOLDER) || ...
         strcmp(name, handles.CGV.NEW_PROJECT.NAME))
     
-    popup_msg('You must choose a name, project folder and data folder.',...
+    popup_msg('You must choose a name, study folder and data folder.',...
         'Error');
     return;
 end
@@ -778,9 +778,9 @@ if( exist(Project.makeStateAddress(projectFolder), 'file'))
     handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
     main_pos = get(handle,'position');
     screen_size = get( groot, 'Screensize' );
-    choice = MFquestdlg([main_pos(3)/2/screen_size(3) main_pos(4)/2/screen_size(4)],['Another project in this folder already ',...
+    choice = MFquestdlg([main_pos(3)/2/screen_size(3) main_pos(4)/2/screen_size(4)],['Another study in this folder already ',...
         'exist. Do you want to load it or overwrite it ?'], ...
-        'Pre-existing project in the project folder.',...
+        'Pre-existing project in the study folder.',...
         'Over Write', 'Load','Over Write');
 end
 
@@ -824,8 +824,8 @@ switch choice
 end
 
 save_state(handles);
-popup_msg({'The project is successfully created.' ...
-    'Now you can start pre-processing.'}, 'New project');
+popup_msg({'The study is successfully created.' ...
+    'Now you can start pre-processing.'}, 'New study');
 % Update handles structure
 guidata(hObject, handles);
 

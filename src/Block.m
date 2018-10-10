@@ -596,8 +596,10 @@ classdef Block < handle
             fprintf(fileID, sprintf(text.dc.desc));
             fprintf(fileID, '\n');
             
-            fprintf(fileID, sprintf(text.highvar.desc, automagic.highVarianceRejection.sd));
-            fprintf(fileID, '\n');
+            if strcmp(automagic.highVarianceRejection.performed, 'yes')
+                fprintf(fileID, sprintf(text.highvar.desc, automagic.highVarianceRejection.sd));
+                fprintf(fileID, '\n');
+            end
             
             fprintf(fileID, sprintf(text.quality.OHA, sprintf('%0.6f ', automagic.qualityScores.OHA)));
             fprintf(fileID, sprintf(text.quality.THV, sprintf('%0.6f ', automagic.qualityScores.THV)));
