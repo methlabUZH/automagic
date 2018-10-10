@@ -17,20 +17,15 @@ classdef DefaultParameters
     % You should have received a copy of the GNU General Public License
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     properties(Constant)          
-       FilterParams = struct('notch',    struct('freq', 50),...
-                              'high',     struct('freq', 0.5,...
-                                                 'order', []),... % Default
+       FilterParams = struct('notch',    struct([]),...
+                              'high',     struct([]),... % Default
                               'low',      struct([]))      % Deactivated
                             
-        ASRParams = struct('ChannelCriterion',     0.85,...
-                            'LineNoiseCriterion',   4,...
-                            'BurstCriterion',       'off',...
-                            'WindowCriterion',      'off', ...
-                            'Highpass',             [0.25 0.75]);
+        ASRParams = struct([]);
         
-        PrepParams = struct([]);                           % Deactivated
+        PrepParams = struct();                           % Deactivated
         
-        HighvarParams = struct('sd', 25);
+        HighvarParams = struct([]);
         
         InterpolationParams = struct('method', 'spherical');
         
@@ -42,7 +37,7 @@ classdef DefaultParameters
                                                   'order', []))
                     
         EOGRegressionParams = struct('performEOGRegression', 1, ...
-                                       'eogChans', '');
+                                     'eogChans', '');
                         
         ChannelReductionParams = struct('performReduceChannels', 1, ...
                                           'tobeExcludedChans', '');
