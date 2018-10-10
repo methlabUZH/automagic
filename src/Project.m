@@ -200,24 +200,49 @@ classdef Project < handle
         function self = Project(name, dFolder, pFolder, ext, params, ...
                 vParams, varargin)
             
+            self.CGV = ConstantGlobalValues;
+            defs = self.CGV.DefaultParams;
+            p = inputParser;
+            addParameter(p,'EEGSystem', defs.EEGSystem, @isstruct);
+            addParameter(p,'FilterParams', defs.FilterParams, @isstruct);
+            addParameter(p,'PrepParams', defs.PrepParams, @isstruct);
+            addParameter(p,'ASRParams', defs.ASRParams, @isstruct);
+            addParameter(p,'PCAParams', defs.PCAParams, @isstruct);
+            addParameter(p,'HighvarParams', defs.HighvarParams, @isstruct);
+            addParameter(p,'ICAParams', defs.ICAParams, @isstruct);
+            addParameter(p,'InterpolationParams', defs.InterpolationParams, @isstruct);
+            addParameter(p,'EOGRegressionParams', defs.EOGRegressionParams, @isstruct);
+            addParameter(p,'ChannelReductionParams', defs.ChannelReductionParams, @isstruct);
+            parse(p, params);
+            params = p.Results;
+
+            defVParam = self.CGV.DefaultVisualisationParams;
+            p = inputParser;
+            addParameter(p,'CalcQualityParams', defVParam.CalcQualityParams, @isstruct);
+            addParameter(p,'dsRate', defVParam.dsRate, @isnum);
+            addParameter(p,'RateQualityParams', defVParam.RateQualityParams, @isstruct);
+            addParameter(p,'COLOR_SCALE', defVParam.COLOR_SCALE, @isnum);
+            parse(p, vParams);
+            vParams = p.Results;
+            
             self = self.setName(name);
             self = self.setDataFolder(dFolder);
             self = self.setResultFolder(pFolder);
-            self.CGV = ConstantGlobalValues;
             self.stateAddress = self.makeStateAddress(self.resultFolder);
             
             extSplit = strsplit(ext, '.');
             self.fileExtension = strcat('.', extSplit{end});
             self.mask = ext;
+            
             self.qualityThresholds = vParams.CalcQualityParams;
-            defVis = self.CGV.DefaultVisualisationParams;
-            self.qualityCutoffs = defVis.RateQualityParams;
+            self.dsRate = vParams.dsRate;
+            self.qualityCutoffs = vParams.RateQualityParams;
+            self.colorScale = vParams.COLOR_SCALE;
+            
             if(any(strcmp(self.fileExtension, {self.CGV.EXTENSIONS.text})))
                 self.sRate = varargin{1};
             end
             
-            self.colorScale = defVis.COLOR_SCALE;
-            self.dsRate = vParams.dsRate;
             self.params = params;
             self.vParams = vParams;
             self = self.createRatingStructure();
@@ -1181,6 +1206,10 @@ classdef Project < handle
         
         function updatemainGUI(self)
             % Update the main gui's data
+            
+            if ~ usejava('Desktop')
+                return
+            end
             
             h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
             if( isempty(h))

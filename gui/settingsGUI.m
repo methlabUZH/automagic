@@ -92,10 +92,6 @@ handles.params = params;
 handles.VisualisationParams = VisualisationParams;
 handles.CGV = CGV;
 
-assert( isempty(handles.params.PCAParams) || ...
-    isempty(handles.params.ICAParams), ...
-    'Either pca or ica, not both together.');
-
 % Set the gui components according to params
 handles = set_gui(handles, params, VisualisationParams);
 handles = switch_components(handles);

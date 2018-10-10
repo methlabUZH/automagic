@@ -356,6 +356,22 @@ if ~ exist(project.stateAddress, 'file')
 end
 
 % Set properties of the project:
+
+if ~ isempty(project.params) && isfield(project.params, 'EEGSystem') && ...
+        ~ isempty(project.params.EEGSystem)
+    EEGSystem = project.params.EEGSystem;
+else
+    EEGSystem = handles.CGV.DefaultParams.EEGSystem;
+end
+
+if ~ isempty(project.params) && isfield(project.params, 'ChannelReductionParams') && ...
+        ~ isempty(project.params.ChannelReductionParams)
+    ChannelReductionParams = project.params.ChannelReductionParams;
+else
+    ChannelReductionParams = handles.CGV.DefaultParams.ChannelReductionParams;
+end
+
+
 set(handles.projectname, 'String', name);
 set(handles.datafoldershow, 'String', project.dataFolder);
 set(handles.projectfoldershow, 'String', project.resultFolder);
@@ -376,7 +392,7 @@ set(handles.srateedit, 'String', num2str(project.sRate))
 handles = setEEGSystem(project.params, handles);
 
 % Set 10-20 checkbox
-set(handles.checkbox1020, 'Value', project.params.EEGSystem.sys10_20);
+set(handles.checkbox1020, 'Value', EEGSystem.sys10_20);
 
 
 % Set number of rated files
@@ -390,7 +406,7 @@ set(handles.interpolatenumber, 'String', ...
     [num2str(interpolate_count), ' subjects to interpolate'])
 
 % Set reduce channel checkbox
-set(handles.excludecheckbox, 'Value', project.params.ChannelReductionParams.performReduceChannels);
+set(handles.excludecheckbox, 'Value', ChannelReductionParams.performReduceChannels);
 
 % Disable modifications from gui
 switch_gui('off', 'on', handles);
@@ -1035,8 +1051,20 @@ end
 function handles = setEEGSystem(params, handles)
 % system    char that can be either 'EGI' or 'Others'
 % handles   main handles of the gui
-EEGSystem = params.EEGSystem;
-ChannelReductionParams = params.ChannelReductionParams;
+
+if ~ isempty(params) && isfield(params, 'EEGSystem') && ...
+        ~ isempty(params.EEGSystem)
+    EEGSystem = params.EEGSystem;
+else
+    EEGSystem = handles.CGV.DefaultParams.EEGSystem;
+end
+
+if ~ isempty(params) && isfield(params, 'ChannelReductionParams') && ...
+        ~ isempty(params.ChannelReductionParams)
+    ChannelReductionParams = params.ChannelReductionParams;
+else
+    ChannelReductionParams = handles.CGV.DefaultParams.ChannelReductionParams;
+end
 
 switch EEGSystem.name
     case 'EGI'

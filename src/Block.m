@@ -416,8 +416,14 @@ classdef Block < handle
             nanchans = find(all(isnan(EEG.data), 2));
             EEG.data(nanchans, :) = 0;
 
-            EEG = eeg_interp(EEG ,interpolate_chans , ...
-                self.params.InterpolationParams.method);
+            if isempty(self.params) || ...
+                    ~isfield(self.params, 'InterpolationParams') || ...
+                    isempty(self.params.InterpolationParams)
+                InterpolationParams = self.CGV.DefaultParams.InterpolationParams;
+            else
+                InterpolationParams = self.params.InterpolationParams;
+            end
+            EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
 
             qScore  = calcQuality(EEG, ...
                 unique([self.finalBadChans interpolate_chans]), ...
@@ -449,7 +455,7 @@ classdef Block < handle
                 'qualityScores', qScore));
             
             automagic.interpolation.channels = interpolate_chans;
-            automagic.interpolation.params = self.params.InterpolationParams;
+            automagic.interpolation.params = InterpolationParams;
             automagic.qualityScores = self.qualityScores;
             automagic.qualityScore = self.getCurrentQualityScore();
             automagic.rate = self.rate;
