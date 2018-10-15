@@ -522,7 +522,9 @@ if ~ isempty(ext)
     for i = 1:nSubject
         subject = subjects{i};
         raw_files = dir([folder subject slash '*' ext]);
-        idx = ~startsWith({raw_files.name}, '.');
+%         idx = ~startsWith({raw_files.name}, '.');
+        cells = strfind({raw_files.name}, '.');
+        idx = find(cellfun(@(x) x~=1, cells));
         raw_files = raw_files(idx);
         nBlock = nBlock + length(raw_files);
     end
