@@ -44,6 +44,11 @@ if isempty(varargin{:})
     return; end
 
 defaults = DefaultParameters.ASRParams;
+recs = RecommendedParameters.ASRParams;
+if isempty(defaults)
+    defaults = recs;
+end
+
 p = inputParser;
 addParameter(p,'ChannelCriterion', defaults.ChannelCriterion);
 addParameter(p,'LineNoiseCriterion', defaults.LineNoiseCriterion);

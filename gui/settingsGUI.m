@@ -424,7 +424,11 @@ if( get(handles.asrhighcheckbox, 'Value') )
             'length 2 like [0.25 0.75]']);
     end
     if( ~isnan(highpass_val))
-        ASRParams.Highpass = highpass_val; end
+        if isempty(ASRParams)
+            ASRParams = struct();
+        end
+        ASRParams.Highpass = highpass_val; 
+    end
 else
     if ~isempty(ASRParams)
         ASRParams.Highpass = 'off'; end
@@ -433,7 +437,12 @@ end
 if( get(handles.linenoisecheckbox, 'Value') )
     linenoise_val = str2double(get(handles.linenoiseedit, 'String'));
     if( ~isnan(linenoise_val))
-        ASRParams.LineNoiseCriterion = linenoise_val; end
+        if isempty(ASRParams)
+            ASRParams = struct();
+        end
+        
+        ASRParams.LineNoiseCriterion = linenoise_val; 
+    end
 else
     if ~isempty(ASRParams)
         ASRParams.LineNoiseCriterion = 'off'; end
@@ -443,7 +452,11 @@ end
 if( get(handles.channelcriterioncheckbox, 'Value') )
     ChannelCriterion = str2double(get(handles.channelcriterionedit, 'String'));
     if( ~isnan(ChannelCriterion))
-        ASRParams.ChannelCriterion = ChannelCriterion; end
+        if isempty(ASRParams)
+            ASRParams = struct();
+        end
+        ASRParams.ChannelCriterion = ChannelCriterion; 
+    end
 else
     if ~isempty(ASRParams)
         ASRParams.ChannelCriterion = 'off'; end
@@ -453,7 +466,11 @@ end
 if( get(handles.burstcheckbox, 'Value') )
     BurstCriterion = str2double(get(handles.burstedit, 'String'));
     if ~isnan(BurstCriterion)
-        ASRParams.BurstCriterion = BurstCriterion; end
+        if isempty(ASRParams)
+            ASRParams = struct();
+        end
+        ASRParams.BurstCriterion = BurstCriterion; 
+    end
 else
     if ~isempty(ASRParams)
         ASRParams.BurstCriterion = 'off'; end
@@ -463,7 +480,11 @@ end
 if( get(handles.windowcheckbox, 'Value') )
     WindowCriterion = str2double(get(handles.windowedit, 'String'));
     if ~isnan(WindowCriterion)
-        ASRParams.WindowCriterion = WindowCriterion; end
+        if isempty(ASRParams)
+            ASRParams = struct();
+        end
+        ASRParams.WindowCriterion = WindowCriterion; 
+    end
 else
     if ~isempty(ASRParams)
         ASRParams.WindowCriterion = 'off'; end
@@ -502,7 +523,11 @@ HighvarParams = params.HighvarParams;
 if (get(handles.highvarcheckbox, 'Value'))
      sd = str2double(get(handles.highvaredit, 'String'));
      if ~isnan(sd)
-        HighvarParams.sd = sd; end
+        if isempty(HighvarParams)
+            HighvarParams = struct();
+        end
+        HighvarParams.sd = sd; 
+     end
 else
     HighvarParams = struct([]);
 end

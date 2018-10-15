@@ -25,6 +25,11 @@ function EEG_out = performHighvarianceChannelRejection(EEG_in, varargin)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 defaults = DefaultParameters.HighvarParams;
+recs = RecommendedParameters.HighvarParams;
+if isempty(defaults)
+    defaults = recs;
+end
+
 p = inputParser;
 addParameter(p,'sd', defaults.sd, @isnumeric);
 parse(p, varargin{:});
