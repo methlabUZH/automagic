@@ -491,7 +491,7 @@ classdef Block < handle
                     pars = automagic.prep.params;
                     fprintf(fileID, sprintf(text.prep.desc));
                     fprintf(fileID, sprintf(text.prep.detrend, pars.detrend.detrendCutoff, pars.detrend.detrendStepSize, pars.detrend.detrendType));
-                    fprintf(fileID, sprintf(text.prep.lineNoise, pars.lineNoise.fPassBand, pars.lineNoise.lineFrequencies, pars.lineNoise.fScanBandWidth, pars.lineNoise.maximumIterations));
+                    fprintf(fileID, sprintf(text.prep.lineNoise, pars.lineNoise.fPassBand, sprintf('%d ', pars.lineNoise.lineFrequencies), pars.lineNoise.fScanBandWidth, pars.lineNoise.maximumIterations));
                     fprintf(fileID, sprintf(text.prep.reference.robDevThres, pars.reference.robustDeviationThreshold));
                     fprintf(fileID, sprintf(text.prep.reference.corr, pars.reference.correlationWindowSeconds, pars.reference.correlationThreshold));
                     fprintf(fileID, sprintf(text.prep.reference.ransac, pars.reference.ransacSampleSize, pars.reference.ransacChannelFraction, pars.reference.ransacUnbrokenTime, pars.reference.ransacWindowSeconds, pars.reference.ransacCorrelationThreshold));
@@ -601,9 +601,9 @@ classdef Block < handle
                 fprintf(fileID, '\n');
             end
             
-            fprintf(fileID, sprintf(text.quality.OHA, sprintf('%0.6f ', automagic.qualityScores.OHA)));
-            fprintf(fileID, sprintf(text.quality.THV, sprintf('%0.6f ', automagic.qualityScores.THV)));
-            fprintf(fileID, sprintf(text.quality.CHV, sprintf('%0.6f ', automagic.qualityScores.CHV)));
+            fprintf(fileID, sprintf(text.quality.OHA, sprintf('%0.7f ', automagic.qualityScores.OHA)));
+            fprintf(fileID, sprintf(text.quality.THV, sprintf('%0.7f ', automagic.qualityScores.THV)));
+            fprintf(fileID, sprintf(text.quality.CHV, sprintf('%0.7f ', automagic.qualityScores.CHV)));
             fprintf(fileID, '\n');
             
             if isfield(automagic, 'interpolation')
