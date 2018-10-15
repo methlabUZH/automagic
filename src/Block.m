@@ -485,7 +485,24 @@ classdef Block < handle
         
         function writeLog(self, automagic)
             text = getLogTextStruct();
+            matVer = ver('MATLAB');
             fileID = fopen([self.imageAddress '_log.txt'],'w');
+       
+            fprintf(fileID, sprintf(text.info.automagic, self.CGV.VERSION));
+            fprintf(fileID, sprintf(text.info.matlab, matVer.Version, matVer.Release, matVer.Date));
+            fprintf(fileID, sprintf(text.info.fileName, self.fileName, self.subject.name, self.project.name));
+            fprintf(fileID, sprintf(text.info.time, datetime));
+            fprintf(fileID, '\n');
+            fprintf(fileID, '\n');
+            fprintf(fileID, '\n');
+            
+            if isfield(automagic, 'error_msg')
+                fprintf(fileID, sprintf(text.error.desc, automagic.error_msg));
+            end
+            fprintf(fileID, '\n');
+            fprintf(fileID, '\n');
+            fprintf(fileID, '\n');
+            
             if(isfield(automagic, 'prep'))
                 if strcmp(automagic.prep.performed, 'yes')
                     pars = automagic.prep.params;
