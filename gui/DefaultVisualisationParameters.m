@@ -1,6 +1,6 @@
 classdef DefaultVisualisationParameters
     %DefaultVisualisationParameters is a class containing default parameters for
-    %   different visualisation steps
+    %   different visualisation steps used specially in ratingGUI
     %
     % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
     % 

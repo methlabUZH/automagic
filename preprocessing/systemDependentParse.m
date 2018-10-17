@@ -1,7 +1,7 @@
-function [EEG, EOG, EEGSystem, ICAParams] = ...
+function [EEG, EOG, EEGSystem, MARAParams] = ...
                         systemDependentParse(data, EEGSystem, ...
                         ChannelReductionParams, EOGRegressionParams, ...
-                        ICAParams, ORIGINAL_FILE) %#ok<INUSD>
+                        MARAParams, ORIGINAL_FILE) %#ok<INUSD>
 % systemDependentParse parse EEG input depending on the EEG system.
 %   This function prepares the input for preprocessing. It makes sure that
 %   the correct channel location field is a part of the input EEG. In
@@ -49,7 +49,7 @@ function [EEG, EOG, EEGSystem, ICAParams] = ...
 %   this should be the address of the file where this EEG data is loaded
 %   from.
 
-%   ICAParams is explained in detail in performICA.m
+%   MARAParams is explained in detail in performMARA.m
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 
@@ -264,11 +264,11 @@ elseif(~isempty(EEGSystem.name) && ...
     clear chan128 chan256;
     
     % Make ICA map of channels
-    if (~isempty(ICAParams))
+    if (~isempty(MARAParams))
         switch data.nbchan
             case 129
                 % Make the map for ICA
-                if(ICAParams.largeMap)
+                if(MARAParams.largeMap)
                     keySet = {'E36', 'E104', 'E129', 'E24', 'E124', 'E33', 'E122', 'E22', 'E9', ...
                         'E14', 'E11', 'E70', 'E83', 'E52', 'E92', 'E58', 'E96', 'E45', ...
                         'E108', 'E23', 'E3', 'E26', 'E2', 'E16', 'E30', 'E105', 'E41', 'E103', 'E37', ...
@@ -293,9 +293,9 @@ elseif(~isempty(EEGSystem.name) && ...
                         'C3', 'C4', 'T7', 'T8', 'P3', 'P4', 'LM', 'RM', 'P7', 'P8', 'O1', ...
                         'Oz', 'O2', 'Pz', 'FPZ'};
                 end
-                ICAParams.chanlocMap = containers.Map(keySet,valueSet);
+                MARAParams.chanlocMap = containers.Map(keySet,valueSet);
             case 257
-                if(ICAParams.largeMap)
+                if(MARAParams.largeMap)
                     keySet = {'E59', 'E183', 'E257', 'E36', 'E224', 'E47', 'E2', 'E37', ...
                         'E18', 'E26', 'E21', 'E116', 'E150', 'E87', 'E153', 'E69', 'E202', ...
                         'E96', 'E170', 'E101', 'E119', 'E5', 'E49', 'E219', 'E194', 'E67', ...
@@ -320,7 +320,7 @@ elseif(~isempty(EEGSystem.name) && ...
                         'C3', 'C4', 'T7', 'T8', 'P3', 'P4', 'LM', 'RM', 'P7', 'P8', 'O1', ...
                         'Oz', 'O2', 'Pz', 'FPZ'};
                 end
-                ICAParams.chanlocMap = containers.Map(keySet,valueSet);
+                MARAParams.chanlocMap = containers.Map(keySet,valueSet);
         end
         clear keySet valueSet;
     end

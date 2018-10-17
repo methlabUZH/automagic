@@ -1,5 +1,5 @@
-function [EEG_out, EOG_out] = perform_cleanrawdata(EEG_in, EOG_in, varargin)
-% perform_cleanrawdata makes channel rejection using cleanrawdata()
+function [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, varargin)
+% performCleanrawdata makes channel rejection using cleanrawdata()
 %   This function does not change the output values if and only if
 %   BurstCriterion and WindowCriterion are deactiavted (it is the case by 
 %   default). In this case, only indices of the bad channels are kept to 
@@ -10,7 +10,7 @@ function [EEG_out, EOG_out] = perform_cleanrawdata(EEG_in, EOG_in, varargin)
 %   from the EOG data for coherence and possibe further EOG regression
 %   which requires same length signals.
 %   
-%   [EEG_out, EOG_out] = perform_cleanrawdata(EEG_in, EOG_in, varargin)
+%   [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, varargin)
 %
 %   EEG_in is the input EEG structure.
 %
@@ -43,8 +43,8 @@ EEG_out.automagic.asr.performed = 'no';
 if isempty(varargin{:})
     return; end
 
-defaults = DefaultParameters.ASRParams;
-recs = RecommendedParameters.ASRParams;
+defaults = DefaultParameters.CRDParams;
+recs = RecommendedParameters.CRDParams;
 if isempty(defaults)
     defaults = recs;
 end
@@ -108,8 +108,8 @@ if(isfield(EEGCleaned, 'etc'))
 end
 
 % Add the info to the output structure
-EEG_out.automagic.asr.performed = 'yes';
-EEG_out.automagic.asr.badChans = badChans;
-EEG_out.automagic.asr.params = params;
+EEG_out.automagic.crd.performed = 'yes';
+EEG_out.automagic.crd.badChans = badChans;
+EEG_out.automagic.crd.params = params;
 EEG_out.automagic.preprocessing.toRemove = newToRemove;
 EEG_out.automagic.preprocessing.removedMask = removedMask;

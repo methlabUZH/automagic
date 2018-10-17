@@ -3,23 +3,23 @@ function [EEG, varargout] = preprocess(data, varargin)
 %   [EEG, varargout] = preprocess(data, varargin)
 %   where data is the EEGLAB data structure and varargin is an 
 %   optional parameter which must be a structure with optional fields 
-%   'FilterParams', 'ASRParams', 'PCAParams', 'ICAParams', 'PrepParams',
+%   'FilterParams', 'CRDParams', 'RPCAParams', 'MARAParams', 'PrepParams',
 %   'InterpolationParams', 'EOGRegressionParams', 'EEGSystem',
 %   'ChannelReductionParams', 'HighvarParams' and 'ORIGINAL_FILE' to 
-%   specify parameters for filtering, cleanrawdata(), pca, ica, prep robust 
+%   specify parameters for filtering, cleanrawdata(), pca, mara, prep robust 
 %   average referencing, interpolation, eog regression, channel locations,
 %   reducing channels, high variance channel rejection and original 
 %   file address respectively. The latter one is needed only if a '*.fif' 
 %   file is used, otherwise it can be omitted.
 %   
-%   To learn more about 'FilterParams', 'ICAParams', 'PCAParams' and
+%   To learn more about 'FilterParams', 'MARAParams', 'RPCAParams' and
 %   'HighvarParams' please see their corresponding functions performFilter.m, 
 %   performMaraICA.m, performPCA.m and performHighvarianceChannelRejection.m.
 %
 %   To learn more about EEGSystem and ChannelreductionParams please see
 %   SystemDependentParse.m.
 %   
-%   'ASRParams' is an optional structure which has the same parameters as 
+%   'CRDParams' is an optional structure which has the same parameters as 
 %   required by clean_artifacts(). For more information please
 %   see clean_artifacts() in Artefact Subspace Reconstruction.
 %   
@@ -39,9 +39,9 @@ function [EEG, varargout] = preprocess(data, varargin)
 %   If varargin is ommited, default values are used. If any of the fields
 %   of varargin are ommited, corresponsing default values are used. If a
 %   structure is given as 'struct([])' then the corresponding operation is
-%   omitted and is not performed; for example, ICAParams = struct([])
-%   skips the ICA and does not perform any ICA. Whereas if ICAParams =
-%   struct() or if ICAParams is simply not given, then the default value 
+%   omitted and is not performed; for example, MARAParams = struct([])
+%   skips the ICA and does not perform any ICA. Whereas if MARAParams =
+%   struct() or if MARAParams is simply not given, then the default value 
 %   will be used.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
@@ -65,10 +65,10 @@ p = inputParser;
 addParameter(p,'EEGSystem', Defaults.EEGSystem, @isstruct);
 addParameter(p,'FilterParams', Defaults.FilterParams, @isstruct);
 addParameter(p,'PrepParams', Defaults.PrepParams, @isstruct);
-addParameter(p,'ASRParams', Defaults.ASRParams, @isstruct);
-addParameter(p,'PCAParams', Defaults.PCAParams, @isstruct);
+addParameter(p,'CRDParams', Defaults.CRDParams, @isstruct);
+addParameter(p,'RPCAParams', Defaults.RPCAParams, @isstruct);
 addParameter(p,'HighvarParams', Defaults.HighvarParams, @isstruct);
-addParameter(p,'ICAParams', Defaults.ICAParams, @isstruct);
+addParameter(p,'MARAParams', Defaults.MARAParams, @isstruct);
 addParameter(p,'InterpolationParams', Defaults.InterpolationParams, @isstruct);
 addParameter(p,'EOGRegressionParams', Defaults.EOGRegressionParams, @isstruct);
 addParameter(p,'ChannelReductionParams', Defaults.ChannelReductionParams, @isstruct);
@@ -77,11 +77,11 @@ parse(p, varargin{:});
 params = p.Results;
 EEGSystem = p.Results.EEGSystem;
 FilterParams = p.Results.FilterParams;
-ASRParams = p.Results.ASRParams;
+CRDParams = p.Results.CRDParams;
 PrepParams = p.Results.PrepParams;
 HighvarParams = p.Results.HighvarParams;
-PCAParams = p.Results.PCAParams;
-ICAParams = p.Results.ICAParams;
+RPCAParams = p.Results.RPCAParams;
+MARAParams = p.Results.MARAParams;
 InterpolationParams = p.Results.InterpolationParams; %#ok<NASGU>
 EOGRegressionParams = p.Results.EOGRegressionParams;
 ChannelReductionParams = p.Results.ChannelReductionParams;
@@ -90,12 +90,12 @@ clear p varargin;
 
 % Add and download necessary paths
 downloadAndAddPaths(struct('PrepParams', PrepParams, ...
-    'PCAParams', PCAParams));
+    'CRDParams', CRDParams));
                           
 % Set system dependent parameters and eeparate EEG from EOG
-[EEG, EOG, EEGSystem, ICAParams] = ...
+[EEG, EOG, EEGSystem, MARAParams] = ...
     systemDependentParse(data, EEGSystem, ChannelReductionParams, ...
-    EOGRegressionParams, ICAParams, ORIGINAL_FILE);
+    EOGRegressionParams, MARAParams, ORIGINAL_FILE);
 EEGRef = EEG;
 
 % Remove the reference channel from the rest of preprocessing
@@ -114,7 +114,7 @@ EEG.automagic.preprocessing.removedMask = false(1, s); clear s;
 
 
 % Clean EEG using clean_rawdata()
-[EEG, EOG] = perform_cleanrawdata(EEG, EOG, ASRParams);
+[EEG, EOG] = performCleanrawdata(EEG, EOG, CRDParams);
 
 % Filtering on the whole dataset
 display(PreprocessingConstants.FilterCsts.RUN_MESSAGE);
@@ -142,20 +142,20 @@ end
 EEG_regressed = EEG;
 
 % PCA or ICA
-EEG.automagic.ica.performed = 'no';
-EEG.automagic.pca.performed = 'no';
-if ( ~isempty(ICAParams) )
+EEG.automagic.mara.performed = 'no';
+EEG.automagic.rpca.performed = 'no';
+if ( ~isempty(MARAParams) )
     try
-        EEG = performMaraICA(EEG, ICAParams);
+        EEG = performMARA(EEG, MARAParams);
     catch ME
-        message = ['ICA is not done on this subject, continue with the next steps: ' ...
+        message = ['MARA ICA is not done on this subject, continue with the next steps: ' ...
             ME.message];
         warning(message)
-        EEG.automagic.ica.performed = 'FAILED';
+        EEG.automagic.mara.performed = 'FAILED';
         EEG.automagic.error_msg = message;
     end
-elseif ( ~isempty(PCAParams))
-    [EEG, pca_noise] = performPCA(EEG, PCAParams);
+elseif ( ~isempty(RPCAParams))
+    [EEG, pca_noise] = performRPCA(EEG, RPCAParams);
 end
 EEG_cleared = EEG;
 
@@ -260,21 +260,21 @@ colormap jet
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
-if (~isempty(ICAParams))
-    if strcmp(EEG.automagic.ica.performed, 'FAILED')
+if (~isempty(MARAParams))
+    if strcmp(EEG.automagic.mara.performed, 'FAILED')
         title_text = '\color{red}ICA FALIED';
         cla(ica_subplot)
     else
         title_text = 'ICA corrected clean data';
     end
-elseif(~isempty(PCAParams))
-    title_text = 'PCA corrected clean data';
+elseif(~isempty(RPCAParams))
+    title_text = 'RPCA corrected clean data';
 else
     title_text = '';
 end
 title(title_text)
 %figure;
-if( ~isempty(fieldnames(PCAParams)) && (isempty(PCAParams.lambda) || PCAParams.lambda ~= -1))
+if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParams.lambda ~= -1))
     subplot(11,1,10:11)
     imagesc(pca_noise);
     colormap jet
@@ -283,7 +283,7 @@ if( ~isempty(fieldnames(PCAParams)) && (isempty(PCAParams.lambda) || PCAParams.l
     XTicketLabels = round(0:length(EEG.data)/EEG.srate/5:length(EEG.data)/EEG.srate);
     set(gca,'XTick',XTicks)
     set(gca,'XTickLabel',XTicketLabels)
-    title('PCA noise')
+    title('RPCA noise')
 end
 
 % Pot a seperate figure for only the original filtered data

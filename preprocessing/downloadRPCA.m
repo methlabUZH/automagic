@@ -1,5 +1,5 @@
-function downloadPCA()
-% downloadPCA  Download the PCA package
+function downloadRPCA()
+% downloadRPCA  Download the RPCA package
 %   It asks the user whether they want to download the package or not. If
 %   not, the preprocessing is stopped. Otherwise, in a first attepmt, the
 %   folder matlab_scripts in the parent directory is selected to download
@@ -29,11 +29,11 @@ else
 end
 
 CSTS = PreprocessingConstants;
-PCA_URL = CSTS.PCACsts.PCA_URL;
+RPCA_URL = CSTS.RPCACsts.RPCA_URL;
 
 % Ask user if they want to download the package now
-ques = 'inexact_alm_rpca is necessary for PCA. Do you want to download it now?';
-ques_title = 'PCA Requirement installation';
+ques = 'inexact_alm_rpca is necessary for RPCA. Do you want to download it now?';
+ques_title = 'RPCA Requirement installation';
 if(exist('questdlg2', 'file'))
     res = questdlg2( ques , ques_title, 'No', 'Yes', 'Yes' );
 else
@@ -41,8 +41,8 @@ else
 end
 
 if(strcmp(res, 'No'))
-   msg = ['Preprocessing failed as PCA package is not yet installed. '...
-       'Please either install it or choose not to use PCA.'];
+   msg = ['Preprocessing failed as RPCA package is not yet installed. '...
+       'Please either install it or choose not to use RPCA.'];
     if(exist('warndlg2', 'file'))
         warndlg2(msg);
     else
@@ -80,10 +80,10 @@ end
 
 % Download the package
 zip_name = [folder 'inexact_alm_rpca.zip'];  
-outfilename = websave(zip_name,PCA_URL);
+outfilename = websave(zip_name,RPCA_URL);
 unzip(outfilename,folder);
 addpath(genpath([folder 'inexact_alm_rpca' slash]));
 delete(zip_name);
-fprintf('PCA package successfully installed. Continuing preprocessing....');
+fprintf('RPCA package successfully installed. Continuing preprocessing....');
     
 end

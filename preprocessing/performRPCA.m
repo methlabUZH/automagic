@@ -1,6 +1,6 @@
-function [data, noise] = performPCA(data, varargin)
-% perform_pca  perform pca on the data 
-%   [data, noise] = perform_pca(data, params) where data is the EEGLAB data
+function [data, noise] = performRPCA(data, varargin)
+% perform_rpca  perform rpca on the data 
+%   [data, noise] = performRPCA(data, params) where data is the EEGLAB data
 %   structure. params is an optional parameter which must be a structure
 %   with optional fields 'lambda', 'tol', and 'maxIter' to specify
 %   corresponding parameters in inexact_alm_rpca.m. To learn more about
@@ -29,9 +29,10 @@ function [data, noise] = performPCA(data, varargin)
 
 [~ , m] = size(data.data);
 
-defaults = DefaultParameters.PCAParams;
-constants = PreprocessingConstants.PCACsts;
-recs = RecommendedParameters.PCAParams;
+defaults = DefaultParameters.RPCAParams;
+constants = PreprocessingConstants.RPCACsts;
+recs = RecommendedParameters.RPCAParams;
+
 % Check if defaults are not empty. If they are empty, override it with
 % defaults of inexact_alm_rpca.m: -1.
 if isempty(defaults)
@@ -45,24 +46,24 @@ addParameter(p,'maxIter', defaults.maxIter, @isnumeric);
 parse(p, varargin{:});
 
 lambda = p.Results.lambda;
-tol = p.Results.tol; %#ok<NASGU>
-maxIter = p.Results.maxIter; %#ok<NASGU>
+tol = p.Results.tol;
+maxIter = p.Results.maxIter;
 
 if( isempty( lambda) )
-    lambda = 1 / sqrt(m); %#ok<NASGU>
+    lambda = 1 / sqrt(m);
 end
 
 eeg = double(data.data)'; %#ok<NASGU>
 
-% Run robust PCA
+% Run RPCA
 display(constants.RUN_MESSAGE);
 [~, A_hat, E_hat, ~] = evalc('inexact_alm_rpca(eeg, lambda, tol, maxIter)');
 sig  = A_hat'; % data
 data.data = sig;
 noise = E_hat';  % noise
 
-data.automagic.pca.performed = 'yes';
-data.automagic.pca.lambda = lambda;
-data.automagic.pca.tol = tol;
-data.automagic.pca.maxIter = maxIter;
+data.automagic.rpca.performed = 'yes';
+data.automagic.rpca.lambda = lambda;
+data.automagic.rpca.tol = tol;
+data.automagic.rpca.maxIter = maxIter;
 end

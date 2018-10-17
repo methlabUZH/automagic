@@ -1,7 +1,7 @@
-function EEGClean = performMaraICA(data, varargin)
-% performMaraICA  perform Independent Component Analysis (ICA) on the high 
+function EEGClean = performMARA(data, varargin)
+% performMARA  perform Independent Component Analysis (ICA) on the high 
 %   passsed data. 
-%   data = performMaraICA(data, params) where data is the EEGLAB data
+%   data = performMARA(data, params) where data is the EEGLAB data
 %   structure. params is an optional parameter which must be a structure
 %   with optional fields 'chanlocMap' and 'high'.
 %   This function applies a high pass filter before the ICA. But the output
@@ -45,8 +45,8 @@ function EEGClean = performMaraICA(data, varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-defaults = DefaultParameters.ICAParams;
-CSTS = PreprocessingConstants.ICACsts;
+defaults = DefaultParameters.MARAParams;
+CSTS = PreprocessingConstants.MARACsts;
 
 %% Parse and check parameters
 p = inputParser;
@@ -83,9 +83,9 @@ intersect_labels = intersect(cellstr(CSTS.REQ_CHAN_LABELS), ...
                             {data.chanlocs.labels});
 if(length(intersect_labels) < 3)
     msg = ['The channel location system was very probably ',...
-    'wrong and ICA could not be used correctly.' '\n' 'ICA for this ',... 
+    'wrong and MARA ICA could not be used correctly.' '\n' 'MARA ICA for this ',... 
     'file is skipped.'];
-    ME = MException('Automagic:ICA:notEnoughChannels', msg);
+    ME = MException('Automagic:MARA:notEnoughChannels', msg);
     
     % Change back the labels to the original one
     if( ~ isempty(chanlocMap))
@@ -101,7 +101,7 @@ if(length(intersect_labels) < 3)
             end
         end
     end
-    data.automagic.ica.performed = 'no';
+    data.automagic.mara.performed = 'no';
     throw(ME)
 end
 
@@ -110,12 +110,12 @@ display(CSTS.RUN_MESSAGE);
 dataFiltered = data;
 if( ~isempty(high) )
     [~, dataFiltered, ~, b] = evalc('pop_eegfiltnew(data, high.freq, 0, high.order)');
-    dataFiltered.automagic.ica.highpass.performed = 'yes';
-    dataFiltered.automagic.ica.highpass.freq = high.freq;
-    dataFiltered.automagic.ica.highpass.order = length(b)-1;
-    dataFiltered.automagic.ica.highpass.transitionBandWidth = 3.3 / (length(b)-1) * dataFiltered.srate;
+    dataFiltered.automagic.mara.highpass.performed = 'yes';
+    dataFiltered.automagic.mara.highpass.freq = high.freq;
+    dataFiltered.automagic.mara.highpass.order = length(b)-1;
+    dataFiltered.automagic.mara.highpass.transitionBandWidth = 3.3 / (length(b)-1) * dataFiltered.srate;
 else
-    dataFiltered.automagic.ica.highpass.performed = 'no';
+    dataFiltered.automagic.mara.highpass.performed = 'no';
 end
         
 options = [0 1 0 0 0]; %#ok<NASGU>
@@ -131,15 +131,15 @@ options = [0 1 0 0 0]; %#ok<NASGU>
 EEGMara.data = data.data;
 EEGClean = pop_subcomp(EEGMara, []);
 
-EEGClean.automagic.ica.performed = 'yes';
-EEGClean.automagic.ica.prerejection.reject = EEGMara.reject;
-EEGClean.automagic.ica.prerejection.icaact  = EEGClean.icaact;
-EEGClean.automagic.ica.prerejection.icawinv     = EEGClean.icawinv;
-EEGClean.automagic.ica.prerejection.icaweights  = EEGClean.icaweights;
-EEGClean.automagic.ica.ICARejected = find(EEGMara.reject.gcompreject == 1);
-EEGClean.automagic.ica.retainedVariance = retVar;
-EEGClean.automagic.ica.postArtefactProb = MARAinfo.posterior_artefactprob;
-EEGClean.automagic.ica.MARAinfo = MARAinfo;
+EEGClean.automagic.mara.performed = 'yes';
+EEGClean.automagic.mara.prerejection.reject = EEGMara.reject;
+EEGClean.automagic.mara.prerejection.icaact  = EEGClean.icaact;
+EEGClean.automagic.mara.prerejection.icawinv     = EEGClean.icawinv;
+EEGClean.automagic.mara.prerejection.icaweights  = EEGClean.icaweights;
+EEGClean.automagic.mara.ICARejected = find(EEGMara.reject.gcompreject == 1);
+EEGClean.automagic.mara.retainedVariance = retVar;
+EEGClean.automagic.mara.postArtefactProb = MARAinfo.posterior_artefactprob;
+EEGClean.automagic.mara.MARAinfo = MARAinfo;
 %% Return
 % Change back the labels to the original one
 if( ~ isempty(chanlocMap))

@@ -1124,12 +1124,12 @@ end
 
 function params = make_default_params(DefaultParams)
 params.FilterParams = DefaultParams.FilterParams;
-params.ASRParams = DefaultParams.ASRParams;
+params.CRDParams = DefaultParams.CRDParams;
 params.PrepParams = DefaultParams.PrepParams;
 params.ChannelReductionParams = DefaultParams.ChannelReductionParams;
 params.EOGRegressionParams = DefaultParams.EOGRegressionParams;
-params.PCAParams = DefaultParams.PCAParams;
-params.ICAParams= DefaultParams.ICAParams;
+params.RPCAParams = DefaultParams.RPCAParams;
+params.MARAParams= DefaultParams.MARAParams;
 params.InterpolationParams = DefaultParams.InterpolationParams;
 params.EEGSystem = DefaultParams.EEGSystem;
 params.HighvarParams = DefaultParams.HighvarParams;

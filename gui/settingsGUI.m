@@ -168,21 +168,21 @@ set(handles.overalledit, 'String', mat2str(CalcQualityParams.overallThresh));
 set(handles.timeedit, 'String', mat2str(CalcQualityParams.timeThresh));
 set(handles.channelthresholdedit, 'String', mat2str(CalcQualityParams.chanThresh));
 
-set(handles.icacheckbox, 'Value', ~isempty(params.ICAParams));
-if ~isempty(params.ICAParams)
-    set(handles.largemapcheckbox, 'Value', params.ICAParams.largeMap)
-    if ~isempty(params.ICAParams.high)
+set(handles.icacheckbox, 'Value', ~isempty(params.MARAParams));
+if ~isempty(params.MARAParams)
+    set(handles.largemapcheckbox, 'Value', params.MARAParams.largeMap)
+    if ~isempty(params.MARAParams.high)
         set(handles.icahighpasscheckbox, 'Value', 1);
-        if isempty(params.ICAParams.high.order)
+        if isempty(params.MARAParams.high.order)
             set(handles.icahighpassorderedit, 'String', DEFAULT_KEYWORD);
         else
-            set(handles.icahighpassorderedit, 'String', params.ICAParams.high.order);
+            set(handles.icahighpassorderedit, 'String', params.MARAParams.high.order);
         end
         
-        if isempty(params.ICAParams.high.freq)
+        if isempty(params.MARAParams.high.freq)
             set(handles.icahighpassedit, 'String', DEFAULT_KEYWORD);
         else
-            set(handles.icahighpassedit, 'String', params.ICAParams.high.freq);
+            set(handles.icahighpassedit, 'String', params.MARAParams.high.freq);
         end
     else
         set(handles.highcheckbox, 'Value', 0);
@@ -196,46 +196,46 @@ else
     set(handles.icahighpassorderedit, 'String', '')
 end
 
-if ~isempty(params.ASRParams)
-    if( ~strcmp(params.ASRParams.Highpass, 'off'))
+if ~isempty(params.CRDParams)
+    if( ~strcmp(params.CRDParams.Highpass, 'off'))
         set(handles.asrhighcheckbox, 'Value', 1);
     else
         set(handles.asrhighcheckbox, 'Value', 0);
     end
     set(handles.asrhighedit, 'String', ...
-            mat2str(params.ASRParams.Highpass));
+            mat2str(params.CRDParams.Highpass));
         
-    if( ~strcmp(params.ASRParams.LineNoiseCriterion, 'off'))
+    if( ~strcmp(params.CRDParams.LineNoiseCriterion, 'off'))
         set(handles.linenoisecheckbox, 'Value', 1);
     else
         set(handles.linenoisecheckbox, 'Value', 0);
     end
     set(handles.linenoiseedit, 'String', ...
-            params.ASRParams.LineNoiseCriterion);
+            params.CRDParams.LineNoiseCriterion);
         
-    if( ~strcmp(params.ASRParams.ChannelCriterion, 'off'))
+    if( ~strcmp(params.CRDParams.ChannelCriterion, 'off'))
         set(handles.channelcriterioncheckbox, 'Value', 1);
     else
         set(handles.channelcriterioncheckbox, 'Value', 0);
     end
     set(handles.channelcriterionedit, 'String', ...
-            params.ASRParams.ChannelCriterion);
+            params.CRDParams.ChannelCriterion);
         
-    if( ~strcmp(params.ASRParams.BurstCriterion, 'off'))
+    if( ~strcmp(params.CRDParams.BurstCriterion, 'off'))
         set(handles.burstcheckbox, 'Value', 1);
     else
         set(handles.burstcheckbox, 'Value', 0);
     end
     set(handles.burstedit, 'String', ...
-            params.ASRParams.BurstCriterion);
+            params.CRDParams.BurstCriterion);
         
-    if( ~strcmp(params.ASRParams.WindowCriterion, 'off'))
+    if( ~strcmp(params.CRDParams.WindowCriterion, 'off'))
         set(handles.windowcheckbox, 'Value', 1);
     else
         set(handles.windowcheckbox, 'Value', 0);
     end
     set(handles.windowedit, 'String', ...
-            params.ASRParams.WindowCriterion);    
+            params.CRDParams.WindowCriterion);    
 else
     set(handles.asrhighcheckbox, 'Value', 0);
     set(handles.asrhighedit, 'String', '');
@@ -272,15 +272,15 @@ else
     set(handles.highvaredit, 'String', '');
 end
 
-if ~isempty(params.PCAParams)
+if ~isempty(params.RPCAParams)
     set(handles.pcacheckbox, 'Value', 1);
-    if( isempty(params.PCAParams.lambda))
+    if( isempty(params.RPCAParams.lambda))
         set(handles.lambdaedit, 'String', DEFAULT_KEYWORD);
     else
-        set(handles.lambdaedit, 'String', params.PCAParams.lambda);
+        set(handles.lambdaedit, 'String', params.RPCAParams.lambda);
     end
-        set(handles.toledit, 'String', params.PCAParams.tol);
-        set(handles.maxIteredit, 'String', params.PCAParams.maxIter);
+        set(handles.toledit, 'String', params.RPCAParams.tol);
+        set(handles.maxIteredit, 'String', params.RPCAParams.maxIter);
 else
     set(handles.pcacheckbox, 'Value', 0);
     set(handles.lambdaedit, 'String', '');
@@ -305,13 +305,13 @@ function handles = get_inputs(handles)
 params = handles.params;
 VisualisationParams = handles.VisualisationParams;
 
-ICAParams = params.ICAParams;
+MARAParams = params.MARAParams;
 if get(handles.icacheckbox, 'Value')
-    if isempty(ICAParams)
-        ICAParams = struct();end
-    ICAParams.largeMap = get(handles.largemapcheckbox, 'Value');
+    if isempty(MARAParams)
+        MARAParams = struct();end
+    MARAParams.largeMap = get(handles.largemapcheckbox, 'Value');
     
-    high = params.ICAParams.high;
+    high = params.MARAParams.high;
     if( get(handles.icahighpasscheckbox, 'Value'))
         if isempty(high)
             high = struct();
@@ -332,10 +332,10 @@ if get(handles.icacheckbox, 'Value')
     else
         high = struct([]);
     end
-    ICAParams.high = high;
+    MARAParams.high = high;
     clear res;
 else
-    ICAParams = struct([]);
+    MARAParams = struct([]);
 end
 
 high = params.FilterParams.high;
@@ -414,7 +414,7 @@ if ~isnan(chanThresh)
     CalcQualityParams.chanThresh = chanThresh;
 end
 
-ASRParams = params.ASRParams;
+CRDParams = params.CRDParams;
 if( get(handles.asrhighcheckbox, 'Value') )
     highpass_val = str2num(get(handles.asrhighedit, 'String'));
     if(length(highpass_val) ~= 2)
@@ -424,79 +424,79 @@ if( get(handles.asrhighcheckbox, 'Value') )
             'length 2 like [0.25 0.75]']);
     end
     if( ~isnan(highpass_val))
-        if isempty(ASRParams)
-            ASRParams = struct();
+        if isempty(CRDParams)
+            CRDParams = struct();
         end
-        ASRParams.Highpass = highpass_val; 
+        CRDParams.Highpass = highpass_val; 
     end
 else
-    if ~isempty(ASRParams)
-        ASRParams.Highpass = 'off'; end
+    if ~isempty(CRDParams)
+        CRDParams.Highpass = 'off'; end
 end
 
 if( get(handles.linenoisecheckbox, 'Value') )
     linenoise_val = str2double(get(handles.linenoiseedit, 'String'));
     if( ~isnan(linenoise_val))
-        if isempty(ASRParams)
-            ASRParams = struct();
+        if isempty(CRDParams)
+            CRDParams = struct();
         end
         
-        ASRParams.LineNoiseCriterion = linenoise_val; 
+        CRDParams.LineNoiseCriterion = linenoise_val; 
     end
 else
-    if ~isempty(ASRParams)
-        ASRParams.LineNoiseCriterion = 'off'; end
+    if ~isempty(CRDParams)
+        CRDParams.LineNoiseCriterion = 'off'; end
 end
 
 
 if( get(handles.channelcriterioncheckbox, 'Value') )
     ChannelCriterion = str2double(get(handles.channelcriterionedit, 'String'));
     if( ~isnan(ChannelCriterion))
-        if isempty(ASRParams)
-            ASRParams = struct();
+        if isempty(CRDParams)
+            CRDParams = struct();
         end
-        ASRParams.ChannelCriterion = ChannelCriterion; 
+        CRDParams.ChannelCriterion = ChannelCriterion; 
     end
 else
-    if ~isempty(ASRParams)
-        ASRParams.ChannelCriterion = 'off'; end
+    if ~isempty(CRDParams)
+        CRDParams.ChannelCriterion = 'off'; end
 end
 
 
 if( get(handles.burstcheckbox, 'Value') )
     BurstCriterion = str2double(get(handles.burstedit, 'String'));
     if ~isnan(BurstCriterion)
-        if isempty(ASRParams)
-            ASRParams = struct();
+        if isempty(CRDParams)
+            CRDParams = struct();
         end
-        ASRParams.BurstCriterion = BurstCriterion; 
+        CRDParams.BurstCriterion = BurstCriterion; 
     end
 else
-    if ~isempty(ASRParams)
-        ASRParams.BurstCriterion = 'off'; end
+    if ~isempty(CRDParams)
+        CRDParams.BurstCriterion = 'off'; end
 end
 
 
 if( get(handles.windowcheckbox, 'Value') )
     WindowCriterion = str2double(get(handles.windowedit, 'String'));
     if ~isnan(WindowCriterion)
-        if isempty(ASRParams)
-            ASRParams = struct();
+        if isempty(CRDParams)
+            CRDParams = struct();
         end
-        ASRParams.WindowCriterion = WindowCriterion; 
+        CRDParams.WindowCriterion = WindowCriterion; 
     end
 else
-    if ~isempty(ASRParams)
-        ASRParams.WindowCriterion = 'off'; end
+    if ~isempty(CRDParams)
+        CRDParams.WindowCriterion = 'off'; end
 end
 
-if (    ~isempty(ASRParams) && ...
-        strcmp(ASRParams.LineNoiseCriterion, 'off') && ...
-        strcmp(ASRParams.ChannelCriterion, 'off') && ...
-        strcmp(ASRParams.BurstCriterion, 'off') && ...
-        strcmp(ASRParams.WindowCriterion, 'off') && ... 
-        strcmp(ASRParams.Highpass, 'off'))
-    ASRParams = struct([]);
+if (    ~isempty(CRDParams) && ...
+        strcmp(CRDParams.LineNoiseCriterion, 'off') && ...
+        strcmp(CRDParams.ChannelCriterion, 'off') && ...
+        strcmp(CRDParams.BurstCriterion, 'off') && ...
+        strcmp(CRDParams.WindowCriterion, 'off') && ... 
+        strcmp(CRDParams.Highpass, 'off'))
+    CRDParams = struct([]);
 end
 
 PrepParams = params.PrepParams;
@@ -532,30 +532,30 @@ else
     HighvarParams = struct([]);
 end
 
-PCAParams = params.PCAParams;
+RPCAParams = params.RPCAParams;
 if( get(handles.pcacheckbox, 'Value') )
     lambda = str2double(get(handles.lambdaedit, 'String'));
     tol = str2double(get(handles.toledit, 'String'));
     maxIter = str2double(get(handles.maxIteredit, 'String'));
-    if isempty(PCAParams)
-        PCAParams = struct(); end
+    if isempty(RPCAParams)
+        RPCAParams = struct(); end
     if ~isnan(lambda)
-        PCAParams.lambda = lambda;
+        RPCAParams.lambda = lambda;
     else
-        PCAParams.lambda = [];
+        RPCAParams.lambda = [];
     end
     if ~isnan(tol)
-        PCAParams.tol = tol;
+        RPCAParams.tol = tol;
     else
-        PCAParams.tol = [];
+        RPCAParams.tol = [];
     end
     if ~isnan(maxIter)
-        PCAParams.maxIter = maxIter;
+        RPCAParams.maxIter = maxIter;
     else
-        PCAParams.maxIter = [];
+        RPCAParams.maxIter = [];
     end
 else
-    PCAParams = struct([]);
+    RPCAParams = struct([]);
 end
 
 idx = get(handles.interpolationpopupmenu, 'Value');
@@ -589,12 +589,12 @@ handles.VisualisationParams.CalcQualityParams = CalcQualityParams;
 handles.params.FilterParams.high = high;
 handles.params.FilterParams.low = low;
 handles.params.FilterParams.notch = notch;
-handles.params.ASRParams = ASRParams;
+handles.params.CRDParams = CRDParams;
 handles.params.EOGRegressionParams = EOGRegressionParams;
 handles.params.PrepParams = PrepParams;
 handles.params.HighvarParams = HighvarParams;
-handles.params.PCAParams = PCAParams;
-handles.params.ICAParams = ICAParams;
+handles.params.RPCAParams = RPCAParams;
+handles.params.MARAParams = MARAParams;
 handles.params.InterpolationParams.method = method;
 
 function handles = switch_components(handles)
@@ -725,7 +725,7 @@ function linenoisecheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
-    set(handles.linenoiseedit, 'String', recs.ASRParams.LineNoiseCriterion)
+    set(handles.linenoiseedit, 'String', recs.CRDParams.LineNoiseCriterion)
 end
 handles = switch_components(handles);
 % Update handles structure
@@ -740,7 +740,7 @@ function burstcheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
-    set(handles.burstedit, 'String', recs.ASRParams.BurstCriterion)
+    set(handles.burstedit, 'String', recs.CRDParams.BurstCriterion)
     
     % Warn the user if two filterings are about to happen
     if( get(handles.asrhighcheckbox, 'Value') && get(handles.highcheckbox, 'Value') &&...
@@ -764,7 +764,7 @@ function channelcriterioncheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
-    set(handles.channelcriterionedit, 'String', recs.ASRParams.ChannelCriterion)
+    set(handles.channelcriterionedit, 'String', recs.CRDParams.ChannelCriterion)
 end
 handles = switch_components(handles);
 % Update handles structure
@@ -782,13 +782,13 @@ if(get(handles.pcacheckbox, 'Value') && get(handles.icacheckbox, 'Value'))
 end
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
-    if isempty(recs.PCAParams.lambda)
+    if isempty(recs.RPCAParams.lambda)
         set(handles.lambdaedit, 'String', handles.CGV.DEFAULT_KEYWORD)
     else
-        set(handles.lambdaedit, 'String', mat2str(recs.PCAParams.lambda))
+        set(handles.lambdaedit, 'String', mat2str(recs.RPCAParams.lambda))
     end
-    set(handles.toledit, 'String', mat2str(recs.PCAParams.tol))
-    set(handles.maxIteredit, 'String', mat2str(recs.PCAParams.maxIter))
+    set(handles.toledit, 'String', mat2str(recs.RPCAParams.tol))
+    set(handles.maxIteredit, 'String', mat2str(recs.RPCAParams.maxIter))
 end
 handles = switch_components(handles);
 % Update handles structure
@@ -806,10 +806,10 @@ if(get(handles.pcacheckbox, 'Value') && get(handles.icacheckbox, 'Value'))
 end
 
 if (get(hObject,'Value') == get(hObject,'Max'))
-    if ~isempty(handles.CGV.RecParams.ICAParams.high)
+    if ~isempty(handles.CGV.RecParams.MARAParams.high)
         set(handles.icahighpasscheckbox, 'Value', 1);
-        val = num2str((handles.CGV.RecParams.ICAParams.high.freq));
-        val_order = num2str((handles.CGV.RecParams.ICAParams.high.order));
+        val = num2str((handles.CGV.RecParams.MARAParams.high.freq));
+        val_order = num2str((handles.CGV.RecParams.MARAParams.high.order));
         set(handles.icahighpassedit, 'String', val)
         if( isempty( val_order) )
             set(handles.icahighpassorderedit, 'String', handles.CGV.DEFAULT_KEYWORD);
@@ -1187,7 +1187,7 @@ function windowcheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
-    set(handles.windowedit, 'String', mat2str(recs.ASRParams.WindowCriterion))
+    set(handles.windowedit, 'String', mat2str(recs.CRDParams.WindowCriterion))
     
     % Warn the user if two filterings are about to happen
     if( get(handles.asrhighcheckbox, 'Value') && get(handles.highcheckbox, 'Value') &&...
@@ -1461,7 +1461,7 @@ function asrhighcheckbox_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of asrhighcheckbox
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
-    set(handles.asrhighedit, 'String', mat2str(recs.ASRParams.Highpass))
+    set(handles.asrhighedit, 'String', mat2str(recs.CRDParams.Highpass))
     
     % Warn the user if two filterings are about to happen
     if( get(handles.asrhighcheckbox, 'Value') && ...
@@ -1817,8 +1817,8 @@ function icahighpasscheckbox_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of icahighpasscheckbox
 if (get(hObject,'Value') == get(hObject,'Max'))
-    val = num2str((handles.CGV.RecParams.ICAParams.high.freq));
-    val_order = num2str((handles.CGV.RecParams.ICAParams.high.order));
+    val = num2str((handles.CGV.RecParams.MARAParams.high.freq));
+    val_order = num2str((handles.CGV.RecParams.MARAParams.high.order));
     set(handles.icahighpassedit, 'String', val)
     if( isempty( val_order) )
         set(handles.icahighpassorderedit, 'String', handles.CGV.DEFAULT_KEYWORD);

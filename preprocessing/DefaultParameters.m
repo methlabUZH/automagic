@@ -2,6 +2,12 @@ classdef DefaultParameters
     %DefaultParameters is a class containing default parameters for
     %   different preprocessing steps.
     %
+    %   struct([]) desactivate the corresponding operation.
+    %   struct() will be the default parameters used in the corresponding
+    %   operation.
+    %   If a field has [] as value, then the default value in the 
+    %   corresponding function is used.
+    %
     % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
     % 
     % This program is free software: you can redistribute it and/or modify
@@ -18,36 +24,36 @@ classdef DefaultParameters
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     properties(Constant)          
        FilterParams = struct('notch',    struct([]),...
-                              'high',     struct([]),... % Default
-                              'low',      struct([]))      % Deactivated
+                             'high',     struct([]),...
+                             'low',      struct([]))
                             
-        ASRParams = struct([]);
+        CRDParams = struct([]);             % Clean raw data parameters
         
-        PrepParams = struct();                           % Deactivated
+        PrepParams = struct();
         
         HighvarParams = struct([]);
         
         InterpolationParams = struct('method', 'spherical');
         
-        PCAParams = struct([]);                            % Deactivated
+        RPCAParams = struct([]);
         
-        ICAParams = struct('chanlocMap', containers.Map, ...
+        MARAParams = struct('chanlocMap', containers.Map, ...
                             'largeMap',   0, ...
-                            'high',        struct('freq', 1.0,...
-                                                  'order', []))
+                            'high',       struct('freq', 1.0,...
+                                                 'order', []))
                     
         EOGRegressionParams = struct('performEOGRegression', 1, ...
                                      'eogChans', '');
                         
         ChannelReductionParams = struct('performReduceChannels', 1, ...
-                                          'tobeExcludedChans', '');
+                                        'tobeExcludedChans', '');
                                       
                                       
         EEGSystem = struct('name', 'EGI',...
-                            'sys10_20', 0, ...
-                            'locFile', '', ...
-                            'refChan', [], ...
-                            'fileLocType', '');
+                           'sys10_20', 0, ...
+                           'locFile', '', ...
+                           'refChan', [], ...
+                           'fileLocType', '');
                         
     end
 end

@@ -1,7 +1,7 @@
-function downloadASR()
-% downloadASR  Download the ASR package
+function downloadPREP()
+% downloadPREP  Download the Prep (Robust Average Referencing) package
 %   It asks the user whether they want to download the package or not. If
-%   not, the preprocessing is stopped. Otherwise, in a first attepmt, the
+%   not, the preprocessing is stopped. Otherwise, in a first attempt, the
 %   folder matlab_scripts in the parent directory is selected to download
 %   the package into it. If the folder does not exist, the user is asked to
 %   select a folder in which the package will be downloaded.
@@ -21,7 +21,6 @@ function downloadASR()
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-
 % System dependence:
 if(ispc)
     slash = '\';
@@ -30,12 +29,12 @@ else
 end
 
 CSTS = PreprocessingConstants;
-ASR_URL = CSTS.ASRCsts.ASR_URL;
+PREP_URL = CSTS.PrepCsts.PREP_URL;
 
 % Ask user if they want to download the package now
-ques = ['clean_artifacts.m is necessary for Artifact Subspace '...
-    'Reconstruction. Do you want to download it now?'];
-ques_title = 'Artifact Subspace Reconstruction Requirement installation';
+ques = ['performReference.m is necessary for PREP Robust Average Referencing.'...
+    ' Do you want to download it now?'];
+ques_title = 'PREP Robust Average Referencing Requirement installation';
 if(exist('questdlg2', 'file'))
     res = questdlg2( ques , ques_title, 'No', 'Yes', 'Yes' );
 else
@@ -43,7 +42,8 @@ else
 end
 
 if(strcmp(res, 'No'))
-   msg = 'Preprocessing failed as ASR package is not yet installed.';
+   msg = ['Preprocessing failed as PREP package is not yet installed.'...
+       ' Please either isntall it or choose not to use PREP.'];
     if(exist('warndlg2', 'file'))
         warndlg2(msg);
     else
@@ -81,12 +81,12 @@ folder = ['.' slash 'matlab_scripts' slash];
 % end
 
 % Download the package
-zip_name = [folder 'asr.zip'];  
-outfilename = websave(zip_name, ASR_URL);
-unzip(outfilename,strcat(folder, 'artifact_subspace_reconstruction/'));
-addpath(genpath(strcat(folder, 'artifact_subspace_reconstruction/')));
+zip_name = [folder 'VisLab-EEG-Clean-Tools.zip'];  
+outfilename = websave(zip_name, PREP_URL);
+unzip(outfilename,strcat(folder, 'VisLab-EEG-Clean-Tools/'));
+addpath(genpath(strcat(folder, 'VisLab-EEG-Clean-Tools/')));
 delete(zip_name);
-fprintf(['Artifact Subspace Reconstruction package successfully installed.'...
+fprintf(['PREP Robust Average Referencing package successfully installed.'...
     ' Continuing preprocessing....']);
     
 end

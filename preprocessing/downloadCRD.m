@@ -1,5 +1,5 @@
-function downloadRAR()
-% downloadRAR  Download the Prep (Robust Average Referencing) package
+function downloadCRD()
+% downloadCRD  Download the cleanrawdata() package
 %   It asks the user whether they want to download the package or not. If
 %   not, the preprocessing is stopped. Otherwise, in a first attepmt, the
 %   folder matlab_scripts in the parent directory is selected to download
@@ -21,6 +21,7 @@ function downloadRAR()
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 % System dependence:
 if(ispc)
     slash = '\';
@@ -29,12 +30,12 @@ else
 end
 
 CSTS = PreprocessingConstants;
-RAR_URL = CSTS.PrepCsts.RAR_URL;
+CRD_URL = CSTS.CRDCsts.CRD_URL;
 
 % Ask user if they want to download the package now
-ques = ['performReference.m is necessary for Robust Average Referencing.'...
-    ' Do you want to download it now?'];
-ques_title = 'Robust Average Referencing Requirement installation';
+ques = ['clean_artifacts.m is necessary for cleanrawdata() '...
+    'Do you want to download it now?'];
+ques_title = 'cleanrawdata() Requirement installation';
 if(exist('questdlg2', 'file'))
     res = questdlg2( ques , ques_title, 'No', 'Yes', 'Yes' );
 else
@@ -42,8 +43,7 @@ else
 end
 
 if(strcmp(res, 'No'))
-   msg = ['Preprocessing failed as RAR package is not yet installed.'...
-       ' Please either isntall it or choose not to use RAR.'];
+   msg = 'Preprocessing failed as cleanrawdata() package is not yet installed.';
     if(exist('warndlg2', 'file'))
         warndlg2(msg);
     else
@@ -81,12 +81,12 @@ folder = ['.' slash 'matlab_scripts' slash];
 % end
 
 % Download the package
-zip_name = [folder 'VisLab-EEG-Clean-Tools.zip'];  
-outfilename = websave(zip_name, RAR_URL);
-unzip(outfilename,strcat(folder, 'VisLab-EEG-Clean-Tools/'));
-addpath(genpath(strcat(folder, 'VisLab-EEG-Clean-Tools/')));
+zip_name = [folder 'asr.zip'];  
+outfilename = websave(zip_name, CRD_URL);
+unzip(outfilename,strcat(folder, 'crd/'));
+addpath(genpath(strcat(folder, 'crd/')));
 delete(zip_name);
-fprintf(['Robust Average Referencing package successfully installed.'...
+fprintf(['cleanrawdata() package successfully installed.'...
     ' Continuing preprocessing....']);
     
 end

@@ -7,8 +7,8 @@ function parts = downloadAndAddPaths(varargin)
 %   
 %   parts = downloadAndAddPaths(varargin)
 %   Where varargin is an optional parameter. When given, it should be a
-%   struct with optional fields PrepParams and PCAParams corresponding to
-%   PREP parameters and PCA parameters.
+%   struct with optional fields PrepParams and CRDParams corresponding to
+%   PREP parameters and cleanrawdatA() parameters.
 %   
 %   If varargin is ommited, default values are used. If any fields of
 %   varargin is ommited, corresponsing default value is used. Please see
@@ -34,24 +34,24 @@ function parts = downloadAndAddPaths(varargin)
 defaults = DefaultParameters;
 p = inputParser;
 addParameter(p,'PrepParams', defaults.PrepParams, @isstruct);
-addParameter(p,'PCAParams', defaults.PCAParams, @isstruct);
+addParameter(p,'CRDParams', defaults.CRDParams, @isstruct);
 parse(p, varargin{:});
 PrepParams = p.Results.PrepParams;
-PCAParams = p.Results.PCAParams;
+CRDParams = p.Results.CRDParams;
 
 parts = [];
 if(~exist('pop_fileio', 'file'))
     parts = addEEGLab();
 end
 
-% Check and download if Robust Average Referencing does not exist
+% Check and download if PREP does not exist
 if( ~isempty(PrepParams) && ~ exist('performReference.m', 'file'))
-    downloadRAR();
+    downloadPREP();
 end
 
-% Check and download if Artifact Subspace Reconstruction does not exist
-if( ~ exist('clean_artifacts.m', 'file'))
-    downloadASR();
+% Check and download if cleanrawdata() does not exist
+if( ~isempty(CRDParams) && ~ exist('clean_artifacts.m', 'file'))
+    downloadCRD();
 end
     
 end

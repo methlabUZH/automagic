@@ -206,10 +206,10 @@ classdef Project < handle
             addParameter(p,'EEGSystem', defs.EEGSystem, @isstruct);
             addParameter(p,'FilterParams', defs.FilterParams, @isstruct);
             addParameter(p,'PrepParams', defs.PrepParams, @isstruct);
-            addParameter(p,'ASRParams', defs.ASRParams, @isstruct);
-            addParameter(p,'PCAParams', defs.PCAParams, @isstruct);
+            addParameter(p,'CRDParams', defs.CRDParams, @isstruct);
+            addParameter(p,'RPCAParams', defs.RPCAParams, @isstruct);
             addParameter(p,'HighvarParams', defs.HighvarParams, @isstruct);
-            addParameter(p,'ICAParams', defs.ICAParams, @isstruct);
+            addParameter(p,'MARAParams', defs.MARAParams, @isstruct);
             addParameter(p,'InterpolationParams', defs.InterpolationParams, @isstruct);
             addParameter(p,'EOGRegressionParams', defs.EOGRegressionParams, @isstruct);
             addParameter(p,'ChannelReductionParams', defs.ChannelReductionParams, @isstruct);

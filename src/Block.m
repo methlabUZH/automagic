@@ -518,9 +518,9 @@ classdef Block < handle
                 end
             end
             
-            if(isfield(automagic, 'asr'))
-                if strcmp(automagic.asr.performed, 'yes')
-                    pars = automagic.asr.params;
+            if(isfield(automagic, 'crd'))
+                if strcmp(automagic.crd.performed, 'yes')
+                    pars = automagic.crd.params;
 
                     fprintf(fileID, sprintf(text.clean_rawdata.desc));
                     if ~ strcmp(pars.Highpass , 'off')
@@ -570,8 +570,8 @@ classdef Block < handle
                 fprintf(fileID, sprintf(text.badchans.prep, length(automagic.prep.badChans)));
             end
             
-            if strcmp(automagic.asr.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.asr, length(automagic.asr.badChans)));
+            if strcmp(automagic.crd.performed, 'yes')
+                fprintf(fileID, sprintf(text.badchans.crd, length(automagic.crd.badChans)));
             end
             
             if strcmp(automagic.highVarianceRejection.performed, 'yes')
@@ -586,26 +586,26 @@ classdef Block < handle
                 end
             end
             
-            if(isfield(automagic, 'ica'))
-                if strcmp(automagic.ica.performed, 'yes')
-                    pars = automagic.ica;
-                    fprintf(fileID, sprintf(text.ica.desc));
+            if(isfield(automagic, 'mara'))
+                if strcmp(automagic.mara.performed, 'yes')
+                    pars = automagic.mara;
+                    fprintf(fileID, sprintf(text.mara.desc));
                     
                     if strcmp(pars.highpass.performed, 'yes')
-                        fprintf(fileID, sprintf(text.ica.filtering, pars.highpass.freq, pars.highpass.order, pars.highpass.transitionBandWidth));
+                        fprintf(fileID, sprintf(text.mara.filtering, pars.highpass.freq, pars.highpass.order, pars.highpass.transitionBandWidth));
                     end
                     
-                    fprintf(fileID, sprintf(text.ica.reject, length(pars.ICARejected), pars.retainedVariance));
-                    fprintf(fileID, sprintf(text.ica.remove));
+                    fprintf(fileID, sprintf(text.mara.reject, length(pars.ICARejected), pars.retainedVariance));
+                    fprintf(fileID, sprintf(text.mara.remove));
                     fprintf(fileID, '\n');
                 end
             end
             
-            if(isfield(automagic, 'pca'))
-                if strcmp(automagic.pca.performed, 'yes')
-                    pars = automagic.pca;
-                    fprintf(fileID, sprintf(text.pca.desc));
-                    fprintf(fileID, sprintf(text.pca.params, pars.lambda, pars.tol, pars.maxIter));
+            if(isfield(automagic, 'rpca'))
+                if strcmp(automagic.rpca.performed, 'yes')
+                    pars = automagic.rpca;
+                    fprintf(fileID, sprintf(text.rpca.desc));
+                    fprintf(fileID, sprintf(text.rpca.params, pars.lambda, pars.tol, pars.maxIter));
                     fprintf(fileID, '\n');
                 end
             end
