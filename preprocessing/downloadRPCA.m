@@ -29,7 +29,7 @@ else
 end
 
 CSTS = PreprocessingConstants;
-RPCA_URL = CSTS.RPCACsts.RPCA_URL;
+URL = CSTS.RPCACsts.URL;
 
 % Ask user if they want to download the package now
 ques = 'inexact_alm_rpca is necessary for RPCA. Do you want to download it now?';
@@ -51,37 +51,12 @@ if(strcmp(res, 'No'))
     return; 
 end
 
-% Choose the folder in which the package gets downloaded
-folder = pwd;
-if(regexp(folder, 'gui'))
-    folder = ['..' slash 'matlab_scripts' slash];
-elseif(regexp(folder, 'eeglab'))
-    folder = ['plugins' slash 'automagic' slash 'matlab_scripts' slash];
-else
-  while(isempty(regexp(folder, 'gui', 'once')) && ...
-        isempty(regexp(folder, 'eeglab', 'once')))
-
-    msg = ['For the installation, please choose the root folder of the'...
-        ' EEGLAB: your_path/eeglab or the gui folder of the automagic: '...
-        'your_path/automagic/gui/'];
-    if(exist('warndlg2', 'file'))
-        warndlg2(msg);
-    else
-        warndlg(msg);
-    end
-    folder = uigetdir(pwd, msg);
-
-    if(isempty(folder))
-        return;
-    end
-
-  end
-end
+folder = ['.' slash 'matlab_scripts' slash];
 
 % Download the package
 zip_name = [folder 'inexact_alm_rpca.zip'];  
-outfilename = websave(zip_name,RPCA_URL);
-unzip(outfilename,folder);
+outfilename = websave(zip_name, URL);
+unzip(outfilename, folder);
 addpath(genpath([folder 'inexact_alm_rpca' slash]));
 delete(zip_name);
 fprintf('RPCA package successfully installed. Continuing preprocessing....');

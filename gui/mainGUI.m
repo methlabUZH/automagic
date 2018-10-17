@@ -240,7 +240,7 @@ name = names{Index};
 if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     handles.VisualisationParams.CalcQualityParams = handles.CGV.DefaultVisualisationParams.CalcQualityParams;
     handles.VisualisationParams.dsRate = handles.CGV.DefaultVisualisationParams.dsRate;
-    handles.params = make_default_params(handles.CGV.DefaultParams);
+    handles.params = makeDefaultParams(handles.CGV.DefaultParams);
     set(handles.projectname, 'String', handles.CGV.NEW_PROJECT.NAME);
     set(handles.datafoldershow, 'String', handles.CGV.NEW_PROJECT.DATA_FOLDER);
     set(handles.projectfoldershow, 'String', handles.CGV.NEW_PROJECT.FOLDER);
@@ -251,8 +251,7 @@ if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     set(handles.fpreprocessednumber, 'String', '')
     set(handles.ratednumber, 'String', '')
     set(handles.interpolatenumber, 'String', '')
-    set(handles.excludecheckbox, 'Value', ...
-        handles.params.ChannelReductionParams.performReduceChannels);
+    set(handles.excludecheckbox, 'Value', ~isempty(handles.params.ChannelReductionParams));
     set(handles.extedit, 'String', '')
     set(handles.srateedit, 'String', '')
     set(handles.checkbox1020, 'Value', 0)
@@ -406,7 +405,7 @@ set(handles.interpolatenumber, 'String', ...
     [num2str(interpolate_count), ' subjects to interpolate'])
 
 % Set reduce channel checkbox
-set(handles.excludecheckbox, 'Value', ChannelReductionParams.performReduceChannels);
+set(handles.excludecheckbox, 'Value', ~isempty(ChannelReductionParams));
 
 % Disable modifications from gui
 switch_gui('off', 'on', handles);
@@ -717,10 +716,15 @@ end
     
 
 % Get reduce checkbox
-handles.params.ChannelReductionParams.performReduceChannels = ...
-    get(handles.excludecheckbox, 'Value');
-handles.params.ChannelReductionParams.tobeExcludedChans = ...
-    str2num(get(handles.excludeedit, 'String'));
+if get(handles.excludecheckbox, 'Value')
+   handles.params.ChannelReductionParams = struct();
+
+    handles.params.ChannelReductionParams.tobeExcludedChans = ...
+        str2num(get(handles.excludeedit, 'String'));
+else
+    handles.params.ChannelReductionParams = struct([]);
+end
+
 if( ~ get(handles.egiradio, 'Value') && ...
         get(handles.excludecheckbox, 'Value') && ...
         isempty(get(handles.excludeedit, 'String')))
@@ -730,17 +734,8 @@ if( ~ get(handles.egiradio, 'Value') && ...
     return;
 end
 
-% Check EOG regression
-EOGParams = handles.params.EOGRegressionParams;
-if( ~get(handles.egiradio, 'Value') && EOGParams.performEOGRegression && ...
-        isempty(EOGParams.eogChans))
-    popup_msg(['A list of channel indices seperated by space or',...
-        ' comma must be given to determine EOG channels'],...
-        'Error');
-    return;
-end
-
 % Get the EEG system
+EEGSystem = handles.params.EEGSystem;
 if ~ get(handles.egiradio, 'Value')
    EEGSystem.name = CGV.PreprocessingCsts.EEGSystemCsts.OTHERS_NAME;
    EEGSystem.locFile = get(handles.chanlocedit, 'String');
@@ -768,6 +763,16 @@ if ~ get(handles.egiradio, 'Value')
    handles.params.EEGSystem = EEGSystem;
 end
 handles.params.EEGSystem.sys10_20 = get(handles.checkbox1020, 'Value');
+
+% Check EOG regression
+EOGParams = handles.params.EOGRegressionParams;
+if( ~get(handles.egiradio, 'Value') && ~isempty(EOGParams) && ...
+        isempty(EEGSystem.eogChans))
+    popup_msg(['A list of channel indices seperated by space or',...
+        ' comma must be given to determine EOG channels'],...
+        'Error');
+    return;
+end
 
 params = handles.params;
 VisualisationParams = handles.VisualisationParams;
@@ -1086,7 +1091,7 @@ switch EEGSystem.name
         set(handles.newreferenceradio, 'enable', 'off')
         set(handles.hasreferenceradio, 'enable', 'off')
         set(handles.hasreferenceedit, 'enable', 'off')
-        handles.params.ChannelReductionParams.performReduceChannels = 1;
+        handles.params.ChannelReductionParams = struct();
     case 'Others'
         set(handles.othersysradio, 'Value', 1);
         set(handles.egiradio, 'Value', 0);
@@ -1094,13 +1099,15 @@ switch EEGSystem.name
         set(handles.chanlocedit, 'String', EEGSystem.locFile);
         if(get(handles.excludecheckbox, 'Value'))
            set(handles.excludeedit, 'enable', 'on'); 
-           set(handles.excludeedit, 'String', ...
-               num2str(ChannelReductionParams.tobeExcludedChans));
         end
         set(handles.loctypeedit, 'enable', 'on');
         set(handles.loctypeedit, 'String', EEGSystem.fileLocType);
-        set(handles.excludeedit, 'String', ...
-            num2str(ChannelReductionParams.tobeExcludedChans));
+        if isfield(ChannelReductionParams, 'tobeExcludedChans')
+            set(handles.excludeedit, 'String', ...
+                num2str(ChannelReductionParams.tobeExcludedChans));
+        else
+            set(handles.excludeedit, 'String', num2str([]));
+        end
         set(handles.choosechannelloc, 'enable', 'on');
         
         if(isempty(EEGSystem.refChan))
@@ -1118,11 +1125,11 @@ switch EEGSystem.name
         if(get(handles.hasreferenceradio, 'Value'))
             set(handles.hasreferenceedit, 'enable', 'on')
         end
-        handles.params.ChannelReductionParams.performReduceChannels = 0;
+        handles.params.ChannelReductionParams = struct([]);
 end
 
 
-function params = make_default_params(DefaultParams)
+function params = makeDefaultParams(DefaultParams)
 params.FilterParams = DefaultParams.FilterParams;
 params.CRDParams = DefaultParams.CRDParams;
 params.PrepParams = DefaultParams.PrepParams;
@@ -1132,6 +1139,7 @@ params.RPCAParams = DefaultParams.RPCAParams;
 params.MARAParams= DefaultParams.MARAParams;
 params.InterpolationParams = DefaultParams.InterpolationParams;
 params.EEGSystem = DefaultParams.EEGSystem;
+params.Settings = DefaultParams.Settings;
 params.HighvarParams = DefaultParams.HighvarParams;
 
 % --- Executes on button press in egiradio.

@@ -1,4 +1,4 @@
-function regressed = performEOGRegression(EEG, EOG)
+function regressed = performEOGRegression(EEG, EOG, varargin)
 % performEOGRegression  perform EOG regression from EOG channels
 %   Both EEG and EOG are EEGLAB data structure.
 %
@@ -16,6 +16,10 @@ function regressed = performEOGRegression(EEG, EOG)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+regressed.automagic.EOGRegression.performed = 'no';
+if isempty(varargin)
+    return; end
 
 CSTS = PreprocessingConstants.EOGRegressionCsts;
 display(CSTS.RUN_MESSAGE);

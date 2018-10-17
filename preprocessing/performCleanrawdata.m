@@ -39,7 +39,7 @@ function [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, varargin)
 
 EEG_out = EEG_in;
 EOG_out = EOG_in;
-EEG_out.automagic.asr.performed = 'no';
+EEG_out.automagic.crd.performed = 'no';
 if isempty(varargin{:})
     return; end
 

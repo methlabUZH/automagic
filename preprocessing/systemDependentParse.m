@@ -1,7 +1,6 @@
 function [EEG, EOG, EEGSystem, MARAParams] = ...
                         systemDependentParse(data, EEGSystem, ...
-                        ChannelReductionParams, EOGRegressionParams, ...
-                        MARAParams, ORIGINAL_FILE) %#ok<INUSD>
+                        ChannelReductionParams, MARAParams, ORIGINAL_FILE) %#ok<INUSD>
 % systemDependentParse parse EEG input depending on the EEG system.
 %   This function prepares the input for preprocessing. It makes sure that
 %   the correct channel location field is a part of the input EEG. In
@@ -31,10 +30,8 @@ function [EEG, EOG, EEGSystem, MARAParams] = ...
 %   of that file. Please see pop_chanedit for more information. Obviously 
 %   only types supported by pop_chanedit are supported.
 %
-%   ChannelReductionParams.performReduceChannels must be a boolean 
-%   indicating whether to reduce the number of channels or not. The 
-%   default value is 'ChannelReductionParams.performReduceChannels = 1'
-%   ChannelReductionParams.tobeExcludedChans must be an array of 
+%   ChannelReductionParams has a field 
+%   ChannelReductionParams.tobeExcludedChanswhich is an array of 
 %   numbers indicating indices of the channels to be excluded from the 
 %   analysis
 %
@@ -66,7 +63,27 @@ function [EEG, EOG, EEGSystem, MARAParams] = ...
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Csts = PreprocessingConstants;
-  
+
+% Get the exclude channel list
+defaults = DefaultParameters.ChannelReductionParams;
+recs = RecommendedParameters.ChannelReductionParams;
+if isempty(defaults) || ~isfield(defaults, 'tobeExcludedChans')
+    defaults = recs;
+end
+if ~isfield(ChannelReductionParams, 'tobeExcludedChans')
+    tobeExcludedChans = defaults.tobeExcludedChans;
+end
+
+% Get the eog channel list
+defaults = DefaultParameters.EEGSystem;
+recs = RecommendedParameters.EEGSystem;
+if isempty(defaults) || ~isfield(defaults, 'eogChans')
+    defaults = recs;
+end
+if ~isfield(EEGSystem, 'eogChans')
+    eog_channels = defaults.EEGSystem.eogChans;
+end
+
 % Add the 10_20 file to EEGSystem
 parts = addEEGLab();
 if(~isempty(parts)) 
@@ -100,8 +117,6 @@ if (~isempty(EEGSystem.name) && ...
         end
     end
     all_chans = 1:data.nbchan;
-    tobeExcludedChans = ChannelReductionParams.tobeExcludedChans;
-    eog_channels = EOGRegressionParams.eogChans;
     eeg_channels = setdiff(all_chans, union(eog_channels, tobeExcludedChans));
     clear tobeExcludedChans all_chans;
     
@@ -121,7 +136,7 @@ if (~isempty(EEGSystem.name) && ...
 elseif(~isempty(EEGSystem.name) && ...
         strcmp(EEGSystem.name, Csts.EEGSystemCsts.EGI_NAME))
     
-    if( ChannelReductionParams.performReduceChannels )
+    if( ~isempty(ChannelReductionParams))
         chan128 = [2 3 4 5 6 7 9 10 11 12 13 15 16 18 19 20 22 23 24 26 27 ...
             28 29 30 31 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 50 51 ...
             52 53 54 55 57 58 59 60 61 62 64 65 66 67 69 70 71 72 74 75 76 ...
@@ -330,8 +345,6 @@ else
        error('data.chanlocs is necessary for interpolation.');
    end
     all_chans = 1:data.nbchan;
-    eog_channels = EOGRegressionParams.eogChans;
-    tobeExcludedChans = ChannelReductionParams.tobeExcludedChans;
     eeg_channels = setdiff(all_chans, union(eog_channels, tobeExcludedChans));
     clear tobeExcludedChans all_chans;
 end

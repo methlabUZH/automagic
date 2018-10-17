@@ -30,7 +30,7 @@ else
 end
 
 CSTS = PreprocessingConstants;
-CRD_URL = CSTS.CRDCsts.CRD_URL;
+URL = CSTS.CRDCsts.URL;
 
 % Ask user if they want to download the package now
 ques = ['clean_artifacts.m is necessary for cleanrawdata() '...
@@ -52,37 +52,12 @@ if(strcmp(res, 'No'))
     return; 
 end
 
-% Choose the folder in which the package gets downloaded
+
 folder = ['.' slash 'matlab_scripts' slash];
-% folder = pwd;
-% if(regexp(folder, 'gui'))
-%     folder = ['..' slash 'matlab_scripts' slash];
-% elseif(regexp(folder, 'eeglab'))
-%     folder = ['plugins' slash 'automagic' slash 'matlab_scripts' slash];
-% else
-%   while(isempty(regexp(folder, 'gui', 'once')) && ...
-%         isempty(regexp(folder, 'eeglab', 'once')))
-% 
-%     msg = ['For the installation, please choose the root folder of the'...
-%         ' EEGLAB: your_path/eeglab or the gui folder of the automagic: '...
-%         'your_path/automagic/gui/'];
-%     if(exist('warndlg2', 'file'))
-%         warndlg2(msg);
-%     else
-%         warndlg(msg);
-%     end
-%     folder = uigetdir(pwd, msg);
-% 
-%     if(isempty(folder))
-%         return;
-%     end
-% 
-%   end
-% end
 
 % Download the package
 zip_name = [folder 'asr.zip'];  
-outfilename = websave(zip_name, CRD_URL);
+outfilename = websave(zip_name, URL);
 unzip(outfilename,strcat(folder, 'crd/'));
 addpath(genpath(strcat(folder, 'crd/')));
 delete(zip_name);

@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 10-Oct-2018 10:35:56
+% Last Modified by GUIDE v2.5 17-Oct-2018 15:25:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -292,12 +292,18 @@ IndexC = strfind(handles.interpolationpopupmenu.String, ...
 index = find(not(cellfun('isempty', IndexC)));
 set(handles.interpolationpopupmenu, 'Value', index);
 
-set(handles.eogcheckbox, 'Value', ...
-    params.EOGRegressionParams.performEOGRegression)
+set(handles.eogcheckbox, 'Value', ~isempty(params.EOGRegressionParams))
+set(handles.eogedit, 'String', params.EEGSystem.eogChans);
 
 contents = cellstr(get(handles.dspopupmenu,'String'));
 index = find(contains(contents, int2str(dsRate)));
 set(handles.dspopupmenu, 'Value', index);
+
+if ~isempty(params.Settings)
+    set(handles.savestepscheckbox, 'Value', params.Settings.trackAllSteps);
+else
+    set(handles.savestepscheckbox, 'Value', 0);
+end
 
 handles = switch_components(handles);
 
@@ -566,9 +572,15 @@ h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
 mainGUI_handle = guidata(h);
 
 % Get EOG regression
-EOGRegressionParams = params.EOGRegressionParams;
-EOGRegressionParams.performEOGRegression = get(handles.eogcheckbox, 'Value');
-EOGRegressionParams.eogChans = str2num(get(handles.eogedit, 'String'));
+if get(handles.eogcheckbox, 'Value')
+    EOGRegressionParams = struct();
+else
+    EOGRegressionParams = struct([]);
+end
+
+EEGSystem = params.EEGSystem;
+EEGSystem.eogChans = str2num(get(handles.eogedit, 'String'));
+
 if( ~get(mainGUI_handle.egiradio, 'Value') && ...
         get(handles.eogcheckbox, 'Value') && ...
         isempty(get(handles.eogedit, 'String')))
@@ -584,6 +596,9 @@ idx = get(handles.dspopupmenu, 'Value');
 dsrates = get(handles.dspopupmenu, 'String');
 ds = str2double(dsrates{idx});
 
+Settings = params.Settings;
+Settings.trackAllSteps = get(handles.savestepscheckbox, 'Value');
+
 handles.VisualisationParams.dsRate = ds;
 handles.VisualisationParams.CalcQualityParams = CalcQualityParams;
 handles.params.FilterParams.high = high;
@@ -591,6 +606,8 @@ handles.params.FilterParams.low = low;
 handles.params.FilterParams.notch = notch;
 handles.params.CRDParams = CRDParams;
 handles.params.EOGRegressionParams = EOGRegressionParams;
+handles.params.EEGSystem = EEGSystem;
+handles.params.Settings = Settings;
 handles.params.PrepParams = PrepParams;
 handles.params.HighvarParams = HighvarParams;
 handles.params.RPCAParams = RPCAParams;
@@ -1923,3 +1940,12 @@ handles = set_gui(handles, params, vParams);
 
 % Update handles structure
 guidata(hObject, handles);
+
+
+% --- Executes on button press in savestepscheckbox.
+function savestepscheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to savestepscheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of savestepscheckbox

@@ -352,6 +352,16 @@ classdef Block < handle
             if(any(strcmp({self.CGV.EXTENSIONS.fif}, self.fileExtension))) 
                 self.params.ORIGINAL_FILE = self.sourceAddress;
             end
+            
+            if ~isempty(self.params.Settings) && ...
+                    isfield(self.params.Settings, 'trackAllSteps') && ...
+                    self.params.Settings.trackAllSteps       
+                pathToSteps = strcat(self.subject.resultFolder, self.CGV.PreprocessingCsts.Settings.pathToSteps);
+                if( exist(pathToSteps, 'file' ))
+                    delete(pathToSteps);
+                end
+                self.params.Settings.pathToSteps = pathToSteps;
+            end
 
             % Preprocess the file
             [EEG, fig1, fig2] = preprocess(data, self.params);

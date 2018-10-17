@@ -60,6 +60,7 @@ function [EEG, varargout] = preprocess(data, varargin)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Defaults = DefaultParameters;
+Recs = RecommendedParameters;
 Csts = PreprocessingConstants;
 p = inputParser;
 addParameter(p,'EEGSystem', Defaults.EEGSystem, @isstruct);
@@ -72,6 +73,7 @@ addParameter(p,'MARAParams', Defaults.MARAParams, @isstruct);
 addParameter(p,'InterpolationParams', Defaults.InterpolationParams, @isstruct);
 addParameter(p,'EOGRegressionParams', Defaults.EOGRegressionParams, @isstruct);
 addParameter(p,'ChannelReductionParams', Defaults.ChannelReductionParams, @isstruct);
+addParameter(p,'Settings', Defaults.Settings, @isstruct);
 addParameter(p,'ORIGINAL_FILE', Csts.GeneralCsts.ORIGINAL_FILE, @ischar);
 parse(p, varargin{:});
 params = p.Results;
@@ -85,7 +87,12 @@ MARAParams = p.Results.MARAParams;
 InterpolationParams = p.Results.InterpolationParams; %#ok<NASGU>
 EOGRegressionParams = p.Results.EOGRegressionParams;
 ChannelReductionParams = p.Results.ChannelReductionParams;
+Settings = p.Results.Settings;
 ORIGINAL_FILE = p.Results.ORIGINAL_FILE;
+
+if isempty(Settings)
+    Settings = Recs.Settings;
+end
 clear p varargin;
 
 % Add and download necessary paths
@@ -95,7 +102,7 @@ downloadAndAddPaths(struct('PrepParams', PrepParams, ...
 % Set system dependent parameters and eeparate EEG from EOG
 [EEG, EOG, EEGSystem, MARAParams] = ...
     systemDependentParse(data, EEGSystem, ChannelReductionParams, ...
-    EOGRegressionParams, MARAParams, ORIGINAL_FILE);
+    MARAParams, ORIGINAL_FILE);
 EEGRef = EEG;
 
 % Remove the reference channel from the rest of preprocessing
@@ -103,6 +110,10 @@ EEGRef = EEG;
 EEG.automagic.channelReduction.new_RefChan = EEGSystem.refChan;
 EEGOrig = EEG;
 
+if Settings.trackAllSteps
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGOrig = EEGOrig;
+end
 
 %% Preprocessing
 [s, ~] = size(EEG.data);
@@ -111,16 +122,28 @@ EEG.automagic.preprocessing.removedMask = false(1, s); clear s;
 
 % Running prep
 [EEG, EOG] = performPrep(EEG, EOG, PrepParams, EEGSystem.refChan);
-
+if Settings.trackAllSteps && ~isempty(PrepParams)
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGprep = EEG;
+end
 
 % Clean EEG using clean_rawdata()
 [EEG, EOG] = performCleanrawdata(EEG, EOG, CRDParams);
+if Settings.trackAllSteps && ~isempty(CRDParams)
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGcrd = EEG;
+end
 
 % Filtering on the whole dataset
 display(PreprocessingConstants.FilterCsts.RUN_MESSAGE);
 EEG = performFilter(EEG, FilterParams);
 if ~isempty(EOG.data)
     EOG = performFilter(EOG, FilterParams);
+end
+
+if Settings.trackAllSteps && ~isempty(FilterParams)
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGfiltered = EEG;
 end
 
 % Remove channels
@@ -135,11 +158,13 @@ EEG.automagic.preprocessing.toRemove = toRemove;
 clear toRemove removedMask newToRemove;
 
 % Remove effect of EOG
-EEG.automagic.EOGRegression.performed = 'no';
-if( EOGRegressionParams.performEOGRegression )
-    EEG = performEOGRegression(EEG, EOG);
-end
+EEG = performEOGRegression(EEG, EOG, EOGRegressionParams);
 EEG_regressed = EEG;
+
+if Settings.trackAllSteps && ~isempty(EOGRegressionParams)
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGRegressed = EEG;
+end
 
 % PCA or ICA
 EEG.automagic.mara.performed = 'no';
@@ -159,6 +184,16 @@ elseif ( ~isempty(RPCAParams))
 end
 EEG_cleared = EEG;
 
+if Settings.trackAllSteps
+    if ~isempty(RPCAParams)
+       allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+       allSteps.EEGRPCA = EEG;
+    elseif ~isempty(MARAParams)
+       allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+       allSteps.EEGMARA = EEG;
+    end
+end
+
 % Detrending
 doubled_data = double(EEG.data);
 res = bsxfun(@minus, doubled_data, mean(doubled_data, 2));
@@ -166,10 +201,20 @@ singled_data = single(res);
 EEG.data = singled_data;
 clear doubled_data res singled_data;
 
+if Settings.trackAllSteps
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGdetrended = EEG;
+end
+
 % Reject channels based on high variance
 EEG.automagic.highVarianceRejection.performed = 'no';
 if ~isempty(HighvarParams)
     [~, EEG] = evalc('performHighvarianceChannelRejection(EEG, HighvarParams)');
+end
+
+if Settings.trackAllSteps && ~isempty(HighvarParams)
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGHighvarred = EEG;
 end
 
 % Put back removed channels
@@ -195,6 +240,11 @@ clear chan_nb re_chan;
 % Write back output
 EEG.automagic.autoBadChans = setdiff(removedChans, EEGSystem.refChan);
 EEG.automagic.params = params;
+
+if Settings.trackAllSteps
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGFinal = EEG;
+end
 
 %% Creating the final figure to save
 plot_FilterParams.high.freq = 1;
