@@ -29,7 +29,7 @@ else
 end
 
 CSTS = PreprocessingConstants;
-PREP_URL = CSTS.PrepCsts.PREP_URL;
+URL = CSTS.PrepCsts.URL;
 
 % Ask user if they want to download the package now
 ques = ['performReference.m is necessary for PREP Robust Average Referencing.'...
@@ -82,7 +82,7 @@ folder = ['.' slash 'matlab_scripts' slash];
 
 % Download the package
 zip_name = [folder 'VisLab-EEG-Clean-Tools.zip'];  
-outfilename = websave(zip_name, PREP_URL);
+outfilename = websave(zip_name, URL);
 unzip(outfilename,strcat(folder, 'VisLab-EEG-Clean-Tools/'));
 addpath(genpath(strcat(folder, 'VisLab-EEG-Clean-Tools/')));
 delete(zip_name);
