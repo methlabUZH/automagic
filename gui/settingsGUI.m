@@ -1258,7 +1258,7 @@ end
 
 % Check and download if Robust Average Referencing does not exist
 if( ~ exist('performReference.m', 'file'))
-    download_rar();
+    downloadPREP();
 end
 
 % Create a dummy EEG structure to trick prep default function!
