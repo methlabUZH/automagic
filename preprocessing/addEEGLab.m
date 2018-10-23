@@ -22,20 +22,25 @@ function parts = addEEGLab()
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+CSTS = PreprocessingConstants;
+ZIPName = CSTS.EEGLabCsts.ZIP;
+libraryPath = CSTS.LIBRARY_PATH;
 
+parts = strsplit(ZIPName, '.zip');
+folderName = parts{1};
 
-% System dependence:
-if(ispc)
-    slash = '\';
-else
-    slash = '/';
+folderName = [libraryPath folderName];
+ZIPName = [libraryPath ZIPName];
+
+if ~ exist(folderName, 'dir')
+    unzip(ZIPName, libraryPath);
 end
+eeglab_paths = genpath(folderName);
 
-matlab_paths = genpath(['..' slash 'matlab_scripts' slash]);
 if(ispc)
-    parts = strsplit(matlab_paths, ';');
+    parts = strsplit(eeglab_paths, ';');
 else
-    parts = strsplit(matlab_paths, ':');
+    parts = strsplit(eeglab_paths, ':');
 end
 
 % Exclude paths which create conflicts
@@ -46,10 +51,10 @@ parts(Index) = [];
 Index = not(~contains(parts, 'dpss'));
 parts(Index) = [];
 if(ispc)
-    matlab_paths = strjoin(parts, ';');
+    eeglab_paths = strjoin(parts, ';');
 else
-    matlab_paths = strjoin(parts, ':');
+    eeglab_paths = strjoin(parts, ':');
 end
-addpath(matlab_paths);
+addpath(eeglab_paths);
     
 end

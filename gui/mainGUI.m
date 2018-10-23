@@ -89,11 +89,11 @@ handles.output = hObject;
 % Add project paths
 % Checks 'project.m' as an example of a file in /src. Could be any other file
 % in /src
-if( ~exist('Subject.m', 'file')) 
+addpath(genpath(('./')));
+if( ~exist('Subject.m', 'file'))
     addpath('../src/');
     addpath('../preprocessing/');
 end
-
 
 % Set Constant Values
 handles.CGV = ConstantGlobalValues;
