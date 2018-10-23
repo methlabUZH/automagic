@@ -736,6 +736,8 @@ classdef Block < handle
         
         function data = loadEEGFromFile(self)
             
+            addEEGLab();
+            
             % Case of .mat file
             if( any(strcmp(self.fileExtension(end-3:end), ...
                     {self.CGV.EXTENSIONS.mat})))

@@ -22,12 +22,14 @@ classdef PreprocessingConstants
                             'NOTCH_OTHER',   [], ...
                             'RUN_MESSAGE', 'Perform Filtering...')
         
+        EEGLabCsts = struct('ZIP', 'eeglab14_1_2b.zip')
+                     
         CRDCsts = struct('URL', 'http://sccn.ucsd.edu/eeglab/plugins/clean_rawdata0.32.zip', ...
-                         'ZIP', 'clean_rawdata.zip', ...
+                         'ZIP', 'clean_rawdata0.32.zip', ...
                          'RUN_MESSAGE', 'Finding bad channels...');
                            
         PrepCsts = struct('URL', 'https://github.com/VisLab/EEG-Clean-Tools/archive/master.zip', ...
-                          'ZIP', 'EEG-Clean-Tools.zip')
+                          'ZIP', 'VisLab-EEG-Clean-Tools.zip')
         
         RPCACsts = struct(...
             'URL', 'http://perception.csl.illinois.edu/matrix-rank/Files/inexact_alm_rpca.zip', ...
@@ -35,6 +37,7 @@ classdef PreprocessingConstants
             'RUN_MESSAGE', 'Performing Robust PCA  (this may take a while...)');
                         
         MARACsts = struct(...
+            'ZIP', 'MARA-master.zip', ...
             'REQ_CHAN_LABELS', {{'C3','C4','Cz','F3','F4','F7','F8',...
             'Fp1','Fp2','Fz','LM','NAS','O1','O2','Oz','P3','P4','P7'...
             ,'P8','Pz','RM','T7','T8'}}, ...
@@ -53,5 +56,26 @@ classdef PreprocessingConstants
                
         Settings = struct('pathToSteps', '/allSteps');
                     
+    end
+    
+    methods(Static)
+        function path = LIBRARY_PATH()
+            if ispc
+                slash = '\';
+                home = [getenv('HOMEDRIVE') getenv('HOMEPATH')];
+            else
+                slash = '/';
+                home = getenv('HOME');
+            end
+            
+            name = 'matlab_scripts';
+            if exist(name, 'dir')
+                path = ['matlab_scripts' slash];
+            elseif exist('preprocessing', 'dir')
+                path = ['..' slash 'matlab_scripts' slash];
+            else
+                path = [home slash 'matlab_scripts' slash];
+            end
+        end
     end
 end

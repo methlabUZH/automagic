@@ -96,8 +96,8 @@ end
 clear p varargin;
 
 % Add and download necessary paths
-downloadAndAddPaths(struct('PrepParams', PrepParams, ...
-    'CRDParams', CRDParams));
+addPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
+    'RPCAParams', RPCAParams, 'MARAParams', MARAParams));
                           
 % Set system dependent parameters and eeparate EEG from EOG
 [EEG, EOG, EEGSystem, MARAParams] = ...

@@ -1,12 +1,6 @@
 ./~/
-matlab_scripts/eeglab*
-matlab_scripts/inexact*
-matlab_scripts/VisLab-EEG-Clean-Tools*
-matlab_scripts/EEG-Clean-Tools-master*
-matlab_scripts/__MACOSX/
-matlab_scripts/asr*
-matlab_scripts/artifact_subspace_reconstruction*
-matlab_scripts/MARA-master/
+matlab_scripts/*
+!matlab_scripts/*.zip
 state.mat
 *_state.mat
 *.m~
