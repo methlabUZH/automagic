@@ -2,9 +2,7 @@ function [EEG_out, EOG_out] = performPrep(EEG_in, EOG_in, prepParams, refChan)
 % performPrep  applies the prep robust average referenceing and its channel
 % rejection on the input EEG
 %   This function applies the prep on EEG and keeps the rejected channels 
-%   for later removal. Note that the output EEG is NOT  average referenced: 
-%   the average referenced channel to be substracted from each channel is 
-%   kept and the user can use this later to perform the average referencing.
+%   for later removal. Note that the output EEG is NOT  average referenced.
 %   Both average referencing and bad channel rejection are done only on EEG
 %   and not EOG. EOG is only used for calculations.
 %   
@@ -134,7 +132,6 @@ EEG_out.automagic.prep.performed = 'yes';
 if isfield(prepParams, 'lineFrequencies')
     EEG_out.automagic.prep.lineFrequencies = prepParams.lineFrequencies;
 end
-EEG_out.automagic.prep.refchan = info.reference.referenceSignal;
 EEG_out.automagic.prep.badChans = badChans;
 EEG_out.automagic.prep.params = userData;
 EEG_out.automagic.preprocessing.toRemove = union(badChans, toRemove);
