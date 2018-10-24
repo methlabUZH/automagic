@@ -200,7 +200,7 @@ name = names{idx};
 % First update the project from the file (Synchronization with other users)
 % (This is redundant if the gui is just started.)
 project = handles.projectList(name);
-if isempty(project) || ~ exist(project.stateAddress, 'file')
+if isempty(project) || ~exist(project.stateAddress, 'file')
     return;
 else
     load(project.stateAddress);
@@ -604,6 +604,15 @@ function manualratingbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to manualratingbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+idx = get(handles.existingpopupmenu, 'Value');
+projects = get(handles.existingpopupmenu, 'String');
+name = projects{idx};
+project = handles.projectList(name);
+if isempty(project)
+    popup_msg('Please first create the Study',...
+        'Error');
+    return;
+end
 
 % Change the cursor to a watch while updating...
 set(handles.mainGUI, 'pointer', 'watch')
@@ -629,6 +638,15 @@ function qualitypushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to manualratingbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+idx = get(handles.existingpopupmenu, 'Value');
+projects = get(handles.existingpopupmenu, 'String');
+name = projects{idx};
+project = handles.projectList(name);
+if isempty(project)
+    popup_msg('Please first create the Study',...
+        'Error');
+    return;
+end
 
 % Change the cursor to a watch while updating...
 set(handles.mainGUI, 'pointer', 'watch')
@@ -655,6 +673,15 @@ function interpolatebutton_Callback(hObject, eventdata, handles)
 % hObject    handle to interpolatebutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+idx = get(handles.existingpopupmenu, 'Value');
+projects = get(handles.existingpopupmenu, 'String');
+name = projects{idx};
+project = handles.projectList(name);
+if isempty(project)
+    popup_msg('Please first create the Study',...
+        'Error');
+    return;
+end
 
 % Update the project in case of new changes
 handles = update_and_load(handles);
@@ -675,7 +702,15 @@ function runpreprocessbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to runpreprocessbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+idx = get(handles.existingpopupmenu, 'Value');
+projects = get(handles.existingpopupmenu, 'String');
+name = projects{idx};
+project = handles.projectList(name);
+if isempty(project)
+    popup_msg('Please first create the Study',...
+        'Error');
+    return;
+end
 % Update the project in case of new changes
 handles = update_and_load(handles);
 
