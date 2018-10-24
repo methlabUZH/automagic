@@ -1,27 +1,38 @@
 function [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, varargin)
-% performCleanrawdata makes channel rejection using cleanrawdata()
+% performCleanrawdata makes channel rejection using clean_rawdata()
 %   This function does not change the output values if and only if
 %   BurstCriterion and WindowCriterion are deactiavted (it is the case by 
 %   default). In this case, only indices of the bad channels are kept to 
 %   be removed in a later step of the preprocessing. If the two mentiond 
-%   criteria are selected however, the channels are already removed, data 
-%   is cleaned and high passed filtered as specified in cleanrawdata(), 
+%   criteria are selected however, the channels will be removed, data 
+%   will be cleaned and high passed filtered as specified in clean_rawdata(), 
 %   and noisy windows are removed. Then the same time windows are removed 
 %   from the EOG data for coherence and possibe further EOG regression
 %   which requires same length signals.
 %   
-%   [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, varargin)
+%
+%   [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, params)
 %
 %   EEG_in is the input EEG structure.
 %
 %   EOG_in is the input EOG structure.
 %
-%   varargin is an optional structure required as in cleanrawdata()
+%   params is an optional structure required as in clean_rawdata(). An
+%   example of this param is as shown below:
 %
-%   If params is ommited default values are used.
+%   params = struct('ChannelCriterion',     0.85,...
+%                   'LineNoiseCriterion',   4,...
+%                   'BurstCriterion',       5,...
+%                   'WindowCriterion',      0.25, ...
+%                   'Highpass',             [0.25 0.75]);
 %
-%   Default values are specified by cleanrawdata().
+%   If params is ommited default values are used. Please see
+%   clean_rawdata() for more information on more possible parameters.
 %
+%   The default parameters of the example above are taken from
+%   DefaultParameters.m. The default parameters of all other parameters
+%   required by clean_rawdata() are specified by the same function
+%   clean_rawdata().
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 
 % This program is free software: you can redistribute it and/or modify

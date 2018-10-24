@@ -3,8 +3,8 @@ function [EEG_out, EOG_out] = performPrep(EEG_in, EOG_in, prepParams, refChan)
 % rejection on the input EEG
 %   This function applies the prep on EEG and keeps the rejected channels 
 %   for later removal. Note that the output EEG is NOT  average referenced.
-%   Both average referencing and bad channel rejection are done only on EEG
-%   and not EOG. EOG is only used for calculations.
+%   Bad channel rejection is done only on EEG and not EOG. EOG is only used 
+%   for calculations.
 %   
 %   [EEG_out, EOG_out] = performPrep(EEG_in, EOG_in, prepParams, refChan)
 %
@@ -12,7 +12,9 @@ function [EEG_out, EOG_out] = performPrep(EEG_in, EOG_in, prepParams, refChan)
 %
 %   EOG_in is the input EOG structure.
 %
-%   prepPrams is the parameters as they are required by PREP library.
+%   prepPrams is the parameters as they are required by PREP library. A
+%   simple way of using this is to give prepPrams = struct() where the
+%   default values will be used.
 %
 %   refChan indicates the index of the reference channel in the EEG input.
 %

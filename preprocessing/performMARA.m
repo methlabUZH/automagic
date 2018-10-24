@@ -1,24 +1,32 @@
 function EEGClean = performMARA(data, varargin)
 % performMARA  perform Independent Component Analysis (ICA) on the high 
-%   passsed data. 
-%   data = performMARA(data, params) where data is the EEGLAB data
-%   structure. params is an optional parameter which must be a structure
-%   with optional fields 'chanlocMap' and 'high'.
+%   passsed data.
 %   This function applies a high pass filter before the ICA. But the output
-%   result is NOT high passed filter, but only cleaned with ICA. This
+%   result is NOT high passed filtered, but only cleaned with ICA. This
 %   option allows to choose a separate high pass filter only for ICA from
 %   the desired high pass filtered after the entire preprocessing. Please
 %   note that at this stage of the preprocessing, another high pass filter
 %   has been already applied on the data in the performFilter.m. Please use
 %   accordingly.
+%
+%   data_out = performMARA(data, params) where data is the input EEGLAB data
+%   structure and data_out is the output EEGLAB data structure after ICA. 
+%   params is an optional parameter which must be a structure with optional 
+%   fields 'chanlocMap' and 'high'. An example of params is given below:
+%
+%   params = = struct('chanlocMap', containers.Map, ...
+%                     'largeMap',   0, ...
+%                     'high',       struct('freq', 1.0, 'order', []))
 %   
 %   params.chanlocMap must be a map (of type containers.Map) which maps all
 %   "possible" current channel labels to the standard channel labels given 
 %   by FPz, F3, Fz, F4, Cz, Oz, ... as required by processMARA. Please note
 %   that if the channel labels are already the same as the mentionned 
 %   standard, an empty map would be enough. However if the map is empty and
-%   none of the labels has the same sematic as required, no ICA will be
-%   applied. For more information please see processMARA.
+%   none of the labels has the same semantic as required, no ICA will be
+%   applied. For more information please see processMARA. An example of
+%   such a map is given in systemDependentParse.m where a containers.Map is
+%   created for the MARAParams.chanlocMap in the case of EGI systems.
 %   
 %   params.high is a structure indicating the high pass frequency
 %   (params.high.freq) and order (params.high.order) of the high pass
@@ -28,7 +36,7 @@ function EEGClean = performMARA(data, varargin)
 %   If varargin is ommited, default values are used. If any fields of
 %   varargin is ommited, corresponsing default value is used.
 %
-%   Default values: params.chanlocMap = containers.Map (empty map)
+%   Default values are taken from DefaultParameters.m.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 

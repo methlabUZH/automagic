@@ -1,48 +1,70 @@
 function [EEG, varargout] = preprocess(data, varargin)
 % preprocess the input EEG 
-%   [EEG, varargout] = preprocess(data, varargin)
-%   where data is the EEGLAB data structure and varargin is an 
-%   optional parameter which must be a structure with optional fields 
+%   [EEG, varargout] = preprocess(data, params)
+%   where data is the EEGLAB data structure and params is an 
+%   optional parameter specifying preprocessing parameters.
+%   EEG is the output EEG after being preprocessed with additional fields.
+%   varargout is a list of plots obtained during the preprocessing.
+%
+%   And example of the params where filtering parameters and clean_rawdata()
+%   parameters are specified and other parameters are ommitted so that the 
+%   deafult value is used, is as shown below:
+%   params = struct('FilterParams', struct('notch', struct('freq', 50), ...
+%                                        'high',  struct('freq', 0.5,...
+%                                                        'order', []),...
+%                                        'low',   struct('freq', 30,...
+%                                                         'order',
+%                                                         []))),...
+%                   'CRDParams',    struct('ChannelCriterion',   0.85,...
+%                                          'LineNoiseCriterion', 4,...
+%                                          'BurstCriterion',     5,...
+%                                          'WindowCriterion',    0.25, ...
+%                                          'Highpass',           [0.25 0.75])
+%                    )
+%   
+%   params must be a structure with optional fields 
 %   'FilterParams', 'CRDParams', 'RPCAParams', 'MARAParams', 'PrepParams',
 %   'InterpolationParams', 'EOGRegressionParams', 'EEGSystem',
-%   'ChannelReductionParams', 'HighvarParams' and 'ORIGINAL_FILE' to 
-%   specify parameters for filtering, cleanrawdata(), pca, mara, prep robust 
-%   average referencing, interpolation, eog regression, channel locations,
-%   reducing channels, high variance channel rejection and original 
-%   file address respectively. The latter one is needed only if a '*.fif' 
-%   file is used, otherwise it can be omitted.
-%   
-%   To learn more about 'FilterParams', 'MARAParams', 'RPCAParams' and
-%   'HighvarParams' please see their corresponding functions performFilter.m, 
-%   performMaraICA.m, performPCA.m and performHighvarianceChannelRejection.m.
+%   'ChannelReductionParams', 'HighvarParams', 'Settings' and 
+%   'ORIGINAL_FILE' to specify parameters for filtering, clean_rawdata(), 
+%   rpca, mara ica, prep robust average referencing, interpolation, 
+%   eog regression, channel locations, reducing channels, high variance 
+%   channel rejection, settings of this preprocess.m file and original 
+%   file address respectively. The latter one is the only non-struct one, 
+%   and needed only if a '*.fif' file is used, otherwise it can be omitted.
 %
-%   To learn more about EEGSystem and ChannelreductionParams please see
-%   SystemDependentParse.m.
-%   
-%   'CRDParams' is an optional structure which has the same parameters as 
-%   required by clean_artifacts(). For more information please
-%   see clean_artifacts() in Artefact Subspace Reconstruction.
+%   If params is ommited, default values are used. If any of the fields
+%   of params are ommited, corresponsing default values are used. If a
+%   structure is given as 'struct([])' then the corresponding operation is
+%   omitted and is not performed; for example, MARAParams = struct([])
+%   skips the ICA and does not perform any ICA. Whereas if MARAParams =
+%   struct() or if MARAParams is simply not given, then the default value 
+%   will be used.
 %   
 %   'PrepParams' is an optional struture required by prep library. For more
 %   information please see their documentation.
 %   
 %   'InterpolationParams' is an optional structure with an optional field
 %   'method' which can be on of the following chars: 'spherical',
-%   'invdist' and 'spacetime'. The default value is
-%   InterpolationParams.method = 'spherical'. To learn more about these
+%   'invdist' and 'spacetime'. To learn more about these
 %   three methods please see eeg_interp.m of EEGLAB.
 %
 %   'ORIGINAL_FILE' is necassary only in case of '*.fif' files. In that case,
 %   this should be the address of the file where this EEG data is loaded
 %   from.
-%   
-%   If varargin is ommited, default values are used. If any of the fields
-%   of varargin are ommited, corresponsing default values are used. If a
-%   structure is given as 'struct([])' then the corresponding operation is
-%   omitted and is not performed; for example, MARAParams = struct([])
-%   skips the ICA and does not perform any ICA. Whereas if MARAParams =
-%   struct() or if MARAParams is simply not given, then the default value 
-%   will be used.
+%  
+%   To learn more about 'FilterParams', 'CRDParams', 'MARAParams', 
+%   'RPCAParams', 'EOGRegressionParams' and 'HighvarParams' please see 
+%   their corresponding functions performFilter.m,  performCleanrawdata.m,
+%   performMaraICA.m, performRPCA.m, performEOGRegression.m and 
+%   performHighvarianceChannelRejection.m.
+%
+%   To learn more about EEGSystem and ChannelreductionParams please see
+%   SystemDependentParse.m.
+%
+%   A complete example of all possible parameters can be found in
+%   RecommendedParameters.m (please do not change this file). All default
+%   values are taken from DefaultParameters.m.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 

@@ -1,6 +1,10 @@
 function regressed = performEOGRegression(EEG, EOG, varargin)
 % performEOGRegression  perform EOG regression from EOG channels
-%   Both EEG and EOG are EEGLAB data structure.
+%   regressed = performEOGRegression(EEG, EOG, params)
+%   Both EEG and EOG are input EEGLAB data structure. regressed is the
+%   output EEG structure after EOG regression. params is a structure.
+%   If params = struct(), then the EOG regression is performed. If params =
+%   struct([]), then EOG regression is skipped and not performed.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 

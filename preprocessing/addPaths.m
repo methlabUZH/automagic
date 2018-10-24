@@ -7,8 +7,10 @@ function parts = addPaths(varargin)
 %   parts = addPaths(varargin)
 %   Where varargin is an optional parameter. When given, it should be a
 %   struct with optional fields PrepParams, CRDParams, RPCAParams and 
-%   MARAParams corresponding to PREP parameters, cleanrawdata() parameters, 
-%   RPCA parameters and MARA parameters.
+%   MARAParams corresponding to PREP parameters, clean_rawdata() parameters, 
+%   RPCA parameters and MARA parameters. These arguments are only needed to
+%   make sure that the packages are indeed required. If one of this steps
+%   is deavtivated, then the package does not to be added to the path.
 %   
 %   If varargin is ommited, default values are used. If any fields of
 %   varargin is ommited, corresponsing default value is used. Please see
