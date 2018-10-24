@@ -32,7 +32,8 @@ set(gcf, 'Color', [0.94,0.94,0.94])
 colormap jet
 caxis([-colorScale colorScale])
 set(handles.titletext, 'String', unique_name) 
-
+xlabel(axe, 'Time points')
+ylabel(axe, 'Channel indices')
 
 draw_lines(handles);
 mark_interpolated_chans(handles)
