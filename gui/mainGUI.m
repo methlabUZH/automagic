@@ -624,6 +624,32 @@ end
 % Change back the cursor to an arrow
 set(handles.mainGUI, 'pointer', 'arrow')
 
+% --- Start the rating gui on the current project
+function qualitypushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to manualratingbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Change the cursor to a watch while updating...
+set(handles.mainGUI, 'pointer', 'watch')
+drawnow;
+
+% Update the project in case of new changes
+handles = update_and_load(handles);
+
+idx = get(handles.existingpopupmenu, 'Value');
+projects = get(handles.existingpopupmenu, 'String');
+name = projects{idx};
+project = handles.projectList(name);
+
+if(isa(project, 'Project'))
+    ratingGUI(project);
+    qualityratingGUI(project);
+end
+
+% Change back the cursor to an arrow
+set(handles.mainGUI, 'pointer', 'arrow')
+
 % --- Start interpolation on selected files
 function interpolatebutton_Callback(hObject, eventdata, handles)
 % hObject    handle to interpolatebutton (see GCBO)
