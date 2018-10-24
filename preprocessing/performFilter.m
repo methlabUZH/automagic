@@ -5,7 +5,11 @@ function data = performFilter(data, varargin)
 %   where data is the EEGLAB data structure. filtered is the resulting 
 %   EEGLAB data structured after filtering. params is an optional
 %   parameter which must be a structure with optional parameters
-%   'notch', 'high' and 'low', each of which a struct.
+%   'notch', 'high' and 'low', each of which a struct. An example of this
+%   parameter is given below:
+%   params = struct('notch', struct('freq', 50),...
+%                   'high',  struct('freq', 0.5, 'order', []),...
+%                   'low',   struct('freq', 30,  'order', []))
 %   
 %   'notch.freq' is the frequency for the notch filter where from
 %   (notch_freq - 3) to (notch_freq + 3) is attenued.
@@ -16,8 +20,12 @@ function data = performFilter(data, varargin)
 %   'low.freq' and 'low.order' are the frequency and filtering order for 
 %   low pass filter respectively.
 %
+%   In the case of filtering ordering, if it is left to be high.order = []
+%   (or low.order = []), then the default value of pop_eegfiltnew.m is
+%   used.
+%
 %   If params is ommited default values are used. If any field of params
-%   are ommited or are [], corresponding default values are used. If 
+%   are ommited, corresponding default values are used. If 
 %   'params.notch = struct([])', 'params.high = struct([])' or 
 %   'params.low = struct([])' then notch filter, high pass filter or 
 %   low pass filter are not perfomed respectively.

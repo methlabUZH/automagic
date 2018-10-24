@@ -1,13 +1,13 @@
 function EEG_out = performHighvarianceChannelRejection(EEG_in, varargin)
-% performHighvarianceChannelRejection   reject bad channels based on standard
-%   deviation
+% performHighvarianceChannelRejection   reject bad channels based on high
+%   standard deviation
 %   rejected = performHighvarianceChannelRejection(EEG, params)
 %   where rejected is a list of channels that must be removed. EEG is a
 %   EEGLAB data structure. params is an optional argument with optional
 %   field 'sd' to specify the threshold.
 %   When params is ommited default values are used. When a field of params 
 %   is ommited, default value for that field is used. 
-%   Default values: params.sd = 3
+%   Default values are taken from DefaultParameters.m
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 

@@ -1,13 +1,20 @@
 function [data, noise] = performRPCA(data, varargin)
-% perform_rpca  perform rpca on the data 
+% performRPCA  perform robust pca on the data 
 %   [data, noise] = performRPCA(data, params) where data is the EEGLAB data
 %   structure. params is an optional parameter which must be a structure
 %   with optional fields 'lambda', 'tol', and 'maxIter' to specify
 %   corresponding parameters in inexact_alm_rpca.m. To learn more about
 %   these three parameters please see inexact_alm_rpca.m.
 %
-%   If varargin is ommited, default values are used. If any fields of
-%   varargin is ommited or are [], corresponsing default value is used.
+%   An example of the params is as below:
+%
+%   params = struct('lambda', [], ...  % Default lambda by alm_rpca
+%                   'tol', 1e-7, ...
+%                   'maxIter', 1000);
+%
+%   If params is ommited, default values are used. If any fields of
+%   varargin is ommited, corresponsing default value from
+%   DefaultParameters.m are used.
 %
 %   Default values are specified in DefaultParameters.m. If they are empty
 %   then [] is given to inexact_alm_rpca.m which implies to use defaults.

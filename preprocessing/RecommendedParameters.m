@@ -2,15 +2,14 @@ classdef RecommendedParameters
     %RecommendedParameters is a class containing recommended parameters for
     %   different preprocessing steps. This is different from the
     %   DefaultParameters.m in the sense that there is a recommended value
-    %   even for preprocessing steps that are not used by default. Note
-    %   that when a step is not used, simply it has an empty structure as
-    %   parameter, wheras here no empty parameter exists.
+    %   even for preprocessing steps that are not used by default: These
+    %   structures must have all the possible fields for each parameter
+    %   (with the exception of PrepParams), so that they are used later in
+    %   the GUI or other places where no default parameter is given but
+    %   another recommendation is needed. 
     %
-    %   struct([]) desactivate the corresponding operation.
-    %   struct() will be the default parameters used in the corresponding
-    %   operation.
-    %   If a field has [] as value, then the default value in the 
-    %   corresponding function is used.
+    %   Please do not change anything in this file unless you are sure what
+    %   you are doing.
     %
     % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
     % 
