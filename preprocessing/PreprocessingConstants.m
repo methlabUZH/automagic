@@ -68,13 +68,14 @@ classdef PreprocessingConstants
                 home = getenv('HOME');
             end
             
-            name = 'matlab_scripts';
-            if exist(name, 'dir')
-                path = ['matlab_scripts' slash];
-            elseif exist('preprocessing', 'dir')
-                path = ['..' slash 'matlab_scripts' slash];
+            libName = 'matlab_scripts'; % Folder name of third party code
+            automagic = 'automagic'; % Folder name of automagic
+            curr = strsplit(pwd, slash);
+            if any(contains(curr, automagic))
+                automagicPath = strjoin(curr(1:find(contains(curr, automagic))), slash);
+                path = [automagicPath slash libName slash];
             else
-                path = [home slash 'matlab_scripts' slash];
+                path = [home slash libName slash];
             end
         end
     end

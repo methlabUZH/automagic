@@ -47,7 +47,7 @@ libraryPath = CSTS.LIBRARY_PATH;
 addpath(libraryPath);
 
 parts = [];
-if(~exist('pop_fileio', 'file'))
+if(~exist('pop_fileio.m', 'file'))
     parts = addEEGLab();
 end
 
