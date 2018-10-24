@@ -259,6 +259,8 @@ if ~isempty(params.FilterParams.notch)
 elseif (~isempty(params.PrepParams))
     if isfield(params.PrepParams, 'lineFrequencies') && ~isempty(params.PrepParams.lineFrequencies)
         setLineNoise(params.PrepParams.lineFrequencies(1), handles);
+    else
+        setLineNoise([], handles);
     end
 else
     setLineNoise([], handles);
@@ -514,7 +516,14 @@ elseif ~rar_check
 end
 
 if ~isempty(PrepParams)
-   if( ~isfield(PrepParams, 'lineFrequencies') || isempty(PrepParams.lineFrequencies))
+    % PREP notch can be selected either from PREP options or from automagic
+    % notch filter. If both PREP notch AND automagic notch checkbox are
+    % selected then take the PREP param for PREP and the other one for
+    % automagic notch. If automagic notch is not selected, then take the
+    % frequency for the PREP (and even overwrtite it if it's already selected)
+   if( ~get(handles.notchcheckbox, 'Value') || ...
+           (~isfield(PrepParams, 'lineFrequencies') || isempty(PrepParams.lineFrequencies)))
+       
         res = str2double(get(handles.notchedit, 'String'));
         if ~isnan(res)
             PrepParams.lineFrequencies = res;
@@ -721,6 +730,18 @@ if( get(handles.rarcheckbox, 'Value'))
     set(handles.preppushbutton, 'enable', 'on')
 else
     set(handles.preppushbutton, 'enable', 'off')
+end
+
+
+if( get(handles.rarcheckbox, 'Value') || ...
+        get(handles.notchcheckbox, 'Value'))
+    set(handles.euradio, 'enable', 'on')
+    set(handles.usradio, 'enable', 'on')
+    set(handles.otherradio, 'enable', 'on')
+else
+    set(handles.euradio, 'enable', 'off')
+    set(handles.usradio, 'enable', 'off')
+    set(handles.otherradio, 'enable', 'off')
 end
 
 % --- Executes on button press in defaultpushbutton.
@@ -1716,7 +1737,7 @@ switch get(hObject, 'Tag')
    case 'usradio'
       set(handles.notchedit, 'String', num2str(FilterCsts.NOTCH_US))
     case 'otherradio'
-      set(handles.notchedit, 'String', num2str(FilterCsts.notch_other))
+      set(handles.notchedit, 'String', num2str(FilterCsts.NOTCH_OTHER))
 end
 
 
@@ -1911,8 +1932,11 @@ function notchcheckbox_Callback(hObject, eventdata, handles)
 % hObject    handle to notchcheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+handles = switch_components(handles);
 
-% Hint: get(hObject,'Value') returns toggle state of notchcheckbox
+% Update handles structure
+guidata(hObject, handles);
+
 
 
 % --- Executes on button press in loadpushbutton.
