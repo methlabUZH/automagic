@@ -18,18 +18,18 @@ classdef ConstantGlobalValues
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     properties(Constant)
 
-        VERSION = '1.9';
+        VERSION = '2.0';
             
         DEFAULT_KEYWORD = 'Default';
                 
         NONE_KEYWORD = 'None';
         
-        NEW_PROJECT = struct('LIST_NAME', 'Create New Study...', ...
-            'NAME', 'Type the name of your new study...', ...
+        NEW_PROJECT = struct('LIST_NAME', 'Create New Project...', ...
+            'NAME', 'Type the name of your new project...', ...
             'DATA_FOLDER', 'Choose where your raw data is...', ...
             'FOLDER', 'Choose where you want the results to be saved...');
         
-        LOAD_PROJECT = struct('LIST_NAME', 'Load an existing study...');
+        LOAD_PROJECT = struct('LIST_NAME', 'Load an existing project...');
         
         PREFIX_PATTERN = '^[gobni]i?p_';
         
@@ -85,7 +85,7 @@ classdef ConstantGlobalValues
             end
             
             stateFile = struct('NAME', 'state.mat', ...
-                               'PROJECT_NAME', 'study_state.mat', ...
+                               'PROJECT_NAME', 'project_state.mat', ...
                                'FOLDER', [home slash 'automagicConfigs' slash], ...
                                'ADDRESS', [home slash 'automagicConfigs' slash 'state.mat']);
         end
