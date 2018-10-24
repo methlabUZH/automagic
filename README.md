@@ -14,7 +14,7 @@ You need MATLAB installed and activated on your system to use **Automagic**. **A
 
 ## 2. Run automagic 
 1. To run automagic, start Matlab and change your working directory to automagic-master.
-2. Type _RunAutomagic_
+2. Type _runAutomagic_
 (Note that automagic will promt to download required toolboxes when they are needed)
 
 ## Further information and user manual
