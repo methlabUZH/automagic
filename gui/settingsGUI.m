@@ -1207,11 +1207,21 @@ function rarcheckbox_Callback(hObject, eventdata, handles)
 % hObject    handle to rarcheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if( get(handles.notchcheckbox, 'Value') && ...
+        get(handles.rarcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filtering on your data. This is due to the PREP default ', ...
+            'notch filter. Please make sure you know what you are ',...
+            'about to do'], 'WARNING')
+end
+
+
 if get(hObject,'Value')
     handles.params.PrepParams = struct();
 else
     handles.params.PrepParams = struct([]);
 end
+
 handles = switch_components(handles);
 
 % Update handles structure
@@ -1932,6 +1942,14 @@ function notchcheckbox_Callback(hObject, eventdata, handles)
 % hObject    handle to notchcheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if( get(handles.notchcheckbox, 'Value') && ...
+        get(handles.rarcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filtering on your data. This is due to the PREP default ', ...
+            'notch filter. Please make sure you know what you are ',...
+            'about to do'], 'WARNING')
+end
+    
 handles = switch_components(handles);
 
 % Update handles structure
