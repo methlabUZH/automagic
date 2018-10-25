@@ -176,7 +176,7 @@ classdef Block < handle
     methods   
         function self = Block(project, subject, fileName)
   
-            self.CGV = ConstantGlobalValues;
+            self.CGV = ConstantGlobalValues();
             
             self.project = project;
             self.subject = subject;
@@ -734,8 +734,7 @@ classdef Block < handle
             fprintf('Saving results...\n');
             PrepCsts = self.CGV.PreprocessingCsts;
             save(self.reducedAddress, ...
-                PrepCsts...
-                .GeneralCsts.REDUCED_NAME, ...
+                PrepCsts.GeneralCsts.REDUCED_NAME, ...
                 '-v6');
             save(self.resultAddress, 'EEG', 'automagic','-v7.3');
         end

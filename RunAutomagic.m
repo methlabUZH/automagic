@@ -12,7 +12,9 @@ libName = 'matlab_scripts';
 srcFolder = 'src'; 
 guiFolder = 'gui';
 preproFolder = 'preprocessing';
+mainGuiFile = 'mainGUI.m';
 
+addpath('./')
 matlabPaths = matlabpath;
 parts = strsplit(matlabPaths, seperator);
 Index = not(~contains(parts, automagic));
@@ -21,10 +23,10 @@ automagicPath = regexp(automagicPath, ['.*' automagic], 'match');
 automagicPath = automagicPath{1};
 automagicPath = [automagicPath slash];
 addpath(automagicPath);
-addpath([automagicPath srcFolder])
-addpath([automagicPath guiFolder])
-addpath([automagicPath preproFolder])
-addpath([automagicPath libName])
+addpath([automagicPath srcFolder slash])
+addpath([automagicPath guiFolder slash])
+addpath([automagicPath preproFolder slash])
+addpath([automagicPath libName slash])
 
-run(mainGuiFile)
+run([guiFolder slash mainGuiFile])
 

@@ -87,7 +87,7 @@ handles.output = hObject;
 % end
 
 % Set Constant Values
-handles.CGV = ConstantGlobalValues;
+handles.CGV = ConstantGlobalValues();
 
 % Set the title to the current version
 set(handles.mainGUI, 'Name', ['Automagic v.', handles.CGV.VERSION]);
@@ -230,9 +230,10 @@ name = names{Index};
 % Special case of New Project
 if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     defVis = handles.CGV.DefaultVisualisationParams;
+    defs = handles.CGV.DefaultParams;
     handles.VisualisationParams.CalcQualityParams = defVis.CalcQualityParams;
     handles.VisualisationParams.dsRate = defVis.dsRate;
-    handles.params = makeDefaultParams(defVis);
+    handles.params = makeDefaultParams(defs);
     set(handles.projectname, 'String', handles.CGV.NEW_PROJECT.NAME);
     set(handles.datafoldershow, 'String', handles.CGV.NEW_PROJECT.DATA_FOLDER);
     set(handles.projectfoldershow, 'String', handles.CGV.NEW_PROJECT.FOLDER);
