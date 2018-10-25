@@ -1,10 +1,10 @@
-function parts = addPaths(varargin)
-% addPaths  Unzip and add required paths
+function parts = addPreprocessingPaths(varargin)
+% addPreprocessingPaths  Unzip and add required paths
 %   If a required package is not in the path, it adds them to the path.
 %   A very naive approach is taken to see if the library is in path or not: 
 %   simply check if one of their files exists or not.
 %   
-%   parts = addPaths(varargin)
+%   parts = addPreprocessingPaths(varargin)
 %   Where varargin is an optional parameter. When given, it should be a
 %   struct with optional fields PrepParams, CRDParams, RPCAParams and 
 %   MARAParams corresponding to PREP parameters, clean_rawdata() parameters, 

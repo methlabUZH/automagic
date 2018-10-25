@@ -411,8 +411,6 @@ classdef Project < handle
             
             assert(exist(self.resultFolder, 'dir') > 0 , ...
                 'The project folder does not exist or is not reachable.' );
-
-            self.addNecessaryPaths();
             
             % Ask to overwrite the existing preprocessed files, if any
             skip = self.checkExistings();
@@ -464,9 +462,6 @@ classdef Project < handle
         
         function self = interpolateSelected(self)
             % Interpolate all the channels selected to be interpolated
-
-            self.addNecessaryPaths();
-
             if(isempty(self.interpolateList))
                 popup_msg('No subjects to interpolate. Please first rate.',...
                     'Error');
@@ -1158,53 +1153,6 @@ classdef Project < handle
             fclose(fileID);
         end
         
-        
-        function parts = addEeglabPath(self)
-            % Add the path to eeglab
-            
-            matlabPaths = genpath(...
-                ['..' self.slash 'matlab_scripts' self.slash]);
-            if(ispc)
-                parts = strsplit(matlabPaths, ';');
-            else
-                parts = strsplit(matlabPaths, ':');
-            end
-
-            Index = not(~contains(parts, 'compat'));
-            parts(Index) = [];
-            Index = not(~contains(parts, 'neuroscope'));
-            parts(Index) = [];
-            Index = not(~contains(parts, 'dpss'));
-            parts(Index) = [];
-            if(ispc)
-                matlabPaths = strjoin(parts, ';');
-            else
-                matlabPaths = strjoin(parts, ':');
-            end
-            addpath(matlabPaths);
-
-        end 
-        
-        function addNecessaryPaths(self)
-            % Add the path to other folders
-            
-            % preprocess is checked as an example of a file in 
-            % preprocessing, it could be any other file in that folder.
-            if( ~exist('preprocess', 'file'))
-                addpath(['..' self.slash 'preprocessing']);
-            end
-
-            % pop_fileio is checked as an example of a file in 
-            % matlab_scripts, it could be any other file in that folder.
-            if(~exist('pop_fileio', 'file'))
-                self.addEeglabPath();
-            end
-
-            if(~exist('mainGUI', 'file'))
-                addpath(genpath(['..' self.slash 'gui' self.slash]));
-            end
-        end
-        
         function updatemainGUI(self)
             % Update the main gui's data
             
@@ -1234,6 +1182,14 @@ classdef Project < handle
     
     %% Public static methods
     methods(Static)
+       function addAutomagicPaths()
+            CGV = ConstantGlobalValues;
+            addpath(CGV.AUTOMAGIC_PATH);
+            addpath(CGV.SRC_PATH);
+            addpath(CGV.PREPROCESSING_PATH);
+            addpath(genpath(CGV.GUI_PATH));
+        end
+        
         function address = makeStateAddress(p_folder)
             % Return the address of the state file
             
@@ -1244,7 +1200,6 @@ classdef Project < handle
     
     %% Private utility static methods
     methods(Static, Access=private)
-        
         function rate = makeRatingManually(block, qRate)
             % Return qRate if the block is not rated manually. If
             % it is rated manually return 'Manually Rated'. This is used

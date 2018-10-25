@@ -32,45 +32,9 @@ if nargin < 3
     error('eegplugin_automagic requires 3 arguments');
 end
 
-
-% Add all files of the automagic to path. EEGLAB must be already set to
-% matlab path.
-% ------------------------------------
-matlab_paths = matlabpath;
-if(ispc)
-    parts = strsplit(matlab_paths, ';');
-else
-    parts = strsplit(matlab_paths, ':');
-end
-IndexC = strfind(parts, 'automagic');
-Index = not(cellfun('isempty', IndexC));
-automagic_path = parts{Index};
-automagic_path = genpath(automagic_path);
-if(ispc)
-    parts = strsplit(automagic_path, ';');
-else
-    parts = strsplit(automagic_path, ':');
-end
-IndexC = strfind(parts, 'matlab_scripts/eeglab');
-Index = not(cellfun('isempty', IndexC));
-parts(Index) = [];
-if(ispc)
-    automagic_path = strjoin(parts, ';');
-else
-    automagic_path = strjoin(parts, ':');
-end
-addpath(automagic_path);
-
 % Create the menu and its submenues
 % ------------------------------------
-processing_command = ...
-    [ try_strings.check_chanlocs '[EEG, com] = pop_parameters(EEG);' catch_strings.store_and_hist ];
-rating_command = ...
-    [ try_strings.no_check '[EEG, com] = pop_rating(ALLEEG);' catch_strings.store_and_hist ];
-interpolate_command = ...
-    [ try_strings.check_chanlocs '[EEG, com] = pop_interpolate(ALLEEG);' catch_strings.store_and_hist ];
+start_command = '[com] = pop_start();';
 
 main = uimenu( fig, 'label', 'Automagic');
-uimenu( main, 'label', 'Start preprocessing...', 'callback', processing_command);
-uimenu( main, 'label', 'Start manual rating...', 'callback', rating_command);
-uimenu( main, 'label', 'Start interpolation...', 'callback', interpolate_command);
+uimenu( main, 'label', 'Open Automagic...', 'callback', start_command);
