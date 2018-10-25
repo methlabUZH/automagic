@@ -82,6 +82,8 @@ if isempty(defaults) || ~isfield(defaults, 'eogChans')
 end
 if ~isfield(EEGSystem, 'eogChans')
     eog_channels = defaults.EEGSystem.eogChans;
+else
+    eog_channels = EEGSystem.eogChans;
 end
 
 % Add the 10_20 file to EEGSystem
