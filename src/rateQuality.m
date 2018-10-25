@@ -39,7 +39,8 @@ function R = rateQuality (qualityScore, varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-defaults = ConstantGlobalValues.DefaultVisualisationParams.RateQualityParams;
+defVis = ConstantGlobalValues.DefaultVisualisationParams;
+defaults = defVis.CalcQualityParams.RateQualityParams;
 rating_strs = ConstantGlobalValues.RATINGS;
 
 p = inputParser;

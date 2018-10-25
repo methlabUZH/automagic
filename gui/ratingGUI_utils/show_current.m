@@ -13,7 +13,8 @@ if isfield(reduced, 'data')
 else
     data = [];
     unique_name = 'no image';
-    colorScale = handles.CGV.DefaultVisualisationParams.COLOR_SCALE;
+    defVis = handles.CGV.DefaultVisualisationParams;
+    colorScale = defVis.COLOR_SCALE;
 end
 
 

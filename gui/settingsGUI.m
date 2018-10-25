@@ -750,7 +750,7 @@ function defaultpushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles = set_gui(handles, handles.CGV.DefaultParams, ...
+handles = set_gui(handles, handles.RecParams, ...
     handles.CGV.DefaultVisualisationParams);
 
 % Update handles structure
@@ -844,10 +844,11 @@ if(get(handles.pcacheckbox, 'Value') && get(handles.icacheckbox, 'Value'))
 end
 
 if (get(hObject,'Value') == get(hObject,'Max'))
-    if ~isempty(handles.CGV.RecParams.MARAParams.high)
+    RecParams = CGV.RecParams;
+    if ~isempty(RecParams.MARAParams.high)
         set(handles.icahighpasscheckbox, 'Value', 1);
-        val = num2str((handles.CGV.RecParams.MARAParams.high.freq));
-        val_order = num2str((handles.CGV.RecParams.MARAParams.high.order));
+        val = num2str((RecParams.MARAParams.high.freq));
+        val_order = num2str((RecParams.MARAParams.high.order));
         set(handles.icahighpassedit, 'String', val)
         if( isempty( val_order) )
             set(handles.icahighpassorderedit, 'String', handles.CGV.DEFAULT_KEYWORD);
@@ -886,7 +887,8 @@ close('settingsGUI');
 
 function handles = setLineNoise(freq, handles)
 
-filt_cst = handles.CGV.PreprocessingCsts.FilterCsts;
+PrepCsts = handles.CGV.PreprocessingCsts;
+filt_cst = PrepCsts.FilterCsts;
 if(~ isempty(freq) && freq == filt_cst.NOTCH_EU)
     set(handles.euradio, 'Value', 1)
     set(handles.notchedit, 'String', num2str(freq))
@@ -1657,8 +1659,9 @@ function lowcheckbox_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 if (get(hObject,'Value') == get(hObject,'Max'))
-    val = num2str((handles.CGV.RecParams.FilterParams.low.freq));
-    val_order = num2str((handles.CGV.RecParams.FilterParams.low.order));
+    RecParams = CGV.RecParams;
+    val = num2str((RecParams.FilterParams.low.freq));
+    val_order = num2str((RecParams.FilterParams.low.order));
     set(handles.lowedit, 'String', val)
     if( isempty( val_order) )
         set(handles.lowpassorderedit, 'String', handles.CGV.DEFAULT_KEYWORD);
@@ -1706,8 +1709,9 @@ function highcheckbox_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 if (get(hObject,'Value') == get(hObject,'Max'))
-    val = num2str((handles.CGV.RecParams.FilterParams.high.freq));
-    val_order = num2str((handles.CGV.RecParams.FilterParams.high.order));
+    RecParams = CGV.RecParams;
+    val = num2str((RecParams.FilterParams.high.freq));
+    val_order = num2str((RecParams.FilterParams.high.order));
     set(handles.highedit, 'String', val)
     if( isempty( val_order) )
         set(handles.highpassorderedit, 'String', handles.CGV.DEFAULT_KEYWORD);
@@ -1740,14 +1744,15 @@ function notchbuttongroup_SelectionChangedFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-FilterCsts = handles.CGV.PreprocessingCsts.FilterCsts;
+PrepCsts = handles.CGV.PreprocessingCsts;
+filt_cst = PrepCsts.FilterCsts;
 switch get(hObject, 'Tag')
    case 'euradio'
-      set(handles.notchedit, 'String', num2str(FilterCsts.NOTCH_EU))
+      set(handles.notchedit, 'String', num2str(filt_cst.NOTCH_EU))
    case 'usradio'
-      set(handles.notchedit, 'String', num2str(FilterCsts.NOTCH_US))
+      set(handles.notchedit, 'String', num2str(filt_cst.NOTCH_US))
     case 'otherradio'
-      set(handles.notchedit, 'String', num2str(FilterCsts.NOTCH_OTHER))
+      set(handles.notchedit, 'String', num2str(filt_cst.NOTCH_OTHER))
 end
 
 
@@ -1865,8 +1870,9 @@ function icahighpasscheckbox_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of icahighpasscheckbox
 if (get(hObject,'Value') == get(hObject,'Max'))
-    val = num2str((handles.CGV.RecParams.MARAParams.high.freq));
-    val_order = num2str((handles.CGV.RecParams.MARAParams.high.order));
+    RecParams = CGV.RecParams;
+    val = num2str((RecParams.MARAParams.high.freq));
+    val_order = num2str((RecParams.MARAParams.high.order));
     set(handles.icahighpassedit, 'String', val)
     if( isempty( val_order) )
         set(handles.icahighpassorderedit, 'String', handles.CGV.DEFAULT_KEYWORD);
