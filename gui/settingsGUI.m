@@ -85,7 +85,7 @@ end
 params = varargin{1};
 assert(isa(params, 'struct'));
 VisualisationParams = varargin{2};
-CGV = ConstantGlobalValues;
+CGV = ConstantGlobalValues();
 
 % Put them in the handle
 handles.params = params;

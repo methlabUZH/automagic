@@ -200,7 +200,7 @@ classdef Project < handle
         function self = Project(name, dFolder, pFolder, ext, params, ...
                 vParams, varargin)
             
-            self.CGV = ConstantGlobalValues;
+            self.CGV = ConstantGlobalValues();
             defs = self.CGV.DefaultParams;
             p = inputParser;
             addParameter(p,'EEGSystem', defs.EEGSystem, @isstruct);

@@ -37,7 +37,8 @@ function Q = calcQuality(EEG, bad_chans, varargin)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Parse and check parameters
-defVis = ConstantGlobalValues.DefaultVisualisationParams;
+CGV = ConstantGlobalValues();
+defVis = CGV.DefaultVisualisationParams;
 defaults = defVis.CalcQualityParams;
 
 p = inputParser;
