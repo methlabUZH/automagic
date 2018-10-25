@@ -52,25 +52,73 @@ classdef ConstantGlobalValues
                                     'NEXT',         'rightarrow', ...
                                     'PREVIOUS',     'leftarrow')
                                  
-        DefaultParams = DefaultParameters
+    end
+    
+    properties(SetAccess=private)
+        DefaultParams
         
-        DefaultVisualisationParams = DefaultVisualisationParameters
+        DefaultVisualisationParams
         
-        RecParams = RecommendedParameters
+        RecParams
         
-        PreprocessingCsts = PreprocessingConstants
+        PreprocessingCsts
+       
+        AUTOMAGIC_PATH
+        
+        LIBRARY_PATH
+        
+        SRC_PATH
+        
+        GUI_PATH
+        
+        PREPROCESSING_PATH
     end
     
     methods
         function self = ConstantGlobalValues
-            % Checks 'DefaultParameters.m' as an example of a file in 
-            % /preprocessing. Could be any other file in that folder
-            if( ~ exist('DefaultParameters.m', 'file')) 
-                addpath('../preprocessing/');
+            if ispc
+                slash = '\';
+                seperator = ';';
+            else
+                slash = '/';
+                seperator = ':';
             end
-            if( ~ exist('DefaultVisualisationParameters.m', 'file')) 
-                addpath('../gui/');
-            end
+            automagic = 'automagic'; % Folder name of automagic
+            libName = 'matlab_scripts'; 
+            srcFolder = 'src'; 
+            guiFolder = 'gui';
+            preproFolder = 'preprocessing';
+            
+            matlabPaths = matlabpath;
+            parts = strsplit(matlabPaths, seperator);
+            Index = not(~contains(parts, automagic));
+            automagicPath = parts{Index};
+            automagicPath = regexp(automagicPath, ['.*' automagic], 'match');
+            automagicPath = automagicPath{1};
+            automagicPath = [automagicPath slash];
+            libPath = [automagicPath libName slash];
+            srcPath = [automagicPath srcFolder slash];
+            guiPath = [automagicPath guiFolder slash];
+            prepproPath = [automagicPath preproFolder slash];
+            
+            self.AUTOMAGIC_PATH = automagicPath;
+            self.LIBRARY_PATH = libPath;
+            self.SRC_PATH = srcPath;
+            self.GUI_PATH = guiPath;
+            self.PREPROCESSING_PATH = prepproPath;
+            
+            addpath(automagicPath);
+            addpath(libPath);
+            addpath(srcPath);
+            addpath(genpath(guiPath));
+            addpath(prepproPath);
+            addPreprocessingPaths();
+            
+            
+            self.DefaultParams = DefaultParameters;
+            self.DefaultVisualisationParams = DefaultVisualisationParameters;
+            self.RecParams = RecommendedParameters;
+            self.PreprocessingCsts = PreprocessingConstants;
         end
     end
     

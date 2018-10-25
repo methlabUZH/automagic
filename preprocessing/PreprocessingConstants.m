@@ -60,23 +60,34 @@ classdef PreprocessingConstants
     
     methods(Static)
         function path = LIBRARY_PATH()
+            CSTS = PreprocessingConstants;
             if ispc
                 slash = '\';
-                home = [getenv('HOMEDRIVE') getenv('HOMEPATH')];
             else
                 slash = '/';
-                home = getenv('HOME');
             end
             
-            libName = 'matlab_scripts'; % Folder name of third party code
-            automagic = 'automagic'; % Folder name of automagic
-            curr = strsplit(pwd, slash);
-            if any(contains(curr, automagic))
-                automagicPath = strjoin(curr(1:find(contains(curr, automagic))), slash);
-                path = [automagicPath slash libName slash];
+            libName = 'matlab_scripts'; 
+            path = [CSTS.AUTOMAGIC_PATH libName slash];
+        end
+        
+        function path = AUTOMAGIC_PATH()
+            if ispc
+                slash = '\';
+                seperator = ';';
             else
-                path = [home slash libName slash];
+                slash = '/';
+                seperator = ':';
             end
+            
+            automagic = 'automagic'; % Folder name of automagic
+            matlabPaths = matlabpath;
+            parts = strsplit(matlabPaths, seperator);
+            Index = not(~contains(parts, automagic));
+            automagicPath = parts{Index};
+            automagicPath = regexp(automagicPath, ['.*' automagic], 'match');
+            automagicPath = automagicPath{1};
+            path = [automagicPath slash];
         end
     end
 end

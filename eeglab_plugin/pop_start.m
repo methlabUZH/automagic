@@ -1,5 +1,16 @@
-function addRPCA()
-% addRPCA  Unzip and add the RPCA package
+function [com] = pop_start()
+% Opens up the Automagic. 
+%
+% Usage:
+%   >> EEG = pop_rating ( EEG );
+%
+% Inputs:
+%   EEG     - EEGLab EEG structure where the data has been already
+%   preprocessed.
+%
+% Outputs:
+%   EEG     -  EEGLab EEG structure where the field EEG.automagic is
+%   modified to have new information about ratings.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 
@@ -14,22 +25,15 @@ function addRPCA()
 % GNU General Public License for more details.
 % 
 % You should have received a copy of the GNU General Public License
-% along with this program.  If not, see <http://www.gnu.org/licenses/>
-CSTS = PreprocessingConstants;
-ZIPName = CSTS.RPCACsts.ZIP;
-libraryPath = CSTS.LIBRARY_PATH;
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-parts = strsplit(ZIPName, '.zip');
-folderName = parts{1};
+% display help if not enough arguments
+% ------------------------------------
 
-folderName = [libraryPath folderName];
-ZIPName = [libraryPath ZIPName];
+% ------------------------------------
+waitfor(RunAutomagic);
 
-if ~ exist(folderName, 'dir')
-    unzip(ZIPName, libraryPath);
-end
 
-addpath(genpath(folderName));
-fprintf('RPCA package successfully unzipped. Continuing preprocessing....\n');
-    
-end
+% return the string command
+% -------------------------
+com = sprintf('pop_start()');
