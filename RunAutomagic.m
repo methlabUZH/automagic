@@ -1,9 +1,5 @@
 %% This script starts Automagic
 
-automagic = 'automagic'; % Folder name of automagic
-srcFolder = 'src/';
-mainGuiFile = 'mainGUI';
-addpath('.');
 if ispc
     slash = '\';
     seperator = ';';
@@ -11,14 +7,24 @@ else
     slash = '/';
     seperator = ':';
 end
+automagic = 'automagic'; % Folder name of automagic
+libName = 'matlab_scripts'; 
+srcFolder = 'src'; 
+guiFolder = 'gui';
+preproFolder = 'preprocessing';
+
 matlabPaths = matlabpath;
 parts = strsplit(matlabPaths, seperator);
 Index = not(~contains(parts, automagic));
 automagicPath = parts{Index};
-path = [automagicPath slash];
-addpath(path);
-addpath([path srcFolder])
+automagicPath = regexp(automagicPath, ['.*' automagic], 'match');
+automagicPath = automagicPath{1};
+automagicPath = [automagicPath slash];
+addpath(automagicPath);
+addpath([automagicPath srcFolder])
+addpath([automagicPath guiFolder])
+addpath([automagicPath preproFolder])
+addpath([automagicPath libName])
 
-Project.addAutomagicPaths();
 run(mainGuiFile)
 
