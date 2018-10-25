@@ -31,7 +31,7 @@ function [com] = pop_start()
 % ------------------------------------
 
 % ------------------------------------
-waitfor(RunAutomagic);
+waitfor(mainGUI);
 
 
 % return the string command
