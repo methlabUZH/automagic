@@ -229,9 +229,10 @@ name = names{Index};
 
 % Special case of New Project
 if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
-    handles.VisualisationParams.CalcQualityParams = handles.CGV.DefaultVisualisationParams.CalcQualityParams;
-    handles.VisualisationParams.dsRate = handles.CGV.DefaultVisualisationParams.dsRate;
-    handles.params = makeDefaultParams(handles.CGV.DefaultParams);
+    defVis = handles.CGV.DefaultVisualisationParams;
+    handles.VisualisationParams.CalcQualityParams = defVis.CalcQualityParams;
+    handles.VisualisationParams.dsRate = defVis.dsRate;
+    handles.params = makeDefaultParams(defVis);
     set(handles.projectname, 'String', handles.CGV.NEW_PROJECT.NAME);
     set(handles.datafoldershow, 'String', handles.CGV.NEW_PROJECT.DATA_FOLDER);
     set(handles.projectfoldershow, 'String', handles.CGV.NEW_PROJECT.FOLDER);
@@ -351,14 +352,16 @@ if ~ isempty(project.params) && isfield(project.params, 'EEGSystem') && ...
         ~ isempty(project.params.EEGSystem)
     EEGSystem = project.params.EEGSystem;
 else
-    EEGSystem = handles.CGV.DefaultParams.EEGSystem;
+    defs = handles.CGV.DefaultParams;
+    EEGSystem = defs.EEGSystem;
 end
 
 if ~ isempty(project.params) && isfield(project.params, 'ChannelReductionParams') && ...
         ~ isempty(project.params.ChannelReductionParams)
     ChannelReductionParams = project.params.ChannelReductionParams;
 else
-    ChannelReductionParams = handles.CGV.DefaultParams.ChannelReductionParams;
+    defs = handles.CGV.DefaultParams;
+    ChannelReductionParams = defs.ChannelReductionParams;
 end
 
 
@@ -787,7 +790,8 @@ end
 % Get the EEG system
 EEGSystem = handles.params.EEGSystem;
 if ~ get(handles.egiradio, 'Value')
-   EEGSystem.name = CGV.PreprocessingCsts.EEGSystemCsts.OTHERS_NAME;
+   PrepCsts = CGV.PreprocessingCsts;
+   EEGSystem.name = PrepCsts.EEGSystemCsts.OTHERS_NAME;
    EEGSystem.locFile = get(handles.chanlocedit, 'String');
    EEGSystem.fileLocType = get(handles.loctypeedit, 'String');
    EEGSystem.refChan = str2num(get(handles.hasreferenceedit, 'String'));
@@ -1113,18 +1117,21 @@ if ~ isempty(params) && isfield(params, 'EEGSystem') && ...
         ~ isempty(params.EEGSystem)
     EEGSystem = params.EEGSystem;
 else
-    EEGSystem = handles.CGV.DefaultParams.EEGSystem;
+    defs = handles.CGV.DefaultParams;
+    EEGSystem = defs.EEGSystem;
 end
 
 if ~ isempty(params) && isfield(params, 'ChannelReductionParams') && ...
         ~ isempty(params.ChannelReductionParams)
     ChannelReductionParams = params.ChannelReductionParams;
 else
-    ChannelReductionParams = handles.CGV.DefaultParams.ChannelReductionParams;
+    defs = handles.CGV.DefaultParams;
+    ChannelReductionParams = defs.ChannelReductionParams;
 end
 
 switch EEGSystem.name
     case 'EGI'
+        defs = handles.CGV.DefaultParams;
         set(handles.egiradio, 'Value', 1);
         set(handles.othersysradio, 'Value', 0);
         set(handles.chanlocedit, 'String', '');
@@ -1136,8 +1143,7 @@ switch EEGSystem.name
         set(handles.excludeedit, 'String', '');
         set(handles.newreferenceradio, 'Value', 1)
         set(handles.hasreferenceradio, 'value', 0)
-        set(handles.hasreferenceedit, 'String', ...
-            num2str(handles.CGV.DefaultParams.EEGSystem.refChan))
+        set(handles.hasreferenceedit, 'String', num2str(defs.EEGSystem.refChan))
         set(handles.newreferenceradio, 'enable', 'off')
         set(handles.hasreferenceradio, 'enable', 'off')
         set(handles.hasreferenceedit, 'enable', 'off')
@@ -1379,7 +1385,8 @@ function othersysradio_Callback(hObject, eventdata, handles)
 % hObject    handle to othersysradio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-new_pars = handles.CGV.DefaultParams.EEGSystem;
+defs = handles.CGV.DefaultParams;
+new_pars = defs.EEGSystem;
 new_pars.name = 'Others';
 new_pars.eogChans = [];
 new_pars.tobeExcludedChans = [];
