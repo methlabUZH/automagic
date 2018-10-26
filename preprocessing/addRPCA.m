@@ -30,6 +30,6 @@ if ~ exist(folderName, 'dir')
 end
 
 addpath(genpath(folderName));
-fprintf('RPCA package successfully unzipped. Continuing preprocessing....\n');
+fprintf('RPCA package added to path successfully. Continuing preprocessing....\n');
     
 end
