@@ -85,7 +85,8 @@ classdef PreprocessingConstants
             parts = strsplit(matlabPaths, seperator);
             Index = not(~contains(parts, automagic));
             automagicPath = parts{Index};
-            automagicPath = regexp(automagicPath, ['.*' automagic], 'match');
+            automagicPath = strcat(automagicPath, '/');
+            automagicPath = regexp(automagicPath, ['.*' automagic '.*?/'], 'match');
             automagicPath = automagicPath{1};
             path = [automagicPath slash];
         end
