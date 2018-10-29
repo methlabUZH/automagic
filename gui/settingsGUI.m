@@ -844,7 +844,7 @@ if(get(handles.pcacheckbox, 'Value') && get(handles.icacheckbox, 'Value'))
 end
 
 if (get(hObject,'Value') == get(hObject,'Max'))
-    RecParams = CGV.RecParams;
+    RecParams = handles.CGV.RecParams;
     if ~isempty(RecParams.MARAParams.high)
         set(handles.icahighpasscheckbox, 'Value', 1);
         val = num2str((RecParams.MARAParams.high.freq));
@@ -1659,7 +1659,7 @@ function lowcheckbox_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 if (get(hObject,'Value') == get(hObject,'Max'))
-    RecParams = CGV.RecParams;
+    RecParams = handles.CGV.RecParams;
     val = num2str((RecParams.FilterParams.low.freq));
     val_order = num2str((RecParams.FilterParams.low.order));
     set(handles.lowedit, 'String', val)
@@ -1709,7 +1709,7 @@ function highcheckbox_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 if (get(hObject,'Value') == get(hObject,'Max'))
-    RecParams = CGV.RecParams;
+    RecParams = handles.CGV.RecParams;
     val = num2str((RecParams.FilterParams.high.freq));
     val_order = num2str((RecParams.FilterParams.high.order));
     set(handles.highedit, 'String', val)
@@ -1870,7 +1870,7 @@ function icahighpasscheckbox_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of icahighpasscheckbox
 if (get(hObject,'Value') == get(hObject,'Max'))
-    RecParams = CGV.RecParams;
+    RecParams = handles.CGV.RecParams;
     val = num2str((RecParams.MARAParams.high.freq));
     val_order = num2str((RecParams.MARAParams.high.order));
     set(handles.icahighpassedit, 'String', val)
