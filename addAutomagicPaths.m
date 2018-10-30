@@ -12,6 +12,7 @@ libName = 'matlab_scripts';
 srcFolder = 'src'; 
 guiFolder = 'gui';
 preproFolder = 'preprocessing';
+pluginFolder = 'eeglab_plugin';
 
 addpath('./')
 matlabPaths = matlabpath;
@@ -27,3 +28,4 @@ addpath([automagicPath srcFolder slash])
 addpath([automagicPath guiFolder slash])
 addpath([automagicPath preproFolder slash])
 addpath([automagicPath libName slash])
+addpath([automagicPath pluginFolder slash])
