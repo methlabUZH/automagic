@@ -1276,8 +1276,14 @@ classdef Project < handle
 
             % NOTE: Very risky. The assumption is that for each result 
             % file, there is a corresponding reduced file as well.
-            if(nBlock ~= nBlocks && nBlock / 2 ~= nBlocks)
-                modified = true;
+            if isempty(folder_counts) % Case of results folder
+                if( nBlock / 2 ~= nBlocks)
+                    modified = true;
+                end
+            else
+                if(nBlock ~= nBlocks)
+                    modified = true;
+                end
             end
         end
 
