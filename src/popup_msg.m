@@ -1,5 +1,10 @@
 function popup_msg(msgStr, title)
 
+if ~usejava('Desktop')
+   fprintf([title ' : ' msgStr '\n']); 
+   return;
+end
+
 handle = findobj(allchild(0), 'flat', 'Tag', 'ratingGUI');
 if(isempty(handle))
     handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');

@@ -582,9 +582,12 @@ classdef Project < handle
             % two folders, they are not copied to the new data structures
             % and considered as deleted files in the project.
             
-            h = waitbar(0,'Updating project. Please wait...');
-            h.Children.Title.Interpreter = 'none';
-
+            if usejava('Desktop')
+                h = waitbar(0,'Updating project. Please wait...');
+                h.Children.Title.Interpreter = 'none';
+            else
+                fprintf('Updating project. Please wait...\n');
+            end
             % Load subject folders
             subjects = self.listSubjectFiles();
             sCount = length(subjects);
@@ -602,7 +605,7 @@ classdef Project < handle
             filesCount = 0;
             nPreprocessedFile = 0;
             for i = 1:length(subjects)
-                if(ishandle(h))
+                if(usejava('Desktop') && ishandle(h))
                     waitbar((i-1) / length(subjects), h)
                 end
                 
@@ -622,7 +625,7 @@ classdef Project < handle
                     uniqueName = strcat(subjectName, '_', fileName);
 
                     fprintf(['...Adding file ', fileName, '\n']);
-                    if(ishandle(h))
+                    if(usejava('Desktop') && ishandle(h))
                         waitbar((i-1) / length(subjects), h, ...
                             ['Setting up project. Please wait.', ...
                             ' Adding file ', fileName, '...'])
@@ -738,7 +741,7 @@ classdef Project < handle
                         nPreprocessedSubject + 1; 
                 end
             end
-            if(ishandle(h))
+            if(usejava('Desktop') && ishandle(h))
                 waitbar(1)
                 close(h)
             end
@@ -955,10 +958,12 @@ classdef Project < handle
             % dataFolder, then tries to find the corresponding
             % preprocessed file in the resultFolder, if any. Then updates
             % the data structure based on the preprocessed result.
-            
-            h = waitbar(0,'Setting up project. Please wait...');
-            h.Children.Title.Interpreter = 'none';
-           
+            if usejava('Desktop')
+                h = waitbar(0,'Setting up project. Please wait...');
+                h.Children.Title.Interpreter = 'none';
+            else
+                fprintf('Setting up project. Please wait...\n');
+            end
             % Load subject folders
             subjects = self.listSubjectFiles();
             sCount = length(subjects);
@@ -978,7 +983,7 @@ classdef Project < handle
             nPreprocessedFile = 0;
             nPreprocessedSubject = 0;
             for i = 1:length(subjects)
-                if(ishandle(h))
+                if(usejava('Desktop') && ishandle(h))
                     waitbar((i-1) / length(subjects), h)
                 end
                 subjectName = subjects{i};
@@ -996,7 +1001,7 @@ classdef Project < handle
                     splits = strsplit(nameTemp, ext);
                     fileName = splits{1};
                     fprintf(['...Adding file ', fileName, '\n']);
-                    if(ishandle(h))
+                    if(usejava('Desktop') && ishandle(h))
                         waitbar((i-1) / length(subjects), h, ...
                             ['Setting up project. Please wait.', ...
                             ' Adding file ', fileName, '...'])
@@ -1049,7 +1054,7 @@ classdef Project < handle
                         nPreprocessedSubject + 1; 
                 end
             end
-            if(ishandle(h))
+            if(usejava('Desktop') && ishandle(h))
                 waitbar(1)
                 close(h)
             end
@@ -1117,6 +1122,15 @@ classdef Project < handle
 
             skip = 1;
             if( self.nProcessedFiles > 0)
+                
+                if ~ usejava('Desktop')
+                   fprintf(['Already existing preprocessing files are skipped ',...
+                       'and not preprocessed again. If you wish to preprocess ',...
+                       'them again, please remove the files and run the ', ...
+                       'preprocessing again.\n']);
+                   return;
+                end
+            
                 handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
                 main_pos = get(handle,'position');
                 screen_size = get( groot, 'Screensize' );
