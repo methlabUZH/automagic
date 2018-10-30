@@ -36,7 +36,9 @@ addAutomagicPaths();
 
 % Create the menu and its submenues
 % ------------------------------------
-start_command = '[com] = pop_start();';
+start_command = '[com] = pop_automagic();';
+import_command = '[com, ALLEEG] = pop_import(ALLEEG);';
 
 main = uimenu( fig, 'label', 'Automagic');
 uimenu( main, 'label', 'Open Automagic...', 'callback', start_command);
+uimenu( main, 'label', 'Import Automagic results...', 'callback', import_command);
