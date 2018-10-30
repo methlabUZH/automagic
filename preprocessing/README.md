@@ -2,8 +2,10 @@
 
 The preprocessing folder is a standalone folder which can be used independently from GUI. 
 
-The preprocessing steps look as follows. The gray areas are not performed by deafult. 
-
-* **Very Important**: Note that although each of the steps can be activated or deactivated, there can be only *PCA* or *ICA* at the same time. Also please be aware that in case of using **Artefact Subspace Reconstruction** (criterias *BurstCriterion* and *WindowCriterion*) the cleaned EEG result will be high pass filtered with the corresponding paramters. You have to take this into consideration because at a later step by default another high pass filtering may be applied on this same result.
-
-![alt tag](https://github.com/amirrezaw/automagic/blob/master/automagic_resources/AutomagicWorkflow.jpg)
+The main function is `preprocess.m`. You can run the preprocessing on a loaded EEGLab data structure as follows:
+```Matlab
+params = struct();
+[EEG_out, plots] = preprocess(EEG_in, params);
+```
+In the example above, `EEG_in` is an EEGLab data strucutre on which the preprocessing is performed. The output `EEG_out` is the preprocessed EEG with additional fields (ie. `EEG_out.automagic`). 
+`params` specifies the preprocessing parameters. If it's left empty `params = struct()` then the default values are taken from `DefaultParameters.n`. For more information on how to construct and modify parameters please see the comments section of `preprocess.m` or type `help preprocess.m`.
