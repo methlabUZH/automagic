@@ -9,6 +9,10 @@ handle = findobj(allchild(0), 'flat', 'Tag', 'ratingGUI');
 if(isempty(handle))
     handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
 end
+if(isempty(handle))
+    handle = findobj(allchild(0), 'flat', 'Tag', 'importResultsGUI');
+end
+
 mainPos = get(handle,'position');
 if(strcmp(title, 'Error'))
     msgHandle = msgbox(msgStr, title, 'Error','modal');

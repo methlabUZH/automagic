@@ -1,16 +1,9 @@
-function [com] = pop_start()
+function [com] = pop_automagic()
 % Opens up the Automagic. 
 %
 % Usage:
-%   >> EEG = pop_rating ( EEG );
+%   >> pop_automagic ();
 %
-% Inputs:
-%   EEG     - EEGLab EEG structure where the data has been already
-%   preprocessed.
-%
-% Outputs:
-%   EEG     -  EEGLab EEG structure where the field EEG.automagic is
-%   modified to have new information about ratings.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 
@@ -27,13 +20,11 @@ function [com] = pop_start()
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% display help if not enough arguments
 % ------------------------------------
 
-% ------------------------------------
-waitfor(mainGUI);
+mainGUI;
 
 
 % return the string command
 % -------------------------
-com = sprintf('pop_start()');
+com = sprintf('runAautomagic()');

@@ -1243,9 +1243,7 @@ classdef Project < handle
             % folder    The files in this filder are listed
             
             files = dir(folder);
-%             idx = ~startsWith({files.name}, '.');
-            cells = strfind({files.name}, '.');
-            idx = find(cellfun(@(x) x~=1, cells));
+            idx = ~startsWith({files.name}, '.');
             files = files(idx);
         end
         
