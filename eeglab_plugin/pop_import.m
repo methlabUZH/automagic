@@ -41,9 +41,8 @@ for i = 1:length(selectedList)
    EEG.automagic = automagic;
    
    [ALLEEG, EEG, CURRENTSET] = eeg_store(ALLEEG, EEG);
-%    ALLEEG = [ALLEEG, EEG];
 end
 
 % return the string command
 % -------------------------
-com = sprintf('');
+com = sprintf('[ALLEEG, EEG, CURRENTSET] = eeg_store(ALLEEG, EEG);');
