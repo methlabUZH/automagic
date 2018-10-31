@@ -348,7 +348,6 @@ if ~ exist(project.stateAddress, 'file')
 end
 
 % Set properties of the project:
-
 if ~ isempty(project.params) && isfield(project.params, 'EEGSystem') && ...
         ~ isempty(project.params.EEGSystem)
     EEGSystem = project.params.EEGSystem;
