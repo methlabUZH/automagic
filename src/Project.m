@@ -886,9 +886,9 @@ classdef Project < handle
             % updateDataStructures must be called.
             
             dataChanged = self.isFolderChanged(self.dataFolder, ...
-                self.nSubject, self.nBlock, self.mask);
+                self.nSubject, self.nBlock, self.mask, self.params.Settings.trackAllSteps);
             resultChanged = self.isFolderChanged(self.resultFolder, ...
-                [], self.nProcessedFiles, self.CGV.EXTENSIONS(1).mat);
+                [], self.nProcessedFiles, self.CGV.EXTENSIONS(1).mat, self.params.Settings.trackAllSteps);
             modified = dataChanged || resultChanged;
         end
         
@@ -1249,7 +1249,7 @@ classdef Project < handle
         end
         
         function modified = isFolderChanged(folder, folder_counts, ...
-                nBlocks, ext)
+                nBlocks, ext, allSteps)
             % Return true if the number of files or folders in the
             % folder are changed since the last update. 
             % NOTE: This is a very naive way of checking if changes
@@ -1278,8 +1278,14 @@ classdef Project < handle
             % NOTE: Very risky. The assumption is that for each result 
             % file, there is a corresponding reduced file as well.
             if isempty(folder_counts) % Case of results folder
-                if( nBlock / 2 ~= nBlocks)
-                    modified = true;
+                if allSteps
+                    if( nBlock / 3 ~= nBlocks)
+                        modified = true;
+                    end
+                else
+                    if( nBlock / 2 ~= nBlocks)
+                        modified = true;
+                    end
                 end
             else
                 if(nBlock ~= nBlocks)

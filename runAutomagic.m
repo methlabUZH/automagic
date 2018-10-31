@@ -3,5 +3,5 @@
 mainGuiFile = 'mainGUI.m';
 
 addAutomagicPaths();
-run(mainGuiFile)
+run(mainGuiFile);
 
