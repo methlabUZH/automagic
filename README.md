@@ -13,12 +13,15 @@ You need MATLAB installed and activated on your system to use **Automagic**. **A
 1. Download and unzip **_automagic-master_** to your favorite place on your hard drive. 
 
 ## 2. Run automagic 
-1. To run automagic, start Matlab and change your working directory to automagic-master.
-2. Type _runAutomagic_
-(Note that automagic will promt to download required toolboxes when they are needed)
+1. To run automagic, start Matlab and change your working directory to the root folder `automagic-master`. 
+   * Please do **NOT** add **Automagic** to Matlab path manually. 
+2. Type _runAutomagic_ in Matlab command window.
+
+## 3. Manual
+For a comprehensive explanation on how to start and use **Automagic** please see the [wiki](https://github.com/methlabUZH/automagic/wiki) page.
 
 ## Further information and user manual
-Further infomration about Automagic, a user manual and some example datasets can be found:
+Further information about **Automagic**, a user manual and some example datasets can be found:
 https://www.psychologie.uzh.ch/de/bereiche/nec/plafor/automagic.html
 
 ## Contact us
