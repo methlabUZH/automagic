@@ -18,7 +18,7 @@ You need MATLAB installed and activated on your system to use **Automagic**. **A
 (Note that automagic will promt to download required toolboxes when they are needed)
 
 ## Further information and user manual
-Further infomration about Automagic, a user manual and some example datasets can be found:
+Further information about **Automagic**, a user manual and some example datasets can be found:
 https://www.psychologie.uzh.ch/de/bereiche/nec/plafor/automagic.html
 
 ## Contact us
