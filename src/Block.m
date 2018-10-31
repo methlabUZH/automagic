@@ -302,7 +302,8 @@ classdef Block < handle
             if isfield(updates, 'rate')
                 self.rate = updates.rate;
                 self.isManuallyRated = ~ strcmp(updates.rate, ...
-                    rateQuality(self.getCurrentQualityScore(), self.project.qualityCutoffs));
+                    rateQuality(self.getCurrentQualityScore(), ...
+                    self.project.qualityCutoffs));
                 if ~ strcmp(self.rate, self.CGV.RATINGS.Interpolate)
                     if ~ isfield(updates, 'tobeInterpolated')
                         % If new rate is not Interpolate and no (empty) list 
@@ -385,7 +386,8 @@ classdef Block < handle
             qScoreIdx.MAV = arrayfun(@(x) ceil(length(x.MAV)/2), qScore);
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
-            qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), self.project.qualityCutoffs);
+            qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), ...
+                self.project.qualityCutoffs);
             
             self.setRatingInfoAndUpdate(struct('rate', qRate, ...
                 'tobeInterpolated', EEG.automagic.autoBadChans, ...
@@ -445,7 +447,8 @@ classdef Block < handle
             qScoreIdx.MAV = arrayfun(@(x) ceil(length(x.MAV)/2), qScore);
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
-            qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), self.project.qualityCutoffs);
+            qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), ...
+                self.project.qualityCutoffs);
 
             % Put the channels back to NaN if they were not to be interpolated
             % originally
@@ -504,8 +507,10 @@ classdef Block < handle
             fileID = fopen([self.imageAddress '_log.txt'],'w');
        
             fprintf(fileID, sprintf(text.info.automagic, self.CGV.VERSION));
-            fprintf(fileID, sprintf(text.info.matlab, matVer.Version, matVer.Release, matVer.Date));
-            fprintf(fileID, sprintf(text.info.fileName, self.fileName, self.subject.name, self.project.name));
+            fprintf(fileID, sprintf(text.info.matlab, matVer.Version, ...
+                matVer.Release, matVer.Date));
+            fprintf(fileID, sprintf(text.info.fileName, self.fileName, ...
+                self.subject.name, self.project.name));
             fprintf(fileID, sprintf(text.info.time, datetime));
             fprintf(fileID, '\n');
             fprintf(fileID, '\n');
@@ -522,13 +527,32 @@ classdef Block < handle
                 if strcmp(automagic.prep.performed, 'yes')
                     pars = automagic.prep.params;
                     fprintf(fileID, sprintf(text.prep.desc));
-                    fprintf(fileID, sprintf(text.prep.detrend, pars.detrend.detrendCutoff, pars.detrend.detrendStepSize, pars.detrend.detrendType));
-                    fprintf(fileID, sprintf(text.prep.lineNoise, pars.lineNoise.fPassBand, sprintf('%d ', pars.lineNoise.lineFrequencies), pars.lineNoise.fScanBandWidth, pars.lineNoise.maximumIterations));
-                    fprintf(fileID, sprintf(text.prep.reference.robDevThres, pars.reference.robustDeviationThreshold));
-                    fprintf(fileID, sprintf(text.prep.reference.corr, pars.reference.correlationWindowSeconds, pars.reference.correlationThreshold));
-                    fprintf(fileID, sprintf(text.prep.reference.ransac, pars.reference.ransacSampleSize, pars.reference.ransacChannelFraction, pars.reference.ransacUnbrokenTime, pars.reference.ransacWindowSeconds, pars.reference.ransacCorrelationThreshold));
-                    fprintf(fileID, sprintf(text.prep.reference.highFreqNoise, pars.reference.highFrequencyNoiseThreshold));
-                    fprintf(fileID, sprintf(text.prep.reference.maxIter, pars.reference.maxReferenceIterations));
+                    fprintf(fileID, sprintf(text.prep.detrend, ...
+                        pars.detrend.detrendCutoff, ...
+                        pars.detrend.detrendStepSize, ...
+                        pars.detrend.detrendType));
+                    fprintf(fileID, sprintf(text.prep.lineNoise, ...
+                        pars.lineNoise.fPassBand, sprintf('%d ', ...
+                        pars.lineNoise.lineFrequencies), ...
+                        pars.lineNoise.fScanBandWidth, ...
+                        pars.lineNoise.maximumIterations));
+                    fprintf(fileID, sprintf(...
+                        text.prep.reference.robDevThres, ...
+                        pars.reference.robustDeviationThreshold));
+                    fprintf(fileID, sprintf(text.prep.reference.corr, ...
+                        pars.reference.correlationWindowSeconds, ...
+                        pars.reference.correlationThreshold));
+                    fprintf(fileID, sprintf(text.prep.reference.ransac, ...
+                        pars.reference.ransacSampleSize, ...
+                        pars.reference.ransacChannelFraction, ...
+                        pars.reference.ransacUnbrokenTime, ...
+                        pars.reference.ransacWindowSeconds, ...
+                        pars.reference.ransacCorrelationThreshold));
+                    fprintf(fileID, sprintf(...
+                        text.prep.reference.highFreqNoise, ...
+                        pars.reference.highFrequencyNoiseThreshold));
+                    fprintf(fileID, sprintf(text.prep.reference.maxIter, ...
+                        pars.reference.maxReferenceIterations));
                     fprintf(fileID, '\n');
                 end
             end
@@ -540,22 +564,32 @@ classdef Block < handle
                     fprintf(fileID, sprintf(text.clean_rawdata.desc));
                     if ~ strcmp(pars.Highpass , 'off')
                         if ~ strcmp(pars.BurstCriterion , 'off') 
-                            fprintf(fileID, sprintf(text.clean_rawdata.noASRFilter, pars.Highpass));
+                            fprintf(fileID, sprintf(...
+                                text.clean_rawdata.noASRFilter, ...
+                                pars.Highpass));
                         else
-                            fprintf(fileID, sprintf(text.clean_rawdata.ASRFilter, pars.Highpass));
+                            fprintf(fileID, sprintf(...
+                                text.clean_rawdata.ASRFilter, ...
+                                pars.Highpass));
                         end
                     end
                     
                     if ~ strcmp(pars.LineNoiseCriterion, 'off')
-                        fprintf(fileID, sprintf(text.clean_rawdata.lineNoise, pars.LineNoiseCriterion));
+                        fprintf(fileID, sprintf(...
+                            text.clean_rawdata.lineNoise, ...
+                            pars.LineNoiseCriterion));
                     end
                     
                     if ~ strcmp(pars.BurstCriterion, 'off')
-                        fprintf(fileID, sprintf(text.clean_rawdata.burst, pars.BurstCriterion));
+                        fprintf(fileID, sprintf(...
+                            text.clean_rawdata.burst, ...
+                            pars.BurstCriterion));
                     end
                     
                     if ~ strcmp(pars.WindowCriterion, 'off')
-                        fprintf(fileID, sprintf(text.clean_rawdata.window, pars.WindowCriterion));
+                        fprintf(fileID, sprintf(...
+                            text.clean_rawdata.window, ...
+                            pars.WindowCriterion));
                     end
                     fprintf(fileID, '\n');
                 end
@@ -565,32 +599,45 @@ classdef Block < handle
                 if strcmp(automagic.filtering.performed, 'yes')
                     pars = automagic.filtering;
                     fprintf(fileID, sprintf(text.filtering.desc));
-                    if (isfield(pars, 'highpass') && strcmp(pars.highpass.performed, 'yes'))
-                        fprintf(fileID, sprintf(text.filtering.high, pars.highpass.freq, pars.highpass.order, pars.highpass.transitionBandWidth));
+                    if (isfield(pars, 'highpass') && ...
+                            strcmp(pars.highpass.performed, 'yes'))
+                        fprintf(fileID, sprintf(text.filtering.high, ...
+                            pars.highpass.freq, pars.highpass.order, ...
+                            pars.highpass.transitionBandWidth));
                     end
                     
-                    if (isfield(pars, 'lowpass') && strcmp(pars.lowpass.performed, 'yes'))
-                        fprintf(fileID, sprintf(text.filtering.high, pars.lowpass.freq, pars.lowpass.order, pars.lowpass.transitionBandWidth));
+                    if (isfield(pars, 'lowpass') && ...
+                            strcmp(pars.lowpass.performed, 'yes'))
+                        fprintf(fileID, sprintf(text.filtering.high, ...
+                            pars.lowpass.freq, pars.lowpass.order, ...
+                            pars.lowpass.transitionBandWidth));
                     end
                     
-                    if (isfield(pars, 'notch') && strcmp(pars.notch.performed, 'yes'))
-                        fprintf(fileID, sprintf(text.filtering.high, pars.notch.freq, pars.notch.order, pars.notch.transitionBandWidth));
+                    if (isfield(pars, 'notch') && ...
+                            strcmp(pars.notch.performed, 'yes'))
+                        fprintf(fileID, sprintf(text.filtering.high, ...
+                            pars.notch.freq, pars.notch.order, ...
+                            pars.notch.transitionBandWidth));
                     end
                     fprintf(fileID, '\n');
                 end
             end
             
-            fprintf(fileID, sprintf(text.badchans.desc, length(automagic.autoBadChans)));
+            fprintf(fileID, sprintf(text.badchans.desc, ...
+                length(automagic.autoBadChans)));
             if strcmp(automagic.prep.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.prep, length(automagic.prep.badChans)));
+                fprintf(fileID, sprintf(text.badchans.prep, ...
+                    length(automagic.prep.badChans)));
             end
             
             if strcmp(automagic.crd.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.crd, length(automagic.crd.badChans)));
+                fprintf(fileID, sprintf(text.badchans.crd, ...
+                    length(automagic.crd.badChans)));
             end
             
             if strcmp(automagic.highVarianceRejection.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.flatline, length(automagic.highVarianceRejection.badChans)));
+                fprintf(fileID, sprintf(text.badchans.flatline, ...
+                    length(automagic.highVarianceRejection.badChans)));
             end
             fprintf(fileID, '\n');
             
@@ -607,10 +654,13 @@ classdef Block < handle
                     fprintf(fileID, sprintf(text.mara.desc));
                     
                     if strcmp(pars.highpass.performed, 'yes')
-                        fprintf(fileID, sprintf(text.mara.filtering, pars.highpass.freq, pars.highpass.order, pars.highpass.transitionBandWidth));
+                        fprintf(fileID, sprintf(text.mara.filtering, ...
+                            pars.highpass.freq, pars.highpass.order, ...
+                            pars.highpass.transitionBandWidth));
                     end
                     
-                    fprintf(fileID, sprintf(text.mara.reject, length(pars.ICARejected), pars.retainedVariance));
+                    fprintf(fileID, sprintf(text.mara.reject, ...
+                        length(pars.ICARejected), pars.retainedVariance));
                     fprintf(fileID, sprintf(text.mara.remove));
                     fprintf(fileID, '\n');
                 end
@@ -620,7 +670,8 @@ classdef Block < handle
                 if strcmp(automagic.rpca.performed, 'yes')
                     pars = automagic.rpca;
                     fprintf(fileID, sprintf(text.rpca.desc));
-                    fprintf(fileID, sprintf(text.rpca.params, pars.lambda, pars.tol, pars.maxIter));
+                    fprintf(fileID, sprintf(text.rpca.params, ...
+                        pars.lambda, pars.tol, pars.maxIter));
                     fprintf(fileID, '\n');
                 end
             end
@@ -629,17 +680,22 @@ classdef Block < handle
             fprintf(fileID, '\n');
             
             if strcmp(automagic.highVarianceRejection.performed, 'yes')
-                fprintf(fileID, sprintf(text.highvar.desc, automagic.highVarianceRejection.sd));
+                fprintf(fileID, sprintf(text.highvar.desc, ...
+                    automagic.highVarianceRejection.sd));
                 fprintf(fileID, '\n');
             end
             
-            fprintf(fileID, sprintf(text.quality.OHA, sprintf('%0.7f ', automagic.qualityScores.OHA)));
-            fprintf(fileID, sprintf(text.quality.THV, sprintf('%0.7f ', automagic.qualityScores.THV)));
-            fprintf(fileID, sprintf(text.quality.CHV, sprintf('%0.7f ', automagic.qualityScores.CHV)));
+            fprintf(fileID, sprintf(text.quality.OHA, ...
+                sprintf('%0.7f ', automagic.qualityScores.OHA)));
+            fprintf(fileID, sprintf(text.quality.THV, ...
+                sprintf('%0.7f ', automagic.qualityScores.THV)));
+            fprintf(fileID, sprintf(text.quality.CHV, ...
+                sprintf('%0.7f ', automagic.qualityScores.CHV)));
             fprintf(fileID, '\n');
             
             if isfield(automagic, 'interpolation')
-                fprintf(fileID, sprintf(text.interpolate.desc, automagic.interpolation.params.method));
+                fprintf(fileID, sprintf(text.interpolate.desc, ...
+                    automagic.interpolation.params.method));
                 fprintf(fileID, '\n');
             end
             

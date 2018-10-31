@@ -823,7 +823,8 @@ classdef Project < handle
             % returned
             
             blocks = values(self.blockMap, self.processedList);
-            ratings = cellfun( @(block) rateQuality(block.getCurrentQualityScore(), cutoffs), blocks, 'uniform', 0);
+            ratings = cellfun( @(block) rateQuality(...
+                block.getCurrentQualityScore(), cutoffs), blocks, 'uniform', 0);
             ratings = cellfun( @self.makeRatingManually, blocks, ratings, 'uniform', 0);
         end
         
