@@ -27,4 +27,4 @@ mainGUI;
 
 % return the string command
 % -------------------------
-com = sprintf('runAautomagic()');
+com = sprintf('runAautomagic;');
