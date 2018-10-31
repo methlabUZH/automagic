@@ -31,6 +31,7 @@ selectedList = params.selectedList;
 for i = 1:length(selectedList)
    fileName = selectedList{i};
    block = project.blockMap(fileName);
+   block.updateAddresses(project.dataFolder, project.resultFolder)
    filePath = block.resultAddress;
    preprocessed = matfile(filePath,'Writable',true);
    EEG = preprocessed.EEG;
