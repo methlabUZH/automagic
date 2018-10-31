@@ -34,6 +34,7 @@ for i = 1:length(selectedList)
    filePath = block.resultAddress;
    preprocessed = matfile(filePath,'Writable',true);
    EEG = preprocessed.EEG;
+   EEG.setname = fileName;
    automagic = preprocessed.automagic;
    EEG.automagic = automagic;
    ALLEEG = [ALLEEG, EEG];
