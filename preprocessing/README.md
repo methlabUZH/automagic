@@ -1,6 +1,6 @@
 ## Preprocessing
 
-The preprocessing folder is a standalone folder which can be used independently from GUI. 
+The preprocessing folder is a [standalone folder which can be used independently from GUI](https://github.com/methlabUZH/automagic/wiki/Standalone-preprocessing-code). 
 
 The main function is `preprocess.m`. You can run the preprocessing on a loaded EEGLab data structure as follows:
 ```Matlab
