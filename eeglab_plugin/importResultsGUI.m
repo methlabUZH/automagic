@@ -113,7 +113,7 @@ for i = 1:handles.projectList.Count
 end
 
 set(handles.popupmenu1, 'String', nameList, ...
-                        'Value', handles.currentProject - 1);
+                        'Value', max(handles.currentProject - 1, 1));
 
 % Update and load project
 handles = update_and_load(handles);
@@ -187,7 +187,7 @@ function handles = load_selected_project(handles)
 Index = get(handles.popupmenu1, 'Value');
 names = handles.projectList.keys;
 names(1) = []; % remove the Create New Project
-currentIndex = handles.currentProject - 1;
+currentIndex = max(handles.currentProject - 1, 1);
 name = names{Index};
 
 % Special case of New Project should not happen in the importResultsGUI
@@ -204,8 +204,6 @@ if(strcmp(name, handles.CGV.LOAD_PROJECT.LIST_NAME))
         set(handles.popupmenu1,...
             'String', names,...
             'Value', currentIndex);
-        load_selected_project(handles);
-        save_state(handles)
         return;
     end
     
@@ -246,6 +244,28 @@ end
 
 % Load the project:
 project = handles.projectList(name);
+
+if ~ exist(project.stateAddress, 'file')
+    if(  ~ exist(project.resultFolder, 'dir') )
+        % This can happen when data is on a server and connecton is lost
+        popup_msg(['The project folder is unreachable or deleted. ' ...
+                        project.resultFolder], 'Error');
+        set(handles.filelistbox, 'String', 'No access to the project'); 
+        return;
+    else
+        % If the state_file is deleted, remove this project
+        popup_msg(['The state_file does not exist anymore.',...
+            'You must create a new project.'], 'Error');
+        remove(handles.projectList, name);
+        handles.currentProject = 1;
+        set(handles.popupmenu1, 'String', names, ...
+            'Value', handles.currentProject);
+        update_and_load(handles);
+        save_state(handles);
+        return;
+    end
+end
+
 handles.currentProject = find(contains(handles.projectList.keys, name));
 set(handles.filelistbox, 'String', project.processedList); 
 save_state(handles)
