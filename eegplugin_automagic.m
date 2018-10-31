@@ -37,7 +37,7 @@ addAutomagicPaths();
 % Create the menu and its submenues
 % ------------------------------------
 start_command = '[com] = pop_automagic();';
-import_command = '[com, ALLEEG] = pop_import(ALLEEG);';
+import_command = '[com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG);';
 import_command = [import_command 'eeglab redraw;'];
 
 main = uimenu( fig, 'label', 'Automagic');

@@ -1,4 +1,4 @@
-function [com, ALLEEG] = pop_import(ALLEEG)
+function [com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG)
 % pop up a window allowing user to select which results to import. 
 %
 % Usage:
@@ -31,14 +31,17 @@ selectedList = params.selectedList;
 for i = 1:length(selectedList)
    fileName = selectedList{i};
    block = project.blockMap(fileName);
-   block.updateAddresses(project.dataFolder, project.resultFolder)
+   block.updateAddresses(project.dataFolder, project.resultFolder);
    filePath = block.resultAddress;
+   
    preprocessed = matfile(filePath,'Writable',true);
    EEG = preprocessed.EEG;
    EEG.setname = fileName;
    automagic = preprocessed.automagic;
    EEG.automagic = automagic;
-   ALLEEG = [ALLEEG, EEG];
+   
+   [ALLEEG, EEG, CURRENTSET] = eeg_store(ALLEEG, EEG);
+%    ALLEEG = [ALLEEG, EEG];
 end
 
 % return the string command
