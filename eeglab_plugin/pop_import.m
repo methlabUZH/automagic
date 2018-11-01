@@ -1,4 +1,4 @@
-function [com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG)
+function [com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG, EEG, CURRENTSET)
 % pop up a window allowing user to select which results to import. 
 %
 % Usage:
