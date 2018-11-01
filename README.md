@@ -1,5 +1,7 @@
 # Automagic
 
+<img src="https://github.com/methlabUZH/automagic/blob/master/automagic_resources/automagic.jpg" width="100">
+
 ## What is Automagic ?
 
 **Automagic** is a MATLAB based toolbox for preprocessing of EEG-datasets. It has been developed with the intention to offer a user-friendly pre-processing software for big (and small) EEG datasets. The software can be controlled with a graphical user interface (GUI) and does not require any knowledge about programming. It runs on Matlab (R2016b and newer releases). Due to the fact that the applications is compiled of several matlab functions that are compatible with EEGLAB (Delorme & Makeig 2004), one of the most used opens-source frameworks for EEG analysis) more experienced users can extend Automagic to their specific needs.
