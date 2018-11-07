@@ -1,12 +1,5 @@
 function addAutomagicPaths()
 
-if ispc
-    slash = '\';
-    seperator = ';';
-else
-    slash = '/';
-    seperator = ':';
-end
 automagic = 'automagic'; % Folder name of automagic
 libName = 'matlab_scripts'; 
 srcFolder = 'src'; 
@@ -14,18 +7,22 @@ guiFolder = 'gui';
 preproFolder = 'preprocessing';
 pluginFolder = 'eeglab_plugin';
 
-addpath('./')
+addpath(['.' filesep])
 matlabPaths = matlabpath;
-parts = strsplit(matlabPaths, seperator);
+parts = strsplit(matlabPaths, pathsep);
 Index = not(~contains(parts, automagic));
 automagicPath = parts{Index};
-automagicPath = strcat(automagicPath, '/');
-automagicPath = regexp(automagicPath, ['.*' automagic '.*?/'], 'match');
+if ~strcmp(automagicPath(end), filesep)
+    automagicPath = strcat(automagicPath, filesep);
+end
+automagicPath = regexp(automagicPath, ['.*' automagic '.*?' filesep], 'match');
 automagicPath = automagicPath{1};
-automagicPath = [automagicPath slash];
+if ~strcmp(automagicPath(end), filesep)
+    automagicPath = strcat(automagicPath, filesep);
+end
 addpath(automagicPath);
-addpath([automagicPath srcFolder slash])
-addpath([automagicPath guiFolder slash])
-addpath([automagicPath preproFolder slash])
-addpath([automagicPath libName slash])
-addpath([automagicPath pluginFolder slash])
+addpath([automagicPath srcFolder filesep])
+addpath([automagicPath guiFolder filesep])
+addpath([automagicPath preproFolder filesep])
+addpath([automagicPath libName filesep])
+addpath([automagicPath pluginFolder filesep])
