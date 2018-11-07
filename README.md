@@ -19,12 +19,8 @@ You need MATLAB installed and activated on your system to use **Automagic**. **A
    * Please do **NOT** add **Automagic** to Matlab path manually. 
 2. Type _runAutomagic_ in Matlab command window.
 
-## 3. Manual
+## 3. Manual	
 For a comprehensive explanation on how to start and use **Automagic** please see the [wiki](https://github.com/methlabUZH/automagic/wiki) page.
-
-## Further information and user manual
-Further information about **Automagic**, a user manual and some example datasets can be found:
-https://www.psychologie.uzh.ch/de/bereiche/nec/plafor/automagic.html
 
 ## Contact us
 You can find us [here](http://www.psychologie.uzh.ch/de/fachrichtungen/plafor.html).
