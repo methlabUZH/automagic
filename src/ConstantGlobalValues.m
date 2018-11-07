@@ -123,10 +123,18 @@ classdef ConstantGlobalValues
     
     methods(Static)
         function stateFile = stateFile()
+            if ispc	
+                home = [getenv('HOMEDRIVE') getenv('HOMEPATH')];	
+                slash = '\';	
+            else	
+                home = getenv('HOME');	
+                slash = '/';	
+            end	
+
             stateFile = struct('NAME', 'state.mat', ...
                                'PROJECT_NAME', 'project_state.mat', ...
-                               'FOLDER', [home filesep 'automagicConfigs' filesep], ...
-                               'ADDRESS', [home filesep 'automagicConfigs' filesep 'state.mat']);
+                               'FOLDER', [home slash 'automagicConfigs' slash], ...
+                               'ADDRESS', [home slash 'automagicConfigs' slash 'state.mat']);
         end
     end
 end
