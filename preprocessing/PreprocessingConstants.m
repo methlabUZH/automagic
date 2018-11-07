@@ -67,6 +67,7 @@ classdef PreprocessingConstants
         end
         
         function automagicPath = AUTOMAGIC_PATH()
+            automagic = 'automagic';
             addpath(['.' filesep])
             matlabPaths = matlabpath;
             parts = strsplit(matlabPaths, pathsep);
