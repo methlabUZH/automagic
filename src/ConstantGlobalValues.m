@@ -76,31 +76,29 @@ classdef ConstantGlobalValues
     
     methods
         function self = ConstantGlobalValues
-            if ispc
-                slash = '\';
-                seperator = ';';
-            else
-                slash = '/';
-                seperator = ':';
-            end
             automagic = 'automagic'; % Folder name of automagic
             libName = 'matlab_scripts'; 
             srcFolder = 'src'; 
             guiFolder = 'gui';
             preproFolder = 'preprocessing';
-            
+
+            addpath(['.' filesep])
             matlabPaths = matlabpath;
-            parts = strsplit(matlabPaths, seperator);
+            parts = strsplit(matlabPaths, pathsep);
             Index = not(~contains(parts, automagic));
             automagicPath = parts{Index};
-            automagicPath = strcat(automagicPath, '/');
-            automagicPath = regexp(automagicPath, ['.*' automagic '.*?/'], 'match');
+            if ~strcmp(automagicPath(end), filesep)
+                automagicPath = strcat(automagicPath, filesep);
+            end
+            automagicPath = regexp(automagicPath, ['.*' automagic '.*?' filesep], 'match');
             automagicPath = automagicPath{1};
-            automagicPath = [automagicPath slash];
-            libPath = [automagicPath libName slash];
-            srcPath = [automagicPath srcFolder slash];
-            guiPath = [automagicPath guiFolder slash];
-            prepproPath = [automagicPath preproFolder slash];
+            if ~strcmp(automagicPath(end), filesep)
+                automagicPath = strcat(automagicPath, filesep);
+            end
+            libPath = [automagicPath libName filesep];
+            srcPath = [automagicPath srcFolder filesep];
+            guiPath = [automagicPath guiFolder filesep];
+            prepproPath = [automagicPath preproFolder filesep];
             
             self.AUTOMAGIC_PATH = automagicPath;
             self.LIBRARY_PATH = libPath;
@@ -125,18 +123,10 @@ classdef ConstantGlobalValues
     
     methods(Static)
         function stateFile = stateFile()
-            if ispc
-                home = [getenv('HOMEDRIVE') getenv('HOMEPATH')];
-                slash = '\';
-            else
-                home = getenv('HOME');
-                slash = '/';
-            end
-            
             stateFile = struct('NAME', 'state.mat', ...
                                'PROJECT_NAME', 'project_state.mat', ...
-                               'FOLDER', [home slash 'automagicConfigs' slash], ...
-                               'ADDRESS', [home slash 'automagicConfigs' slash 'state.mat']);
+                               'FOLDER', [home filesep 'automagicConfigs' filesep], ...
+                               'ADDRESS', [home filesep 'automagicConfigs' filesep 'state.mat']);
         end
     end
 end
