@@ -952,9 +952,11 @@ classdef Project < handle
                     subjectName = ['sub-' block.subject.name];
                 end
                 
-                newSourceSubAdd = [folder subjectName slash 'eeg' slash];
-                newResSubAdd = [folder 'derivatives' slash subjectName slash 'eeg' slash];
-                if ~exist(newSourceSubAdd, 'dir')
+                relativeAddress = extractBetween(block.sourceAddress, block.subject.name, [block.fileName block.fileExtension]);
+                isBIDS = (length(relativeAddress{1}) > 2);
+                newSourceSubAdd = [folder 'sourcedata' slash subjectName relativeAddress{1}];
+                newResSubAdd = [folder 'derivatives' slash subjectName relativeAddress{1}];
+                if ~isBIDS && ~exist(newSourceSubAdd, 'dir')
                     mkdir(newSourceSubAdd);
                 end
                 if ~exist(newResSubAdd, 'dir')
@@ -963,53 +965,68 @@ classdef Project < handle
                 
                 newSourceFile = [newSourceSubAdd fileName '_eeg' block.fileExtension];
                 newResFile = [newResSubAdd fileName '_eeg_automagic.mat'];
-                copyfile(block.sourceAddress, newSourceFile);
+                
+                if ~ isBIDS
+                    copyfile(block.sourceAddress, newSourceFile);
+                end
                 
                 if exist(block.resultAddress, 'file')
                     copyfile(block.resultAddress, newResFile);
+                    
+                    images = dir([self.resultFolder block.subject.name relativeAddress{1} '*.jpg']);
+                    for imIdx = 1:length(images)
+                        image = images(imIdx);
+                        imageAddress = [image.folder slash image.name];
+                        imageName = image.name;
+                        newImageName = strrep(imageName, '.jpg', '_photo.jpg');
+                        newImageAdd = [newResSubAdd newImageName];
+                        copyfile(imageAddress, newImageAdd);
+                    end
                 end
                 
-                EEG = block.loadEEGFromFile();
-                EEG.setname      = newSourceFile;
-                EEG.filepath = newSourceFile;
-                EEG.filename = fileName;
-                % metadata
-                SF(i)  = EEG.srate;
-                CC(i)  = max(size(EEG.chanlocs));
-                Ref{i} = EEG.ref;
-                
-                electrodes_to_tsv(EEG);
-                channelloc_to_tsv(EEG);
+                if ~ isBIDS
+                    EEG = block.loadEEGFromFile();
+                    EEG.setname      = newSourceFile;
+                    EEG.filepath = newSourceFile;
+                    EEG.filename = fileName;
+                    % metadata
+                    SF(i)  = EEG.srate;
+                    CC(i)  = max(size(EEG.chanlocs));
+                    Ref{i} = EEG.ref;
+
+                    electrodes_to_tsv(EEG);
+                    channelloc_to_tsv(EEG);
+                end
             end
             
+            if ~ isBIDS
+                PLF = -1;
+                if ~isempty(self.params) && ~isempty(self.params.FilterParams) ...
+                        && ~isempty(self.params.FilterParams.notch)
+                    PLF = self.params.FilterParams.notch.freq;
+                end
+
+                json = struct('TaskName', 'NAN', ...
+                    'SamplingFrequency', mean(SF(:)), ...
+                    'EEGChannelCount', max(CC(:)), ...
+                    'EEGReference', unique(Ref), ...
+                    'PowerLineFrequency', PLF, ...
+                    'SoftwareFilters', ' ');
+                text = jsonencode(json);
+                fid = fopen([folder slash 'automagic_eeg.json'], 'w');
+                fwrite(fid, text, 'char');
+                fclose(fid);
+
+                % make a participants table and save 
+                age = zeros(sCount,1);
+                sex = repmat(' ',[sCount 1]); 
+                t = table(subjects, age, sex, 'VariableNames', {'participant_id','age','sex'});
+                writetable(t,[folder slash 'Participants.tsv'], 'FileType','text','Delimiter','\t');
+            end
             if(usejava('Desktop') && ishandle(h))
                 waitbar(1)
                 close(h)
             end
-            
-            PLF = -1;
-            if ~isempty(self.params) && ~isempty(self.params.FilterParams) ...
-                    && ~isempty(self.params.FilterParams.notch)
-                PLF = self.params.FilterParams.notch.freq;
-            end
-            
-            json = struct('TaskName', 'NAN', ...
-                'SamplingFrequency', mean(SF(:)), ...
-                'EEGChannelCount', max(CC(:)), ...
-                'EEGReference', unique(Ref), ...
-                'PowerLineFrequency', PLF, ...
-                'SoftwareFilters', ' ');
-            text = jsonencode(json);
-            fid = fopen([folder slash 'automagic_eeg.json'], 'w');
-            fwrite(fid, text, 'char');
-            fclose(fid);
-            
-            % make a participants table and save 
-            age = zeros(sCount,1);
-            sex = repmat(' ',[sCount 1]); 
-            t = table(subjects, age, sex, 'VariableNames', {'participant_id','age','sex'});
-            writetable(t,[folder slash 'Participants.tsv'], 'FileType','text','Delimiter','\t');
-            
         end
         
         function saveProject(self)
