@@ -174,7 +174,7 @@ classdef Block < handle
     
     %% Constructor
     methods   
-        function self = Block(project, subject, fileName)
+        function self = Block(project, subject, fileName, address)
   
             self.CGV = ConstantGlobalValues();
             
@@ -188,8 +188,7 @@ classdef Block < handle
             self.sRate = project.sRate;
             
             self.uniqueName = self.extractUniqueName(subject, fileName);
-            self.sourceAddress = self.extractSourceAddress(subject, ...
-                fileName, self.fileExtension);
+            self.sourceAddress = address;
             self = self.updateRatingInfoFromFile();
         end
     end
@@ -282,9 +281,11 @@ classdef Block < handle
 
             self.subject = self.subject.updateAddresses(newDataPath, ...
                 newProjectPath);
-            self.sourceAddress = ...
-                self.extractSourceAddress(self.subject, self.fileName,...
-                self.fileExtension);
+            
+            splits = strsplit(self.sourceAddress, self.subject.name);
+            relAdd = splits{2};
+            
+            self.sourceAddress = [self.subject.dataFolder relAdd];
             self = self.updatePrefixAndResultAddress();
         end
         
@@ -760,6 +761,33 @@ classdef Block < handle
             % Return true if this block is a mock block
             bool = (self.index == -1);
         end
+        
+        function data = loadEEGFromFile(self)
+            
+            addEEGLab();
+            
+            % Case of .mat file
+            if( any(strcmp(self.fileExtension(end-3:end), ...
+                    {self.CGV.EXTENSIONS.mat})))
+                data = load(self.sourceAddress);
+                data = data.EEG;
+                
+            % case of .txt file
+            elseif(any(strcmp(self.fileExtension, ...
+                    {self.CGV.EXTENSIONS.text})))
+                [~, data] = ...
+                    evalc(['pop_importdata(''dataformat'',''ascii'',' ...
+                    '''data'', self.sourceAddress,''sRate'', self.sRate,' ...
+                    '''pnts'',0,''xmin'',0)']);
+                
+            % case of .set file 
+            elseif(any(strcmp(self.fileExtension, ...
+                    {self.CGV.EXTENSIONS.set})))
+                [~ , data] = evalc('pop_loadset(self.sourceAddress)');
+            else
+                [~ , data] = evalc('pop_fileio(self.sourceAddress)');
+            end 
+        end
     end
     
     %% Private Methods
@@ -795,33 +823,6 @@ classdef Block < handle
             save(self.resultAddress, 'EEG', 'automagic','-v7.3');
         end
         
-        function data = loadEEGFromFile(self)
-            
-            addEEGLab();
-            
-            % Case of .mat file
-            if( any(strcmp(self.fileExtension(end-3:end), ...
-                    {self.CGV.EXTENSIONS.mat})))
-                data = load(self.sourceAddress);
-                data = data.EEG;
-                
-            % case of .txt file
-            elseif(any(strcmp(self.fileExtension, ...
-                    {self.CGV.EXTENSIONS.text})))
-                [~, data] = ...
-                    evalc(['pop_importdata(''dataformat'',''ascii'',' ...
-                    '''data'', self.sourceAddress,''sRate'', self.sRate,' ...
-                    '''pnts'',0,''xmin'',0)']);
-                
-            % case of .set file 
-            elseif(any(strcmp(self.fileExtension, ...
-                    {self.CGV.EXTENSIONS.set})))
-                [~ , data] = evalc('pop_loadset(self.sourceAddress)');
-            else
-                [~ , data] = evalc('pop_fileio(self.sourceAddress)');
-            end 
-        end
-        
         function self = updatePrefix(self)
             % Update the prefix based in the rating information. This must 
             % be set after rating info are set. See the below function.
@@ -853,12 +854,6 @@ classdef Block < handle
                         self.resultAddress);
                 end
             end
-        end
-        
-        function sourceAddress = extractSourceAddress(self, subject, ...
-                fileName, ext)
-            % Return the address of the raw file
-            sourceAddress = [subject.dataFolder self.slash fileName, ext];
         end
         
         function prefix = extractPrefix(self, resultAddress)

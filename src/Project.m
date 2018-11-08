@@ -191,8 +191,6 @@ classdef Project < handle
         
         % Constant Global Variables
         CGV
-        
-        slash
     end
     
     %% Constructor
@@ -258,7 +256,7 @@ classdef Project < handle
 
             if( self.current == -1)
                 subject = Subject('','');
-                block = Block(self, subject, '');
+                block = Block(self, subject, '', '');
                 block.index = -1;
                 return;
             end
@@ -588,9 +586,16 @@ classdef Project < handle
             else
                 fprintf('Updating project. Please wait...\n');
             end
+            slash = filesep;
             % Load subject folders
             subjects = self.listSubjectFiles();
             sCount = length(subjects);
+            if all(startsWith(subjects, 'sub-'))
+                isBIDS = 1;
+            else
+                isBIDS = 0;
+            end
+            
             nPreprocessedSubject = 0;
             ext = self.fileExtension;
             map = containers.Map;
@@ -613,12 +618,34 @@ classdef Project < handle
                 subject = Subject([self.dataFolder subjectName], ...
                                     [self.resultFolder subjectName]);
                 
-                rawFiles = self.dirNotHiddens(...
-                    [self.dataFolder subjectName self.slash '*' self.mask]);
+                rawFiles = [];
+                if isBIDS
+                    sessOrEEG = self.listSubjects(subject.dataFolder);
+                    if ~isempty(startsWith(sessOrEEG, 'ses-')) && all(startsWith(sessOrEEG, 'ses-'))
+                        for sesIdx = 1:length(sessOrEEG)
+                            sessFile = sessOrEEG{sesIdx};
+                            eegFold = [subject.dataFolder slash sessFile slash 'eeg' slash];
+                            if exist(eegFold, 'dir')
+                                rawFiles = [rawFiles self.dirNotHiddens([eegFold '*' self.mask])'];
+                            end
+                        end
+                    elseif ~isempty(startsWith(sessOrEEG, 'ses-')) && any(startsWith(sessOrEEG, 'eeg'))
+                        eegFold = [subject.dataFolder slash 'eeg' slash];
+                        rawFiles = self.dirNotHiddens([eegFold '*' self.mask]);
+                    else
+                        rawFiles = self.dirNotHiddens(...
+                            [self.dataFolder subjectName slash '*' self.mask]);
+                    end
+                else % Not BIDS format, the the raw files are in the subject folder itself
+                    rawFiles = self.dirNotHiddens(...
+                        [self.dataFolder subjectName slash '*' self.mask]);
+                end
+                
                 temp = 0;
                 for j = 1:length(rawFiles)
                     filesCount = filesCount + 1;
                     file = rawFiles(j);
+                    filePath = [file.folder slash file.name];
                     nameTmp = file.name;
                     splits = strsplit(nameTmp, ext);
                     fileName = splits{1};
@@ -694,7 +721,7 @@ classdef Project < handle
                         % the rating information from the existing files, 
                         % if any.
                         try
-                            block = Block(self, subject, fileName);
+                            block = Block(self, subject, fileName, filePath);
                         catch ME
                             if ~contains(ME.identifier, 'Automagic')
                                rethrow(ME); 
@@ -892,12 +919,103 @@ classdef Project < handle
             modified = dataChanged || resultChanged;
         end
         
-        function slash = get.slash(self)
-            if(isunix)
-                slash = '/';
-            elseif(ispc)
-                slash = '\';
+        function exportToBIDS(self, folder)
+            slash = filesep;
+            subjects = self.listSubjectFiles();
+            sCount = length(subjects);
+            if ~exist(folder, 'dir')
+                mkdir(folder);
             end
+            
+            if usejava('Desktop')
+                h = waitbar(0,'Exporting both data and results folder to BIDS format. Please wait...');
+                h.Children.Title.Interpreter = 'none';
+            else
+                fprintf('Updating project. Please wait...\n');
+            end
+            
+            SF  = zeros(1, sCount);
+            CC  = zeros(1, sCount);
+            Ref = cell(1, sCount);
+            fileNames = self.blockMap.keys;
+            for i = 1:length(fileNames)
+                if(usejava('Desktop') && ishandle(h))
+                    waitbar((i-1) / length(self.processedList), h)
+                end
+                
+                runNum = num2str(rem(i, sCount));
+                fileName = fileNames{i};
+                block = self.blockMap(fileName);
+                
+                if length(block.subject.name) > 4 && strcmp(block.subject.name(1:4), 'sub-')
+                    subjectName = block.subject.name;
+                else
+                    subjectName = ['sub-' block.subject.name];
+                end
+                
+                newSourceSubAdd = [folder subjectName slash 'eeg' slash];
+                newResSubAdd = [folder 'derivatives' slash subjectName slash 'eeg' slash];
+                if ~exist(newSourceSubAdd, 'dir')
+                    mkdir(newSourceSubAdd);
+                end
+                if ~exist(newResSubAdd, 'dir')
+                    mkdir(newResSubAdd);
+                end
+                
+                if length(block.fileName) > 4 && strcmp(block.fileName(1:4), 'sub-')
+                    fileName = block.fileName;
+                else
+                    fileName = [subjectName '_task-NAN' '_sess-1_run-' runNum];
+                end 
+                newSourceFile = [newSourceSubAdd fileName '_eeg' block.fileExtension];
+                newResFile = [newResSubAdd fileName '_eeg_automagic.mat'];
+                copyfile(block.sourceAddress, newSourceFile);
+                
+                if exist(block.resultAddress, 'file')
+                    copyfile(block.resultAddress, newResFile);
+                end
+                
+                EEG = block.loadEEGFromFile();
+                EEG.setname      = newSourceFile;
+                EEG.filepath = newSourceFile;
+                EEG.filename = fileName;
+                % metadata
+                SF(i)  = EEG.srate;
+                CC(i)  = max(size(EEG.chanlocs));
+                Ref{i} = EEG.ref;
+                
+                electrodes_to_tsv(EEG);
+                channelloc_to_tsv(EEG);
+            end
+            
+            if(usejava('Desktop') && ishandle(h))
+                waitbar(1)
+                close(h)
+            end
+            
+            PLF = -1;
+            if ~isempty(self.params) && ~isempty(self.params.FilterParams) ...
+                    && ~isempty(self.params.FilterParams.notch)
+                PLF = self.params.FilterParams.notch.freq;
+            end
+            
+            json = struct('TaskName', 'NAN', ...
+                'SamplingFrequency', mean(SF(:)), ...
+                'EEGChannelCount', max(CC(:)), ...
+                'EEGReference', unique(Ref), ...
+                'PowerLineFrequency', PLF, ...
+                'SoftwareFilters', ' ');
+            text = jsonencode(json);
+            fid = fopen([folder slash 'automagic_eeg.json'], 'w');
+            fwrite(fid, text, 'char');
+            fclose(fid);
+            
+            % make a participants table and save 
+            age = zeros(sCount,1);
+            sex = repmat(' ',[sCount 1]); 
+            t = table(subjects, age, sex, 'VariableNames', {'participant_id','age','sex'});
+            writetable(t,[folder slash 'Participants.tsv'], 'FileType','text','Delimiter','\t');
+            
         end
         
         function saveProject(self)
@@ -965,9 +1083,17 @@ classdef Project < handle
             else
                 fprintf('Setting up project. Please wait...\n');
             end
+            slash = filesep;
             % Load subject folders
             subjects = self.listSubjectFiles();
             sCount = length(subjects);
+            
+            if all(startsWith(subjects, 'sub-'))
+                isBIDS = 1;
+            else
+                isBIDS = 0;
+            end
+            
             map = containers.Map;
             list = {};
             self.maxX = 0;
@@ -992,12 +1118,34 @@ classdef Project < handle
                 subject = Subject([self.dataFolder subjectName], ...
                                     [self.resultFolder subjectName]);
 
-                rawFiles = self.dirNotHiddens(...
-                    [self.dataFolder subjectName self.slash '*' self.mask]);
+                rawFiles = [];
+                if isBIDS
+                    sessOrEEG = self.listSubjects(subject.dataFolder);
+                    if ~isempty(startsWith(sessOrEEG, 'ses-')) && all(startsWith(sessOrEEG, 'ses-'))
+                        for sesIdx = 1:length(sessOrEEG)
+                            sessFile = sessOrEEG{sesIdx};
+                            eegFold = [subject.dataFolder slash sessFile slash 'eeg' slash];
+                            if exist(eegFold, 'dir')
+                                rawFiles = [rawFiles self.dirNotHiddens([eegFold '*' self.mask])'];
+                            end
+                        end
+                    elseif ~isempty(startsWith(sessOrEEG, 'ses-')) && any(startsWith(sessOrEEG, 'eeg'))
+                        eegFold = [subject.dataFolder slash 'eeg' slash];
+                        rawFiles = self.dirNotHiddens([eegFold '*' self.mask]);
+                    else
+                        rawFiles = self.dirNotHiddens(...
+                            [self.dataFolder subjectName slash '*' self.mask]);
+                    end
+                else % Not BIDS format, the the raw files are in the subject folder itself
+                    rawFiles = self.dirNotHiddens(...
+                        [self.dataFolder subjectName slash '*' self.mask]);
+                end
+                
                 temp = 0; 
                 for j = 1:length(rawFiles)
                     filesCount = filesCount + 1;
                     file = rawFiles(j);
+                    filePath = [file.folder slash file.name];
                     nameTemp = file.name;
                     splits = strsplit(nameTemp, ext);
                     fileName = splits{1};
@@ -1010,7 +1158,7 @@ classdef Project < handle
                     % Block creation extracts and updates automatically 
                     % the rating information from the existing files, if any.
                     try
-                        block = Block(self, subject, fileName);
+                        block = Block(self, subject, fileName, filePath);
                     catch ME
                         if ~contains(ME.identifier, 'Automagic')
                                rethrow(ME); 
@@ -1184,19 +1332,19 @@ classdef Project < handle
             guidata(handle.mainGUI, handle);
             mainGUI();
         end
-        
-        function folder = addSlash(self, folder)
-            % Add "\" if not exists already ("/" for windows)
-            
-            if( ~ isempty(folder) && ...
-                    isempty(regexp( folder ,['\' self.slash '$'],'match')))
-                folder = strcat(folder, self.slash);
-            end
-        end
     end
     
     %% Public static methods
     methods(Static)
+        function folder = addSlash(folder)
+            % Add "\" if not exists already ("/" for windows)
+            slash = filesep;
+            if( ~ isempty(folder) && ...
+                    isempty(regexp( folder ,['\' slash '$'],'match')))
+                folder = strcat(folder, slash);
+            end
+        end
+        
        function addAutomagicPaths()
             CGV = ConstantGlobalValues;
             addpath(CGV.AUTOMAGIC_PATH);
@@ -1255,10 +1403,15 @@ classdef Project < handle
             % NOTE: This is a very naive way of checking if changes
             % happened. There could be changes in files, but not number of 
             % files, which are not detected. Use with cautious.
-            
+            slash = filesep;
             modified = false;
             subjects = Project.listSubjects(folder);
             nSubject = length(subjects);
+            if ~isempty(startsWith(subjects, 'sub-')) && all(startsWith(subjects, 'sub-'))
+                isBIDS = 1;
+            else
+                isBIDS = 0;
+            end
 
             if( ~ isempty(folder_counts) )
                 if( nSubject ~= folder_counts )
@@ -1270,9 +1423,31 @@ classdef Project < handle
             nBlock = 0;
             for i = 1:nSubject
                 subject = subjects{i};
-
-                files = dir([folder, subject ,'/*' ,ext]);
-                nBlock = nBlock + length(files);
+                if isBIDS
+                    sessOrEEG = Project.listSubjects([folder subject]);
+                    if ~isempty(startsWith(sessOrEEG, 'ses-')) && all(startsWith(sessOrEEG, 'ses-'))
+                        for sesIdx = 1:length(sessOrEEG)
+                            sessFile = sessOrEEG{sesIdx};
+                            eegFold = [folder subject slash sessFile slash 'eeg' slash];
+                            if exist(eegFold, 'dir')
+                                files = dir([eegFold ,'*' ,ext]);
+                                nBlock = nBlock + length(files);
+                            end
+                        end
+                    elseif ~isempty(startsWith(sessOrEEG, 'ses-')) && any(startsWith(sessOrEEG, 'eeg'))
+                        eegFold = [folder subject slash 'eeg' slash];
+                        if exist(eegFold, 'dir')
+                            files = dir([eegFold ,'*' ,ext]);
+                            nBlock = nBlock + length(files);
+                        end
+                    else
+                        files = dir([folder, subject ,'/*' ,ext]);
+                        nBlock = nBlock + length(files);
+                    end
+                else
+                    files = dir([folder, subject ,'/*' ,ext]);
+                    nBlock = nBlock + length(files);
+                end
             end
 
             % NOTE: Very risky. The assumption is that for each result 
