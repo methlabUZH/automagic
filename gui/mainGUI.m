@@ -502,24 +502,65 @@ function [nSubject, nBlock] = get_subject_and_file_numbers( ...
 set(handles.mainGUI, 'pointer', 'watch')
 drawnow;
 
-if(isunix)
-    slash = '/';
-elseif(ispc)
-    slash = '\';
-end
-
+slash = filesep;
 subjects = list_subjects(folder);
 nSubject = length(subjects);
+if all(startsWith(subjects, 'sub-'))
+    isBIDS = 1;
+else
+    isBIDS = 0;
+end
+
 nBlock = 0;
-if ~ isempty(ext)
+if isempty(ext)
+   return; 
+end
+
+if isBIDS
     for i = 1:nSubject
         subject = subjects{i};
-        raw_files = dir([folder subject slash '*' ext]);
-        idx = ~startsWith({raw_files.name}, '.');
-        raw_files = raw_files(idx);
-        nBlock = nBlock + length(raw_files);
+        
+        sessOrEEG = list_subjects([folder subject]);
+        if ~isempty(startsWith(sessOrEEG, 'ses-')) && all(startsWith(sessOrEEG, 'ses-'))
+            for sesIdx = 1:length(sessOrEEG)
+                sessFile = sessOrEEG{sesIdx};
+                eegFold = [folder subject slash sessFile slash 'eeg' slash];
+                if exist(eegFold, 'dir')
+                    raw_files = dir([eegFold '*' ext]);
+                    idx = ~startsWith({raw_files.name}, '.');
+                    raw_files = raw_files(idx);
+                    nBlock = nBlock + length(raw_files);
+                end
+            end
+        elseif ~isempty(startsWith(sessOrEEG, 'ses-')) && any(startsWith(sessOrEEG, 'eeg'))
+            eegFold = [folder subject slash 'eeg' slash];
+            if exist(eegFold, 'dir')
+                raw_files = dir([eegFold '*' ext]);
+                idx = ~startsWith({raw_files.name}, '.');
+                raw_files = raw_files(idx);
+                nBlock = nBlock + length(raw_files);
+            end
+        else
+            raw_files = dir([folder subject slash '*' ext]);
+            idx = ~startsWith({raw_files.name}, '.');
+            raw_files = raw_files(idx);
+            nBlock = nBlock + length(raw_files);
+        end
+    
+    end
+else
+    if ~ isempty(ext)
+        for i = 1:nSubject
+            subject = subjects{i};
+            raw_files = dir([folder subject slash '*' ext]);
+            idx = ~startsWith({raw_files.name}, '.');
+            raw_files = raw_files(idx);
+            nBlock = nBlock + length(raw_files);
+        end
     end
 end
+                
+
 % Change the cursor to normal
 set(handles.mainGUI, 'pointer', 'arrow')
 
@@ -541,11 +582,7 @@ function choosedata_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 folder = uigetdir();
 if(folder ~= 0)
-    if(isunix)
-        slash = '/';
-    elseif(ispc)
-        slash = '\';
-    end
+    slash = filesep;
     folder = strcat(folder,slash);
     set(handles.datafoldershow, 'String', folder)
     project_name = get(handles.projectname, 'String');
@@ -1003,7 +1040,14 @@ function datafoldershow_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of datafoldershow as text
 %        str2double(get(hObject,'String')) returns contents of datafoldershow as a double
+ext = get(handles.extedit, 'String');
+folder = get(handles.datafoldershow, 'String');
+[nSubject, nBlock] = ...
+    get_subject_and_file_numbers(handles, folder, ext);
 
+set(handles.subjectnumber, 'String', ...
+    [num2str(nSubject) ' subjects...'])
+set(handles.filenumber, 'String', [num2str(nBlock) ' files...'])
 
 % --- Executes during object creation, after setting all properties.
 function datafoldershow_CreateFcn(hObject, eventdata, handles)
@@ -1072,8 +1116,7 @@ else
 end
 
 if( strcmp(get(handles.datafoldershow, 'String'), ... 
-        handles.CGV.NEW_PROJECT.DATA_FOLDER) || ...
-        isempty(get(handles.extedit, 'String')))
+        handles.CGV.NEW_PROJECT.DATA_FOLDER))
     return
 end
 
@@ -1404,3 +1447,24 @@ function existingpopupmenu_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to existingpopupmenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+function bidsexport_projectMenu_Callback(hObject, eventdata, handles)
+
+rootFolder = BIDSinputGUI();
+
+if isempty(rootFolder)
+   return; 
+end
+idx = get(handles.existingpopupmenu, 'Value');
+projects = get(handles.existingpopupmenu, 'String');
+name = projects{idx};
+project = handles.projectList(name);
+if isempty(project)
+    popup_msg('Please first select a Project',...
+        'Error');
+    return;
+end
+project.exportToBIDS(rootFolder);
+
+
