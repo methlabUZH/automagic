@@ -116,7 +116,10 @@ function okpushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to okpushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+slash = filesep;
+if ~ contains(get(handles.dataedit, 'String'), slash)
+    return;
+end
 close('BIDSinputGUI');
 
 % --- Executes on button press in cancelpushbutton.

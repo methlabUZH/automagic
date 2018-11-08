@@ -943,7 +943,6 @@ classdef Project < handle
                     waitbar((i-1) / length(self.processedList), h)
                 end
                 
-                runNum = num2str(rem(i, sCount));
                 fileName = fileNames{i};
                 block = self.blockMap(fileName);
                 
@@ -962,11 +961,6 @@ classdef Project < handle
                     mkdir(newResSubAdd);
                 end
                 
-                if length(block.fileName) > 4 && strcmp(block.fileName(1:4), 'sub-')
-                    fileName = block.fileName;
-                else
-                    fileName = [subjectName '_task-NAN' '_sess-1_run-' runNum];
-                end 
                 newSourceFile = [newSourceSubAdd fileName '_eeg' block.fileExtension];
                 newResFile = [newResSubAdd fileName '_eeg_automagic.mat'];
                 copyfile(block.sourceAddress, newSourceFile);

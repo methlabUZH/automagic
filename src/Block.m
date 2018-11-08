@@ -158,9 +158,7 @@ classdef Block < handle
         isInterpolated
         
         isManuallyRated
-        
-        slash
-        
+
         CGV
     end
     
@@ -253,16 +251,16 @@ classdef Block < handle
         function resultAddress = potentialResultAddress(self)
             % Check in the result folder for a corresponding preprocessed 
             % file with any prefix that respects the standard pattern (See prefix).
-   
+            slash = filesep;
             pattern = '^[gobni]i?p_';
-            fileData = dir(strcat(self.subject.resultFolder, self.slash));                                        
+            fileData = dir(strcat(self.subject.resultFolder, slash));                                        
             fileNames = {fileData.name};  
             idx = regexp(fileNames, strcat(pattern, self.fileName, '.mat')); 
             inFiles = fileNames(~cellfun(@isempty,idx));
             assert(length(inFiles) <= 1);
             if(~ isempty(inFiles))
                 resultAddress = strcat(self.subject.resultFolder, ...
-                    self.slash, inFiles{1});
+                    slash, inFiles{1});
             else
                 resultAddress = '';
             end
@@ -278,14 +276,14 @@ classdef Block < handle
             % project is loaded from a windows to a iOS or vice versa. 
             % newDataPath - Set the data path to this path
             % newProjectPath - Set the project path to this path
-
+            slash = filesep;
             self.subject = self.subject.updateAddresses(newDataPath, ...
                 newProjectPath);
             
-            splits = strsplit(self.sourceAddress, self.subject.name);
+            splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
             relAdd = splits{2};
             
-            self.sourceAddress = [self.subject.dataFolder relAdd];
+            self.sourceAddress = [self.subject.dataFolder slash relAdd];
             self = self.updatePrefixAndResultAddress();
         end
         
@@ -710,21 +708,11 @@ classdef Block < handle
                 self.project.qualityScoreIdx);
         end
         
-        function slash = get.slash(self) %#ok<MANU>
-            % Return the system dependent slash
-            
-            if(isunix)
-                slash = '/';
-            elseif(ispc)
-                slash = '\';
-            end
-        end
-        
         function img_address = get.imageAddress(self)
             % The name and address of the obtained plots during
             % preprocessing
-            
-           img_address = [self.subject.resultFolder self.slash self.fileName];
+            slash = filesep;
+            img_address = [self.subject.resultFolder slash self.fileName];
         end
         
         function bool = isInterpolate(self)
@@ -841,9 +829,10 @@ classdef Block < handle
             % Update prefix and thus addresses based on the rating
             % information. This must be called once rating info are set. 
             % Then the address and prefix are set based on rating info.
+            slash = filesep;
             self = self.updatePrefix();
             self.resultAddress = strcat(self.subject.resultFolder, ...
-                self.slash, self.prefix, '_', self.fileName, '.mat');
+                slash, self.prefix, '_', self.fileName, '.mat');
             self.reducedAddress = self.extractReducedAddress(...
                 self.resultAddress, self.dsRate);
             
@@ -855,26 +844,28 @@ classdef Block < handle
                 end
             end
         end
-        
-        function prefix = extractPrefix(self, resultAddress)
-            % Given the resultAddress, take the prefix out of it and
-            % return. If results_adsress = '', then returns prefix = ''. 
-            splits = strsplit(resultAddress, self.slash);
-            name_with_ext = splits{end};
-            splits = strsplit(name_with_ext, '.');
-            prefixed_name = splits{1};
-            splits = strsplit(prefixed_name, '_');
-            prefix = splits{1};
-            
-            if( ~ Block.isValidPrefix(prefix) )
-                popup_msg('Not a valid prefix.','Error');
-                return;
-            end
-        end
     end
     
     %% Private utility static methods
     methods(Static, Access=private)
+        
+        function prefix = extractPrefix(resultAddress)
+                % Given the resultAddress, take the prefix out of it and
+                % return. If results_adsress = '', then returns prefix = ''. 
+                slash = filesep;
+                splits = strsplit(resultAddress, slash);
+                name_with_ext = splits{end};
+                splits = strsplit(name_with_ext, '.');
+                prefixed_name = splits{1};
+                splits = strsplit(prefixed_name, '_');
+                prefix = splits{1};
+
+                if( ~ Block.isValidPrefix(prefix) )
+                    popup_msg('Not a valid prefix.','Error');
+                    return;
+                end
+         end
+        
         function qScore = getIdxQualityScore(qScore, qScoreIdx)
             qScore.OHA = qScore.OHA(qScoreIdx.OHA);
             qScore.THV = qScore.THV(qScoreIdx.THV);
