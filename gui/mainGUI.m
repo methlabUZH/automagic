@@ -1449,8 +1449,11 @@ function existingpopupmenu_ButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-function bidsexport_projectMenu_Callback(hObject, eventdata, handles)
-
+% --- Executes on button press in bidspushbutton.
+function bidspushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 rootFolder = BIDSinputGUI();
 
 if isempty(rootFolder)
@@ -1466,5 +1469,3 @@ if isempty(project)
     return;
 end
 project.exportToBIDS(rootFolder);
-
-
