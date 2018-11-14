@@ -1,4 +1,4 @@
-function EEGClean = performICLabel(EEG, varargin)
+function EEG = performICLabel(EEG, varargin)
 % performICLabel  perform Independent Component Analysis (ICA) on the high 
 %   passsed EEG and classifies bad components using ICLabel.
 %   This function applies a high pass filter before the ICA. But the output
@@ -62,24 +62,21 @@ high = p.Results.high;
 
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
-EEGFiltered = EEG;
 if( ~isempty(high) )
-    [~, EEGFiltered, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
-    EEGFiltered.automagic.iclabel.highpass.performed = 'yes';
-    EEGFiltered.automagic.iclabel.highpass.freq = high.freq;
-    EEGFiltered.automagic.iclabel.highpass.order = length(b)-1;
-    EEGFiltered.automagic.iclabel.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEGFiltered.srate;
+    [~, EEG, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+    EEG.automagic.iclabel.highpass.performed = 'yes';
+    EEG.automagic.iclabel.highpass.freq = high.freq;
+    EEG.automagic.iclabel.highpass.order = length(b)-1;
+    EEG.automagic.iclabel.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
 else
-    EEGFiltered.automagic.iclabel.highpass.performed = 'no';
+    EEG.automagic.iclabel.highpass.performed = 'no';
 end
 
-[~, EEG, ~] = evalc('pop_runica(EEGFiltered, ''icatype'',''runica'')');
+[~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'')');
 EEG = iclabel(EEG);
 components = find(EEG.etc.ic_classification.ICLabel.classifications(:, 1) < probTher);
 if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), components))
-    EEGClean = pop_subcomp(EEG, components);
-else
-    EEGClean = EEG;
+    EEG = pop_subcomp(EEG, components);
 end
-EEGClean.automagic.iclabel.performed = 'yes';
-EEGClean.automagic.iclabel.rejectComponents = components;
+EEG.automagic.iclabel.performed = 'yes';
+EEG.automagic.iclabel.rejectComponents = components;
