@@ -30,20 +30,11 @@ if ~ exist(folderName, 'dir')
 end
 ICLabel_paths = genpath(folderName);
 
-if(ispc)
-    parts = strsplit(ICLabel_paths, ';');
-else
-    parts = strsplit(ICLabel_paths, ':');
-end
-
+parts = strsplit(ICLabel_paths, pathsep);
 % Exclude paths which create conflicts
 Index = not(~contains(parts, 'compatibility'));
 parts(Index) = [];
-if(ispc)
-    ICLabel_paths = strjoin(parts, ';');
-else
-    ICLabel_paths = strjoin(parts, ':');
-end
+ICLabel_paths = strjoin(parts, pathsep);
 addpath(ICLabel_paths);
 fprintf('ICLabel package added to path successfully.\n');
     
