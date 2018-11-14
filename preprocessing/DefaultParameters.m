@@ -41,6 +41,8 @@ classdef DefaultParameters
                             'largeMap',   0, ...
                             'high',       struct('freq', 1.0,...
                                                  'order', []))
+                                             
+        ICLabelParams = struct([]);
                     
         EOGRegressionParams = struct();
                         

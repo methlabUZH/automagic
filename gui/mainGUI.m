@@ -1236,6 +1236,7 @@ params.ChannelReductionParams = DefaultParams.ChannelReductionParams;
 params.EOGRegressionParams = DefaultParams.EOGRegressionParams;
 params.RPCAParams = DefaultParams.RPCAParams;
 params.MARAParams= DefaultParams.MARAParams;
+params.ICLabelParams= DefaultParams.ICLabelParams;
 params.InterpolationParams = DefaultParams.InterpolationParams;
 params.EEGSystem = DefaultParams.EEGSystem;
 params.Settings = DefaultParams.Settings;

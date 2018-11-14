@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 17-Oct-2018 15:25:28
+% Last Modified by GUIDE v2.5 13-Nov-2018 15:39:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -191,9 +191,41 @@ if ~isempty(params.MARAParams)
     end
 else
     set(handles.largemapcheckbox, 'Value', 0)
-    set(handles.icahighpasscheckbox, 'Value', 0)
-    set(handles.icahighpassedit, 'String', '')
-    set(handles.icahighpassorderedit, 'String', '')
+    if isempty(params.ICLabelParams)
+        set(handles.icahighpasscheckbox, 'Value', 0)
+        set(handles.icahighpassedit, 'String', '')
+        set(handles.icahighpassorderedit, 'String', '')
+    end
+end
+
+set(handles.iclabelcheckbox, 'Value', ~isempty(params.ICLabelParams));
+if ~isempty(params.ICLabelParams)
+    set(handles.probtheredit, 'String', params.ICLabelParams.probTher)
+    if ~isempty(params.ICLabelParams.high)
+        set(handles.icahighpasscheckbox, 'Value', 1);
+        if isempty(params.ICLabelParams.high.order)
+            set(handles.icahighpassorderedit, 'String', DEFAULT_KEYWORD);
+        else
+            set(handles.icahighpassorderedit, 'String', params.ICLabelParams.high.order);
+        end
+        
+        if isempty(params.ICLabelParams.high.freq)
+            set(handles.icahighpassedit, 'String', DEFAULT_KEYWORD);
+        else
+            set(handles.icahighpassedit, 'String', params.ICLabelParams.high.freq);
+        end
+    else
+        set(handles.highcheckbox, 'Value', 0);
+        set(handles.icahighpassorderedit, 'String', '')
+        set(handles.icahighpassedit, 'String', '');
+    end
+else
+    set(handles.probtheredit, 'String', '')
+    if isempty(params.MARAParams)
+        set(handles.icahighpasscheckbox, 'Value', 0)
+        set(handles.icahighpassedit, 'String', '')
+        set(handles.icahighpassorderedit, 'String', '')
+    end
 end
 
 if ~isempty(params.CRDParams)
@@ -344,6 +376,44 @@ if get(handles.icacheckbox, 'Value')
     clear res;
 else
     MARAParams = struct([]);
+end
+
+ICLabelParams = params.ICLabelParams;
+if get(handles.iclabelcheckbox, 'Value')
+    if isempty(ICLabelParams)
+        ICLabelParams = struct();
+        ICLabelParams.high = struct();
+    end
+    res = str2double(get(handles.probtheredit, 'String'));
+    if ~isnan(res)
+        ICLabelParams.probTher = res; 
+    end
+        
+    high = ICLabelParams.high;
+    if( get(handles.icahighpasscheckbox, 'Value'))
+        if isempty(high)
+            high = struct();
+        end
+        res = str2double(get(handles.icahighpassorderedit, 'String'));
+        if ~isnan(res)
+            high.order = res; 
+        else
+            high.order = [];
+        end
+
+        res = str2double(get(handles.icahighpassedit, 'String'));
+        if ~isnan(res)
+            high.freq = res; 
+        else
+            high.freq = [];
+        end
+    else
+        high = struct([]);
+    end
+    ICLabelParams.high = high;
+    clear res;
+else
+    ICLabelParams = struct([]);
 end
 
 high = params.FilterParams.high;
@@ -621,6 +691,7 @@ handles.params.PrepParams = PrepParams;
 handles.params.HighvarParams = HighvarParams;
 handles.params.RPCAParams = RPCAParams;
 handles.params.MARAParams = MARAParams;
+handles.params.ICLabelParams = ICLabelParams;
 handles.params.InterpolationParams.method = method;
 
 function handles = switch_components(handles)
@@ -700,10 +771,32 @@ if( get(handles.icacheckbox, 'Value'))
     end
 else
     set(handles.largemapcheckbox, 'enable', 'off');
-    set(handles.icahighpasscheckbox, 'enable', 'off');
-    set(handles.icahighpasscheckbox, 'value', 0);
-    set(handles.icahighpassedit, 'enable', 'off');
-    set(handles.icahighpassorderedit, 'enable', 'off');
+    if ~ get(handles.iclabelcheckbox, 'Value')
+        set(handles.icahighpasscheckbox, 'enable', 'off');
+        set(handles.icahighpassedit, 'enable', 'off');
+        set(handles.icahighpassorderedit, 'enable', 'off');
+    end
+end
+
+if( get(handles.iclabelcheckbox, 'Value'))
+    set(handles.probtheredit, 'enable', 'on');
+    
+    set(handles.icahighpasscheckbox, 'enable', 'on');
+    if( get(handles.icahighpasscheckbox, 'Value') )
+        set(handles.icahighpassedit, 'enable', 'on');
+        set(handles.icahighpassorderedit, 'enable', 'on');
+    else
+        set(handles.icahighpassedit, 'enable', 'off');
+        set(handles.icahighpassedit, 'String', '');
+        set(handles.icahighpassorderedit, 'enable', 'off');
+    end
+else
+    set(handles.probtheredit, 'enable', 'off');
+    if ~ get(handles.icacheckbox, 'Value')
+        set(handles.icahighpasscheckbox, 'enable', 'off');
+        set(handles.icahighpassedit, 'enable', 'off');
+        set(handles.icahighpassorderedit, 'enable', 'off');
+    end
 end
 
 if( get(handles.pcacheckbox, 'Value') )
@@ -815,9 +908,9 @@ function pcacheckbox_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if(get(handles.pcacheckbox, 'Value') && get(handles.icacheckbox, 'Value'))
-    set(handles.icacheckbox, 'Value', 0);
-end
+
+set(handles.icacheckbox, 'Value', 0);
+set(handles.iclabelcheckbox, 'Value', 0);
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
     if isempty(recs.RPCAParams.lambda)
@@ -839,9 +932,8 @@ function icacheckbox_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if(get(handles.pcacheckbox, 'Value') && get(handles.icacheckbox, 'Value'))
-    set(handles.pcacheckbox, 'Value', 0);
-end
+set(handles.pcacheckbox, 'Value', 0);
+set(handles.iclabelcheckbox, 'Value', 0);
 
 if (get(hObject,'Value') == get(hObject,'Max'))
     RecParams = handles.CGV.RecParams;
@@ -1997,3 +2089,61 @@ function savestepscheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of savestepscheckbox
+
+
+% --- Executes on button press in iclabelcheckbox.
+function iclabelcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to iclabelcheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+set(handles.pcacheckbox, 'Value', 0);
+set(handles.icacheckbox, 'Value', 0);
+
+if (get(hObject,'Value') == get(hObject,'Max'))
+    RecParams = handles.CGV.RecParams;
+    set(handles.probtheredit, 'String', RecParams.ICLabelParams.probTher);
+    if ~isempty(RecParams.ICLabelParams.high)
+        set(handles.icahighpasscheckbox, 'Value', 1);
+        val = num2str((RecParams.ICLabelParams.high.freq));
+        val_order = num2str((RecParams.ICLabelParams.high.order));
+        set(handles.icahighpassedit, 'String', val)
+        if( isempty( val_order) )
+            set(handles.icahighpassorderedit, 'String', handles.CGV.DEFAULT_KEYWORD);
+        else
+            set(handles.icahighpassorderedit, 'String', val_order);
+        end
+    else
+        set(handles.icahighpasscheckbox, 'Value', 0);
+    end
+else
+    set(handles.icahighpassedit, 'String', '');
+    set(handles.icahighpassorderedit, 'String', '');
+end
+
+handles = switch_components(handles);
+% Update handles structure
+guidata(hObject, handles);
+
+
+
+function probtheredit_Callback(hObject, eventdata, handles)
+% hObject    handle to probtheredit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of probtheredit as text
+%        str2double(get(hObject,'String')) returns contents of probtheredit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function probtheredit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to probtheredit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
