@@ -131,7 +131,7 @@ EEGRef = EEG;
 
 % Remove the reference channel from the rest of preprocessing
 [~, EEG] = evalc('pop_select(EEG, ''nochannel'', EEGSystem.refChan)');
-EEG.automagic.channelReduction.new_RefChan = EEGSystem.refChan;
+EEG.automagic.channelReduction.newRefChan = EEGSystem.refChan;
 EEGOrig = EEG;
 
 if Settings.trackAllSteps
@@ -275,6 +275,7 @@ clear chan_nb re_chan;
 % Write back output
 EEG.automagic.autoBadChans = setdiff(removedChans, EEGSystem.refChan);
 EEG.automagic.params = params;
+EEG.automagic = rmfield(EEG.automagic, 'preprocessing');
 
 if Settings.trackAllSteps
    allSteps = matfile(Settings.pathToSteps, 'Writable', true);

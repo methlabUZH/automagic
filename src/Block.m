@@ -402,7 +402,7 @@ classdef Block < handle
             automagic.isInterpolated = self.isInterpolated;
             automagic.version = self.CGV.VERSION;
             automagic.qualityScores = self.qualityScores;
-            automagic.qualityScore = self.getCurrentQualityScore();
+            automagic.selectedQualityScore = self.getCurrentQualityScore();
             automagic.rate = self.rate;
             automagic.isManuallyRated = self.isManuallyRated;
             self.saveFiles(EEG, automagic, fig1, fig2);
@@ -471,7 +471,7 @@ classdef Block < handle
             automagic.interpolation.channels = interpolate_chans;
             automagic.interpolation.params = InterpolationParams;
             automagic.qualityScores = self.qualityScores;
-            automagic.qualityScore = self.getCurrentQualityScore();
+            automagic.selectedQualityScore = self.getCurrentQualityScore();
             automagic.rate = self.rate;
             
             preprocessed = matfile(self.resultAddress,'Writable',true);
@@ -493,7 +493,7 @@ classdef Block < handle
             automagic.isInterpolated = self.isInterpolated;
             automagic.isManuallyRated = self.isManuallyRated;
             automagic.qualityScores = self.qualityScores;
-            automagic.qualityScore = self.getCurrentQualityScore();
+            automagic.selectedQualityScore = self.getCurrentQualityScore();
             
             % It keeps track of the history of all interpolations.
             automagic.finalBadChans = self.finalBadChans;
