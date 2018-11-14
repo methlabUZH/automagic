@@ -620,11 +620,7 @@ function chooseproject_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 folder = uigetdir();
 if(folder ~= 0)
-    if(isunix)
-        folder = strcat(folder,'/');
-    elseif(ispc)
-        folder = strcat(folder,'\');
-    end
+    folder = strcat(folder, filesep);
     set(handles.projectfoldershow, 'String', folder)
 end
 % Update handles structure

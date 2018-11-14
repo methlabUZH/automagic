@@ -37,12 +37,7 @@ if ~ exist(folderName, 'dir')
 end
 eeglab_paths = genpath(folderName);
 
-if(ispc)
-    parts = strsplit(eeglab_paths, ';');
-else
-    parts = strsplit(eeglab_paths, ':');
-end
-
+parts = strsplit(eeglab_paths, pathsep);
 % Exclude paths which create conflicts
 Index = not(~contains(parts, 'compat'));
 parts(Index) = [];
@@ -50,11 +45,7 @@ Index = not(~contains(parts, 'neuroscope'));
 parts(Index) = [];
 Index = not(~contains(parts, 'dpss'));
 parts(Index) = [];
-if(ispc)
-    eeglab_paths = strjoin(parts, ';');
-else
-    eeglab_paths = strjoin(parts, ':');
-end
+eeglab_paths = strjoin(parts, pathsep);
 addpath(eeglab_paths);
     
 end

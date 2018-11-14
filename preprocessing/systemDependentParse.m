@@ -91,11 +91,7 @@ parts = addEEGLab();
 if(~isempty(parts)) 
     
     % System dependence:
-    if(ispc)
-        slash = '\';
-    else
-        slash = '/';
-    end
+    slash = filesep;
 
     EEGSystem.sys10_20_file = Csts.EEGSystemCsts.sys10_20_file;
     Index = not(~contains(parts, 'BESA'));

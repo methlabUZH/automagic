@@ -98,11 +98,7 @@ function datapushbutton_Callback(hObject, eventdata, handles)
 
 folder = uigetdir();
 if(folder ~= 0)
-    if(isunix)
-        slash = '/';
-    elseif(ispc)
-        slash = '\';
-    end
+    slash = filesep;
     folder = strcat(folder,slash);
     set(handles.dataedit, 'String', folder)
 end
