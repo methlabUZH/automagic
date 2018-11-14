@@ -208,6 +208,7 @@ classdef Project < handle
             addParameter(p,'RPCAParams', defs.RPCAParams, @isstruct);
             addParameter(p,'HighvarParams', defs.HighvarParams, @isstruct);
             addParameter(p,'MARAParams', defs.MARAParams, @isstruct);
+            addParameter(p,'ICLabelParams', defs.ICLabelParams, @isstruct);
             addParameter(p,'InterpolationParams', defs.InterpolationParams, @isstruct);
             addParameter(p,'EOGRegressionParams', defs.EOGRegressionParams, @isstruct);
             addParameter(p,'ChannelReductionParams', defs.ChannelReductionParams, @isstruct);

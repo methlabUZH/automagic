@@ -39,11 +39,13 @@ addParameter(p,'PrepParams', defaults.PrepParams, @isstruct);
 addParameter(p,'CRDParams', defaults.CRDParams, @isstruct);
 addParameter(p,'RPCAParams', defaults.RPCAParams, @isstruct);
 addParameter(p,'MARAParams', defaults.MARAParams, @isstruct);
+addParameter(p,'ICLabelParams', defaults.ICLabelParams, @isstruct);
 parse(p, varargin{:});
 PrepParams = p.Results.PrepParams;
 CRDParams = p.Results.CRDParams;
 RPCAParams = p.Results.RPCAParams;
 MARAParams = p.Results.MARAParams;
+ICLabelParams = p.Results.ICLabelParams;
 libraryPath = CSTS.LIBRARY_PATH;
 
 addpath(libraryPath);
@@ -53,24 +55,29 @@ if(~exist('pop_fileio.m', 'file'))
     parts = addEEGLab();
 end
 
-% Check and download if PREP does not exist
+% Check and unzip if PREP does not exist
 if( ~isempty(PrepParams) && ~ exist('performReference.m', 'file'))
     addPREP();
 end
 
-% Check and download if cleanrawdata() does not exist
+% Check and unzip if cleanrawdata() does not exist
 if( ~isempty(CRDParams) && ~ exist('clean_artifacts.m', 'file'))
     addCRD();
 end
 
-% Check and download if cleanrawdata() does not exist
+% Check and unzip if cleanrawdata() does not exist
 if( ~isempty(RPCAParams) && ~ exist('inexact_alm_rpca.m', 'file'))
     addRPCA();
 end
 
-% Check and download if cleanrawdata() does not exist
+% Check and unzip if cleanrawdata() does not exist
 if( ~isempty(MARAParams) && ~ exist('MARA.m', 'file'))
     addMARA();
+end
+
+% Check and unzip if cleanrawdata() does not exist
+if( ~isempty(ICLabelParams) && ~ exist('iclabel.m', 'file'))
+    addICLabel();
 end
     
 end

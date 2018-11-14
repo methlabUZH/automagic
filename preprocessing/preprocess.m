@@ -92,6 +92,7 @@ addParameter(p,'CRDParams', Defaults.CRDParams, @isstruct);
 addParameter(p,'RPCAParams', Defaults.RPCAParams, @isstruct);
 addParameter(p,'HighvarParams', Defaults.HighvarParams, @isstruct);
 addParameter(p,'MARAParams', Defaults.MARAParams, @isstruct);
+addParameter(p,'ICLabelParams', Defaults.ICLabelParams, @isstruct);
 addParameter(p,'InterpolationParams', Defaults.InterpolationParams, @isstruct);
 addParameter(p,'EOGRegressionParams', Defaults.EOGRegressionParams, @isstruct);
 addParameter(p,'ChannelReductionParams', Defaults.ChannelReductionParams, @isstruct);
@@ -106,6 +107,7 @@ PrepParams = p.Results.PrepParams;
 HighvarParams = p.Results.HighvarParams;
 RPCAParams = p.Results.RPCAParams;
 MARAParams = p.Results.MARAParams;
+ICLabelParams = p.Results.ICLabelParams;
 InterpolationParams = p.Results.InterpolationParams; %#ok<NASGU>
 EOGRegressionParams = p.Results.EOGRegressionParams;
 ChannelReductionParams = p.Results.ChannelReductionParams;
@@ -119,7 +121,7 @@ clear p varargin;
 
 % Add and download necessary paths
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
-    'RPCAParams', RPCAParams, 'MARAParams', MARAParams));
+    'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
                           
 % Set system dependent parameters and eeparate EEG from EOG
 [EEG, EOG, EEGSystem, MARAParams] = ...
@@ -191,7 +193,18 @@ end
 % PCA or ICA
 EEG.automagic.mara.performed = 'no';
 EEG.automagic.rpca.performed = 'no';
-if ( ~isempty(MARAParams) )
+EEG.automagic.iclabel.performed = 'no';
+if ( ~isempty(ICLabelParams) )
+    try
+        EEG = performICLabel(EEG, ICLabelParams);
+    catch ME
+        message = ['ICLabel is not done on this subject, continue with the next steps: ' ...
+            ME.message];
+        warning(message)
+        EEG.automagic.iclabel.performed = 'FAILED';
+        EEG.automagic.error_msg = message;
+    end
+elseif ( ~isempty(MARAParams) )
     try
         EEG = performMARA(EEG, MARAParams);
     catch ME

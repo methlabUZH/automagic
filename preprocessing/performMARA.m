@@ -1,6 +1,6 @@
 function EEGClean = performMARA(data, varargin)
 % performMARA  perform Independent Component Analysis (ICA) on the high 
-%   passsed data.
+%   passsed data and classifies bad components using MARA.
 %   This function applies a high pass filter before the ICA. But the output
 %   result is NOT high passed filtered, but only cleaned with ICA. This
 %   option allows to choose a separate high pass filter only for ICA from
@@ -129,7 +129,7 @@ end
 options = [0 1 0 0 0]; %#ok<NASGU>
 [~, ALLEEG, EEGMara, ~] = evalc('processMARA_with_no_popup(dataFiltered, dataFiltered, 1, options)');
 
-% Get bak info before ica components were rejected
+% Get back info before ica components were rejected
 [~, artcomps, MARAinfo] = evalc('MARA(EEGMara)');
 [~, retVar]  = compvar(EEGMara.data, ...
     {EEGMara.icasphere EEGMara.icaweights}, ...
