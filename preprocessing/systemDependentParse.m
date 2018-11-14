@@ -1,5 +1,5 @@
 function [EEG, EOG, EEGSystem, MARAParams] = ...
-                        systemDependentParse(data, EEGSystem, ...
+                        systemDependentParse(EEG, EEGSystem, ...
                         ChannelReductionParams, MARAParams, ORIGINAL_FILE) %#ok<INUSD>
 % systemDependentParse parse EEG input depending on the EEG system.
 %   This function prepares the input for preprocessing. It makes sure that
@@ -11,7 +11,7 @@ function [EEG, EOG, EEGSystem, MARAParams] = ...
 %   from the preprocessing. In the end, it makes sure the correct mapping
 %   for the MARA ICA is provided.
 %
-%   data is the EEG/EOG input data loaded from the file.
+%   EEG is the EEG/EOG input data loaded from the file.
 %   
 %   EEGSystem must be a structure with fields 'name', 'sys10_20', 'refChan', 
 %   'locFile' and 'fileLocType'.  EEGSystem.name can be either 'EGI' or 
@@ -108,28 +108,28 @@ if (~isempty(EEGSystem.name) && ...
         strcmp(EEGSystem.name, Csts.EEGSystemCsts.OTHERS_NAME))
     
     if(isempty(EEGSystem.refChan))
-        data.data(end+1,:) = 0;
-        data.nbchan = data.nbchan + 1;
-        EEGSystem.refChan = data.nbchan;
+        EEG.data(end+1,:) = 0;
+        EEG.nbchan = EEG.nbchan + 1;
+        EEGSystem.refChan = EEG.nbchan;
         
         % Add an arbitraty channel location for the reference channel
-        if (size(data.chanlocs,2) ~= size(data.data,1))
-            data.chanlocs(size(data.data,1)) = data.chanlocs(end);
-            data.chanlocs(end).labels = 'REF';
+        if (size(EEG.chanlocs,2) ~= size(EEG.data,1))
+            EEG.chanlocs(size(EEG.data,1)) = EEG.chanlocs(end);
+            EEG.chanlocs(end).labels = 'REF';
         end
     end
-    all_chans = 1:data.nbchan;
+    all_chans = 1:EEG.nbchan;
     eeg_channels = setdiff(all_chans, union(eog_channels, tobeExcludedChans));
     clear tobeExcludedChans all_chans;
     
     % If chanloc is not a provided field load it from the provided file
-    if(isempty(data.chanlocs) || isempty([data.chanlocs.X]) || ...
-        length(data.chanlocs) ~= data.nbchan)
+    if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
+        length(EEG.chanlocs) ~= EEG.nbchan)
         if(~ EEGSystem.sys10_20)
-            [~, data] = evalc(['pop_chanedit(data,' ...
+            [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                 '''load'',{ EEGSystem.locFile , ''filetype'', EEGSystem.fileLocType})']);
         else
-            [~, data] = evalc(['pop_chanedit(data, ''lookup'', EEGSystem.sys10_20_file,' ...
+            [~, EEG] = evalc(['pop_chanedit(EEG, ''lookup'', EEGSystem.sys10_20_file,' ...
                 '''load'',{ EEGSystem.locFile , ''filetype'', ''autodetect''})']);
         end
     end
@@ -163,35 +163,35 @@ elseif(~isempty(EEGSystem.name) && ...
         chan256 = 1:257;
     end
 
-    switch data.nbchan
+    switch EEG.nbchan
         case 128
             eog_channels = sort([1 32 8 14 17 21 25 125 126 127 128]);
             eeg_channels = setdiff(chan128, eog_channels);
-            data.data(end+1,:) = 0;
-            data.nbchan = data.nbchan + 1;
-            EEGSystem.refChan = data.nbchan;
+            EEG.data(end+1,:) = 0;
+            EEG.nbchan = EEG.nbchan + 1;
+            EEGSystem.refChan = EEG.nbchan;
             
-            if(isempty(data.chanlocs) || isempty([data.chanlocs.X]) || ...
-                    length(data.chanlocs) ~= data.nbchan)
+            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
+                    length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20)
-                    [~, data] = evalc(['pop_chanedit(data,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-129.sfp'' , ''filetype'', ''sfp''})']);
                 else
-                    [~, data] = evalc(['pop_chanedit(data, ''lookup'', EEGSystem.sys10_20_file,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG, ''lookup'', EEGSystem.sys10_20_file,' ...
                         '''load'',{ ''GSN-HydroCel-129.sfp'' , ''filetype'', ''autodetect''})']);
                 end
             end
         case (128 + 1)
             eog_channels = sort([1 32 8 14 17 21 25 125 126 127 128]);
             eeg_channels = setdiff(chan128, eog_channels);
-            EEGSystem.refChan = data.nbchan;
-            if(isempty(data.chanlocs) || isempty([data.chanlocs.X]) || ...
-                    length(data.chanlocs) ~= data.nbchan)
+            EEGSystem.refChan = EEG.nbchan;
+            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
+                    length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20)
-                    [~, data] = evalc(['pop_chanedit(data,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-129.sfp'' , ''filetype'', ''sfp''})']);
                 else
-                    [~, data] = evalc(['pop_chanedit(data, ''lookup'', EEGSystem.sys10_20_file,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG, ''lookup'', EEGSystem.sys10_20_file,' ...
                         '''load'',{ ''GSN-HydroCel-129.sfp'' , ''filetype'', ''autodetect''})']);
                 end
             end
@@ -199,16 +199,16 @@ elseif(~isempty(EEGSystem.name) && ...
             eog_channels = sort([31 32 37 46 54 252 248 244 241 25 18 10 1 226 ...
                 230 234 238]);
             eeg_channels = setdiff(chan256, eog_channels);
-            data.data(end+1,:) = 0;
-            data.nbchan = data.nbchan + 1;
-            EEGSystem.refChan = data.nbchan;
-            if(isempty(data.chanlocs) || isempty([data.chanlocs.X]) || ...
-                    length(data.chanlocs) ~= data.nbchan)
+            EEG.data(end+1,:) = 0;
+            EEG.nbchan = EEG.nbchan + 1;
+            EEGSystem.refChan = EEG.nbchan;
+            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
+                    length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20)
-                    [~, data] = evalc(['pop_chanedit(data,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-257_be.sfp'' , ''filetype'', ''sfp''})']);
                 else
-                    [~, data] = evalc(['pop_chanedit(data, ''lookup'', EEGSystem.sys10_20_file,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG, ''lookup'', EEGSystem.sys10_20_file,' ...
                         '''load'',{ ''GSN-HydroCel-257_be.sfp'' , ''filetype'', ''autodetect''})']);
                 end
             end
@@ -216,26 +216,26 @@ elseif(~isempty(EEGSystem.name) && ...
             eog_channels = sort([31 32 37 46 54 252 248 244 241 25 18 10 1 226 ...
                 230 234 238]);
             eeg_channels = setdiff(chan256, eog_channels);
-            EEGSystem.refChan = data.nbchan;
-            if(isempty(data.chanlocs) || isempty([data.chanlocs.X]) || ...
-                    length(data.chanlocs) ~= data.nbchan)
+            EEGSystem.refChan = EEG.nbchan;
+            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
+                    length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20)
-                    [~, data] = evalc(['pop_chanedit(data,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-257_be.sfp'' , ''filetype'', ''sfp''})']);
                 else
-                    [~, data] = evalc(['pop_chanedit(data, ''lookup'', EEGSystem.sys10_20_file,' ...
+                    [~, EEG] = evalc(['pop_chanedit(EEG, ''lookup'', EEGSystem.sys10_20_file,' ...
                         '''load'',{ ''GSN-HydroCel-257_be.sfp'' , ''filetype'', ''autodetect''})']);
                 end
             end
         case 395  %% .fif files
             addpath('../fieldtrip-20160630/'); 
             % Get rid of two wrong channels 63 and 64
-            eegs = arrayfun(@(x) strncmp('EEG',x.labels, length('EEG')), data.chanlocs, 'UniformOutput', false);
-            not_ecg = arrayfun(@(x) ~ strncmp('EEG063',x.labels, length('EEG063')), data.chanlocs, 'UniformOutput', false);
-            not_wrong = arrayfun(@(x) ~ strncmp('EEG064',x.labels, length('EEG064')), data.chanlocs, 'UniformOutput', false);
+            eegs = arrayfun(@(x) strncmp('EEG',x.labels, length('EEG')), EEG.chanlocs, 'UniformOutput', false);
+            not_ecg = arrayfun(@(x) ~ strncmp('EEG063',x.labels, length('EEG063')), EEG.chanlocs, 'UniformOutput', false);
+            not_wrong = arrayfun(@(x) ~ strncmp('EEG064',x.labels, length('EEG064')), EEG.chanlocs, 'UniformOutput', false);
             eeg_channels = find(cell2mat(eegs) & cell2mat(not_ecg) & cell2mat(not_wrong)); %#ok<NASGU>
-            [~, data] = evalc('pop_select( data , ''channel'', channels)');
-            data.data = data.data * 1e6;% Change from volt to microvolt
+            [~, EEG] = evalc('pop_select( EEG , ''channel'', channels)');
+            EEG.data = EEG.data * 1e6;% Change from volt to microvolt
             % Convert channel positions to EEG_lab format 
             [~, hd] = evalc('ft_read_header(ORIGINAL_FILE)');
             hd_idx = true(1,74);
@@ -260,19 +260,19 @@ elseif(~isempty(EEGSystem.name) && ...
             fclose(fid);
             eeglab_pos = readeetraklocs('pos_temp.txt');
             delete('pos_temp.txt');
-            data.chanlocs = eeglab_pos;
+            EEG.chanlocs = eeglab_pos;
 
             % Distinguish EOGs(61 & 62) from EEGs
-            eegs = arrayfun(@(x) strncmp('EEG',x.labels, length('EEG')), data.chanlocs, 'UniformOutput', false);
-            eog1 = arrayfun(@(x) strncmp('EEG061',x.labels, length('EEG061')), data.chanlocs, 'UniformOutput', false);
-            eog2 = arrayfun(@(x) strncmp('EEG062',x.labels, length('EEG062')), data.chanlocs, 'UniformOutput', false); 
+            eegs = arrayfun(@(x) strncmp('EEG',x.labels, length('EEG')), EEG.chanlocs, 'UniformOutput', false);
+            eog1 = arrayfun(@(x) strncmp('EEG061',x.labels, length('EEG061')), EEG.chanlocs, 'UniformOutput', false);
+            eog2 = arrayfun(@(x) strncmp('EEG062',x.labels, length('EEG062')), EEG.chanlocs, 'UniformOutput', false); 
 
             eeg_channels = find((cellfun(@(x) x == 1, eegs)));
             channel1 = find((cellfun(@(x) x == 1, eog1)));
             channel2 = find((cellfun(@(x) x == 1, eog2)));
             eog_channels = [channel1 channel2];
             eeg_channels = setdiff(eeg_channels, eog_channels); 
-            EEGSystem.refChan = data.nbchan;
+            EEGSystem.refChan = EEG.nbchan;
             clear channel1 channel2 eegs eog1 eog2 eeglab_pos fid hd_idx hd not_wrong not_ecg eegs;
         otherwise
             error('This number of channel is not supported.')
@@ -282,7 +282,7 @@ elseif(~isempty(EEGSystem.name) && ...
     
     % Make ICA map of channels
     if (~isempty(MARAParams))
-        switch data.nbchan
+        switch EEG.nbchan
             case 129
                 % Make the map for ICA
                 if(MARAParams.largeMap)
@@ -342,25 +342,25 @@ elseif(~isempty(EEGSystem.name) && ...
         clear keySet valueSet;
     end
 else
-   if(isempty(data.chanlocs) || isempty([data.chanlocs.X]) || ...
-                    length(data.chanlocs) ~= data.nbchan)
-       error('data.chanlocs is necessary for interpolation.');
+   if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
+                    length(EEG.chanlocs) ~= EEG.nbchan)
+       error('EEG.chanlocs is necessary for interpolation.');
    end
-    all_chans = 1:data.nbchan;
+    all_chans = 1:EEG.nbchan;
     eeg_channels = setdiff(all_chans, union(eog_channels, tobeExcludedChans));
     clear tobeExcludedChans all_chans;
 end
 
 % Seperate EEG channels from EOG channels
-[~, EOG] = evalc('pop_select( data , ''channel'', eog_channels)');
-[~, EEG] = evalc('pop_select( data , ''channel'', eeg_channels)');
+[~, EOG] = evalc('pop_select( EEG , ''channel'', eog_channels)');
+[~, EEG] = evalc('pop_select( EEG , ''channel'', eeg_channels)');
 % Map original channel lists to new ones after the above separation
 [~, idx] = ismember(EEGSystem.refChan, eeg_channels);
 EEGSystem.refChan = idx(idx ~= 0);
 
-data.automagic.EEGSystem.params = EEGSystem;
-data.automagic.channelReduction.params = ChannelReductionParams;
-data.automagic.channelReduction.usedEEGChannels = eeg_channels;
-data.automagic.channelReduction.usedEOGChannels = eog_channels;
+EEG.automagic.EEGSystem.params = EEGSystem;
+EEG.automagic.channelReduction.params = ChannelReductionParams;
+EEG.automagic.channelReduction.usedEEGChannels = eeg_channels;
+EEG.automagic.channelReduction.usedEOGChannels = eog_channels;
 
 end
