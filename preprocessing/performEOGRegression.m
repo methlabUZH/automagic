@@ -39,5 +39,4 @@ regressed.data = eegclean';
 
 % Write back what has happened
 regressed.automagic.EOGRegression.performed = 'yes';
-regressed.automagic.EOGRegression.eogChannels = EOG.chanlocs;
 end
