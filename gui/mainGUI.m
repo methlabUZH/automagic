@@ -396,7 +396,7 @@ set(handles.ratednumber, 'String', ...
 % Set number of files to be interpolated
 interpolate_count = project.toBeInterpolatedCount();
 set(handles.interpolatenumber, 'String', ...
-    [num2str(interpolate_count), ' subjects to interpolate'])
+    [num2str(interpolate_count), ' files to interpolate'])
 
 % Set reduce channel checkbox
 set(handles.excludecheckbox, 'Value', ~isempty(ChannelReductionParams));
