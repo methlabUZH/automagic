@@ -922,22 +922,17 @@ classdef Project < handle
         
         function exportToBIDS(self, folder)
             slash = filesep;
-            subjects = self.listSubjectFiles();
-            sCount = length(subjects);
             if ~exist(folder, 'dir')
                 mkdir(folder);
             end
             
             if usejava('Desktop')
-                h = waitbar(0,'Exporting both data and results folder to BIDS format. Please wait...');
+                h = waitbar(0,'Exporting to BIDS format. Please wait...');
                 h.Children.Title.Interpreter = 'none';
             else
-                fprintf('Updating project. Please wait...\n');
+                fprintf('Exporting results folder to BIDS format. Please wait...\n');
             end
-            
-            SF  = zeros(1, sCount);
-            CC  = zeros(1, sCount);
-            Ref = cell(1, sCount);
+
             fileNames = self.blockMap.keys;
             for i = 1:length(fileNames)
                 if(usejava('Desktop') && ishandle(h))
@@ -955,25 +950,33 @@ classdef Project < handle
                 
                 relativeAddress = extractBetween(block.sourceAddress, block.subject.name, [block.fileName block.fileExtension]);
                 isBIDS = (length(relativeAddress{1}) > 2);
-                newSourceSubAdd = [folder 'sourcedata' slash subjectName relativeAddress{1}];
-                newResSubAdd = [folder 'derivatives' slash subjectName relativeAddress{1}];
-                if ~isBIDS && ~exist(newSourceSubAdd, 'dir')
-                    mkdir(newSourceSubAdd);
-                end
-                if ~exist(newResSubAdd, 'dir')
-                    mkdir(newResSubAdd);
-                end
-                
-                newSourceFile = [newSourceSubAdd fileName '_eeg' block.fileExtension];
-                newResFile = [newResSubAdd fileName '_eeg_automagic.mat'];
+                der_fol = [folder 'derivatives' slash];
+                automagic_fol = [der_fol 'automagic-pipeline' slash];
+                newResSubAdd = [automagic_fol subjectName relativeAddress{1}];
                 
                 if ~ isBIDS
-                    copyfile(block.sourceAddress, newSourceFile);
+                    newResSubAdd = strcat(newResSubAdd, 'eeg', slash);
                 end
                 
+                if ~ exist(newResSubAdd, 'dir')
+                    mkdir(newResSubAdd);
+                end
+                newResFile = [newResSubAdd fileName '_eeg.mat'];
+                newJSONFile = [newResSubAdd fileName '_automagic_eeg.json'];
+                newlogFile = [newResSubAdd fileName '_log.txt'];
                 if exist(block.resultAddress, 'file')
+                    % Result file
                     copyfile(block.resultAddress, newResFile);
                     
+                    % Automagic field
+                    preprocessed = matfile(block.resultAddress,'Writable',true);
+                    jsonwrite(newJSONFile, preprocessed.automagic, struct('indent','  '));
+                    
+                    % log file
+                    logFile = [block.subject.resultFolder slash block.fileName '_log.txt'];
+                     copyfile(logFile, newlogFile);
+                    
+                    % JPEG files
                     images = dir([self.resultFolder block.subject.name relativeAddress{1} '*.jpg']);
                     for imIdx = 1:length(images)
                         image = images(imIdx);
@@ -984,46 +987,11 @@ classdef Project < handle
                         copyfile(imageAddress, newImageAdd);
                     end
                 end
-                
-                if ~ isBIDS
-                    EEG = block.loadEEGFromFile();
-                    EEG.setname      = newSourceFile;
-                    EEG.filepath = newSourceFile;
-                    EEG.filename = fileName;
-                    % metadata
-                    SF(i)  = EEG.srate;
-                    CC(i)  = max(size(EEG.chanlocs));
-                    Ref{i} = EEG.ref;
-
-                    electrodes_to_tsv(EEG);
-                    channelloc_to_tsv(EEG);
-                end
             end
+            paramsJSON = [der_fol 'automagic_params.json'];
+            jsonwrite(paramsJSON, self.params, struct('indent','  '));
+         
             
-            if ~ isBIDS
-                PLF = -1;
-                if ~isempty(self.params) && ~isempty(self.params.FilterParams) ...
-                        && ~isempty(self.params.FilterParams.notch)
-                    PLF = self.params.FilterParams.notch.freq;
-                end
-
-                json = struct('TaskName', 'NAN', ...
-                    'SamplingFrequency', mean(SF(:)), ...
-                    'EEGChannelCount', max(CC(:)), ...
-                    'EEGReference', unique(Ref), ...
-                    'PowerLineFrequency', PLF, ...
-                    'SoftwareFilters', ' ');
-                text = jsonencode(json);
-                fid = fopen([folder slash 'automagic_eeg.json'], 'w');
-                fwrite(fid, text, 'char');
-                fclose(fid);
-
-                % make a participants table and save 
-                age = zeros(sCount,1);
-                sex = repmat(' ',[sCount 1]); 
-                t = table(subjects, age, sex, 'VariableNames', {'participant_id','age','sex'});
-                writetable(t,[folder slash 'Participants.tsv'], 'FileType','text','Delimiter','\t');
-            end
             if(usejava('Desktop') && ishandle(h))
                 waitbar(1)
                 close(h)
