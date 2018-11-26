@@ -1,4 +1,4 @@
-function R = rateQuality (qualityScore, varargin)
+function ratings = rateQuality (qualityScores, varargin)
 % rates datasets, based on quality measures calculated with calcQuality()
 % Inputs: A structure Q with the following fields:
 
@@ -67,68 +67,59 @@ if nargin < 1
     disp('No quality metrics to base a rating on')
 end
 
+Qs = qualityScores;
+
 % create empty cells
-ratingO = {};
-ratingT = {};
-ratingC = {};
-ratingBC = {};
+ratings = cell(length(Qs),1);
 
-Q = qualityScore;
 % Categorize wrt OHA
-
+OHAGoodIdx = zeros(1, length(Qs));
+OHAOKIdx = zeros(1, length(Qs));
+OHABadIdx = zeros(1, length(Qs));
 if any(strfind(settings.Qmeasure,'OHA'))
-    if Q.OHA < settings.overallGoodCutoff
-        ratingO = rating_strs.Good;
-    elseif Q.OHA >= settings.overallGoodCutoff && Q.OHA < settings.overallBadCutoff
-        ratingO = rating_strs.OK ;
-    else
-        ratingO = rating_strs.Bad;
-    end
+    OHAGoodIdx = [Qs.OHA] < settings.overallGoodCutoff;
+    OHAOKIdx = [Qs.OHA] >= settings.overallGoodCutoff & [Qs.OHA] < settings.overallBadCutoff;
+    OHABadIdx = ~(OHAGoodIdx | OHAOKIdx);
 end
 
 % Categorize wrt THV
+THVGoodIdx = zeros(1, length(Qs));
+THVOKIdx = zeros(1, length(Qs));
+THVBadIdx = zeros(1, length(Qs));
 if any(strfind(settings.Qmeasure,'THV'))
-    if Q.THV < settings.timeGoodCutoff
-        ratingT = rating_strs.Good;
-    elseif Q.THV >= settings.timeGoodCutoff && Q.THV < settings.timeBadCutoff
-        ratingT = rating_strs.OK;
-    else
-        ratingT = rating_strs.Bad;
-    end
+    THVGoodIdx = [Qs.THV] < settings.overallGoodCutoff;
+    THVOKIdx = [Qs.THV] >= settings.overallGoodCutoff & [Qs.THV] < settings.overallBadCutoff;
+    THVBadIdx = ~(THVGoodIdx | THVOKIdx);
 end
 
 % Categorize wrt CHV
+CHVGoodIdx = zeros(1, length(Qs));
+CHVOKIdx = zeros(1, length(Qs));
+CHVBadIdx = zeros(1, length(Qs));
 if any(strfind(settings.Qmeasure,'CHV'))
-    if Q.CHV < settings.channelGoodCutoff
-        ratingC = rating_strs.Good;
-    elseif Q.CHV >= settings.channelGoodCutoff && Q.CHV < settings.channelBadCutoff
-        ratingC = rating_strs.OK;
-    else
-        ratingC = rating_strs.Bad;
-    end
+    CHVGoodIdx = [Qs.CHV] < settings.overallGoodCutoff;
+    CHVOKIdx = [Qs.CHV] >= settings.overallGoodCutoff & [Qs.CHV] < settings.overallBadCutoff;
+    CHVBadIdx = ~(CHVGoodIdx | CHVOKIdx);
 end
 
 % Categorize wrt CHV
+RBCGoodIdx = zeros(1, length(Qs));
+RBCOKIdx = zeros(1, length(Qs));
+RBCBadIdx = zeros(1, length(Qs));
 if any(strfind(settings.Qmeasure,'RBC'))
-    if Q.RBC < settings.BadChannelGoodCutoff
-        ratingBC = rating_strs.Good;
-    elseif Q.RBC >= settings.BadChannelGoodCutoff && Q.RBC < settings.BadChannelBadCutoff
-        ratingBC = rating_strs.OK;
-    else
-        ratingBC = rating_strs.Bad;
-    end
+    RBCGoodIdx = [Qs.RBC] < settings.overallGoodCutoff;
+    RBCOKIdx = [Qs.RBC] >= settings.overallGoodCutoff & [Qs.RBC] < settings.overallBadCutoff;
+    RBCBadIdx = ~(RBCGoodIdx | RBCOKIdx);
 end
+
 
 % combine RATINGS with the rule that the rating depends on the worst rating
-rating = rating_strs.NotRated;
-if ismember(rating_strs.Bad,[ratingO,ratingT,ratingC,ratingBC])
-    rating = rating_strs.Bad;
-elseif ismember(rating_strs.OK,[ratingO,ratingT,ratingC,ratingBC])
-    rating = rating_strs.OK;
-elseif ismember(rating_strs.Good,[ratingO,ratingT,ratingC,ratingBC])
-    rating = rating_strs.Good;
-end
+badRating = RBCBadIdx | CHVBadIdx | THVBadIdx | OHABadIdx;
+OKRating = RBCOKIdx | CHVOKIdx | THVOKIdx | OHAOKIdx;
+GoodRating = RBCGoodIdx | CHVGoodIdx | THVGoodIdx | OHAGoodIdx;
+ratings(:) = {rating_strs.NotRated};
+ratings(GoodRating) = {rating_strs.Good};
+ratings(OKRating) = {rating_strs.OK};
+ratings(badRating) = {rating_strs.Bad};
 
-% Output
-R = rating;
 end
