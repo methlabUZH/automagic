@@ -30,7 +30,7 @@ qualityScore = block.getCurrentQualityScore();
 res = rateQuality(qualityScore, cutoffs);
 set(handles.qualityscoretext, 'String',  [sprintf('%s\n','Quality Scores:'), evalc('disp(qualityScore)')])
 set(handles.qualityscoretext, 'FontUnits','normalized','FontSize',0.1310, 'HorizontalAlignment','center')
-switch res
+switch res{:}
     case handles.CGV.RATINGS.Good
        set(handles.goodrate,'ForegroundColor','red')
        set(handles.okrate,'ForegroundColor','black')
