@@ -189,6 +189,9 @@ classdef Project < handle
         % List of indices of blocks that are not rated (or rated as Not Rated).
         notRatedList 
         
+        % List of indices of blocks that are already interpolated
+        alreadyInterpolated
+        
         % Constant Global Variables
         CGV
     end
@@ -482,6 +485,7 @@ classdef Project < handle
 
                 block.interpolate();
                 
+                self.alreadyInterpolated = [self.alreadyInterpolated index];
                 self.saveProject();
             end
             endTime = cputime - startTime;
@@ -607,7 +611,8 @@ classdef Project < handle
             bList = [];
             oList = [];
             nList = [];
-
+            alreadyList = [];
+            
             filesCount = 0;
             nPreprocessedFile = 0;
             for i = 1:length(subjects)
@@ -758,6 +763,9 @@ classdef Project < handle
                             nList = [nList block.index];
                         end
 
+                        if block.isInterpolated
+                            alreadyList = [alreadyList block.index];
+                        end
                        pList{end + 1} = block.uniqueName;
                        nPreprocessedFile = ...
                            nPreprocessedFile + 1;
@@ -833,6 +841,7 @@ classdef Project < handle
             self.badList = bList;
             self.okList = oList;
             self.notRatedList = nList;
+            self.alreadyInterpolated = alreadyList;
 
             % Assign current index
             if( isempty(self.processedList))
@@ -952,6 +961,7 @@ classdef Project < handle
                 isBIDS = (length(relativeAddress{1}) > 2);
                 der_fol = [folder 'derivatives' slash];
                 automagic_fol = [der_fol 'automagic-pipeline' slash];
+                code_fol = [der_fol 'code' slash];
                 newResSubAdd = [automagic_fol subjectName relativeAddress{1}];
                 
                 if ~ isBIDS
@@ -991,6 +1001,19 @@ classdef Project < handle
             paramsJSON = [der_fol 'automagic_params.json'];
             jsonwrite(paramsJSON, self.params, struct('indent','  '));
          
+            
+            params = self.params; 
+            vParams = self.vParams;
+            if ~ exist(code_fol, 'dir')
+                    mkdir(code_fol);
+            end
+            save([code_fol 'params.mat'], 'params');
+            save([code_fol 'vParams.mat'], 'vParams');
+            reproduceCode = getCodeHistoryStruct();
+            fid = fopen([code_fol 'automagic-preprocess.m'], 'wt');
+            fprintf(fid, reproduceCode.create, self.name, self.dataFolder, self.name, self.fileExtension);
+            fprintf(fid, reproduceCode.interpolate);
+            fclose(fid);
             
             if(usejava('Desktop') && ishandle(h))
                 waitbar(1)
@@ -1084,7 +1107,7 @@ classdef Project < handle
             bList = [];
             oList = [];
             nList = [];
-
+            alreadyList = [];
             
             filesCount = 0;
             nPreprocessedFile = 0;
@@ -1172,6 +1195,9 @@ classdef Project < handle
                             nList = [nList block.index];
                         end
 
+                        if block.isInterpolated
+                            alreadyList = [alreadyList block.index];
+                        end
                        pList{end + 1} = block.uniqueName;      
                        nPreprocessedFile = ...
                            nPreprocessedFile + 1;
@@ -1200,6 +1226,7 @@ classdef Project < handle
             self.badList = bList;
             self.okList = oList;
             self.notRatedList = nList;
+            self.alreadyInterpolated = alreadyList;
             % Assign current index
             if( ~ isempty(self.processedList))
                 self.current = 1;
