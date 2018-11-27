@@ -198,7 +198,7 @@ Y_axis_max = max(rateingHist.Values) + ceil(0.1 * max(rateingHist.Values));
 n_Y = Y_axis_max / 10.0;
 set(cutoffAxes, 'YTick', 0:ceil(n_Y):ceil(Y_axis_max))
 set(cutoffAxes,'fontsize', 10)
-title('Frequencies of data qualities based on selected cutoffshow')
+title('Frequencies of data qualities based on selected cutoffs')
 if max(rateingHist.Values) ~= 0
     ylim([0 (max(rateingHist.Values) + ceil(0.1 * max(rateingHist.Values)))])
 end
