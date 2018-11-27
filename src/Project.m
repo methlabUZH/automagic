@@ -988,7 +988,8 @@ classdef Project < handle
                      copyfile(logFile, newlogFile);
                     
                     % JPEG files
-                    images = dir([self.resultFolder block.subject.name relativeAddress{1} '*.jpg']);
+                    images = dir([block.subject.resultFolder slash block.fileName '_orig.jpg']);
+                    images = [images dir([block.subject.resultFolder slash block.fileName '.jpg'])];
                     for imIdx = 1:length(images)
                         image = images(imIdx);
                         imageAddress = [image.folder slash image.name];
