@@ -930,7 +930,11 @@ classdef Project < handle
             modified = dataChanged || resultChanged;
         end
         
-        function exportToBIDS(self, folder)
+        function exportToBIDS(self, folder, makeRaw, makeDerivatives)
+            if ~ (makeDerivatives || makeRaw)
+                return;
+            end
+            
             slash = filesep;
             if ~exist(folder, 'dir')
                 mkdir(folder);
@@ -951,6 +955,9 @@ classdef Project < handle
                 
                 fileName = fileNames{i};
                 block = self.blockMap(fileName);
+                relativeAddress = extractBetween(block.sourceAddress, ...
+                    block.subject.name, [block.fileName block.fileExtension]);
+                isBIDS = (length(relativeAddress{1}) > 2);
                 
                 if length(block.subject.name) > 4 && strcmp(block.subject.name(1:4), 'sub-')
                     subjectName = block.subject.name;
@@ -958,24 +965,36 @@ classdef Project < handle
                     subjectName = ['sub-' block.subject.name];
                 end
                 
-                relativeAddress = extractBetween(block.sourceAddress, block.subject.name, [block.fileName block.fileExtension]);
-                isBIDS = (length(relativeAddress{1}) > 2);
                 der_fol = [folder 'derivatives' slash];
+                raw_fol = [folder 'raw' slash];
                 automagic_fol = [der_fol 'automagic-pipeline' slash];
-                code_fol = [der_fol 'code' slash];
+                code_fol = [folder 'code' slash];
                 newResSubAdd = [automagic_fol subjectName relativeAddress{1}];
+                newRawSubAdd = [raw_fol subjectName relativeAddress{1}];
                 
                 if ~ isBIDS
                     newResSubAdd = strcat(newResSubAdd, 'eeg', slash);
+                    newRawSubAdd = strcat(newRawSubAdd, 'eeg', slash);
                 end
                 
-                if ~ exist(newResSubAdd, 'dir')
+                if ~ exist(newResSubAdd, 'dir') && makeDerivatives
                     mkdir(newResSubAdd);
                 end
+                if ~ exist(newRawSubAdd, 'dir') && makeRaw
+                    mkdir(newRawSubAdd);
+                end
+                
                 newResFile = [newResSubAdd fileName '_eeg.mat'];
                 newJSONFile = [newResSubAdd fileName '_automagic_eeg.json'];
                 newlogFile = [newResSubAdd fileName '_log.txt'];
-                if exist(block.resultAddress, 'file')
+                newRawFile = [newRawSubAdd fileName]; %#ok<NASGU>
+                
+                if makeRaw
+                    EEG = block.loadEEGFromFile(); %#ok<NASGU>
+                    [~, ~] = evalc('pop_writebva(EEG, newRawFile)');
+                end
+                
+                if exist(block.resultAddress, 'file') && makeDerivatives
                     % Result file
                     copyfile(block.resultAddress, newResFile);
                     
