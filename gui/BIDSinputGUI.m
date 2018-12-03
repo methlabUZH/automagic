@@ -22,7 +22,7 @@ function varargout = BIDSinputGUI(varargin)
 
 % Edit the above text to modify the response to help BIDSinputGUI
 
-% Last Modified by GUIDE v2.5 08-Nov-2018 10:56:04
+% Last Modified by GUIDE v2.5 03-Dec-2018 13:57:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,6 +53,8 @@ function BIDSinputGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to BIDSinputGUI (see VARARGIN)
 
 movegui(handles.figure1,'center')
+set(handles.rawcheckbox, 'Value', 0);
+set(handles.derivativescheckbox, 'Value', 1);
 
 % Choose default command line output for BIDSinputGUI
 handles.output = hObject;
@@ -73,6 +75,8 @@ function varargout = BIDSinputGUI_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = get(handles.dataedit, 'String');
+varargout{2} = get(handles.rawcheckbox, 'Value');
+varargout{3} = get(handles.derivativescheckbox, 'Value');
 delete(handles.figure1);
 
 
@@ -143,3 +147,21 @@ if isequal(get(hObject, 'waitstatus'), 'waiting')
 else
     delete(hObject);
 end
+
+
+% --- Executes on button press in rawcheckbox.
+function rawcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to rawcheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of rawcheckbox
+
+
+% --- Executes on button press in derivativescheckbox.
+function derivativescheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to derivativescheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of derivativescheckbox
