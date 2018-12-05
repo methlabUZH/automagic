@@ -234,6 +234,17 @@ classdef Block < handle
                 self.finalBadChans = automagic.finalBadChans;
                 self.qualityScores = automagic.qualityScores;
                 self.isManuallyRated = automagic.isManuallyRated;
+                
+                if automagic.qualityThresholds ~= self.project.qualityThresholds
+                    warning(['Quality thresholds of the saved files are '...
+                        'not the same is the quality thresholds of the '...
+                        'current project']);
+                end
+                
+                if automagic.version ~= self.CGV.VERSION
+                    warning(['Version of Automagic is not the same as the' ...
+                        ' one which produced this result file.'])
+                end
             else
                 self.rate = ConstantGlobalValues.RATINGS.NotRated;
                 self.tobeInterpolated = [];
@@ -401,6 +412,7 @@ classdef Block < handle
             automagic.isInterpolated = self.isInterpolated;
             automagic.version = self.CGV.VERSION;
             automagic.qualityScores = self.qualityScores;
+            automagic.qualityThresholds = self.project.qualityThresholds;
             automagic.selectedQualityScore = self.getCurrentQualityScore();
             automagic.rate = self.rate;
             automagic.isManuallyRated = self.isManuallyRated;
@@ -561,7 +573,7 @@ classdef Block < handle
 
                     fprintf(fileID, sprintf(text.clean_rawdata.desc));
                     if ~ strcmp(pars.Highpass , 'off')
-                        if ~ strcmp(pars.BurstCriterion , 'off') 
+                        if strcmp(pars.BurstCriterion , 'off') 
                             fprintf(fileID, sprintf(...
                                 text.clean_rawdata.noASRFilter, ...
                                 pars.Highpass));
@@ -606,14 +618,14 @@ classdef Block < handle
                     
                     if (isfield(pars, 'lowpass') && ...
                             strcmp(pars.lowpass.performed, 'yes'))
-                        fprintf(fileID, sprintf(text.filtering.high, ...
+                        fprintf(fileID, sprintf(text.filtering.low, ...
                             pars.lowpass.freq, pars.lowpass.order, ...
                             pars.lowpass.transitionBandWidth));
                     end
                     
                     if (isfield(pars, 'notch') && ...
                             strcmp(pars.notch.performed, 'yes'))
-                        fprintf(fileID, sprintf(text.filtering.high, ...
+                        fprintf(fileID, sprintf(text.filtering.notch, ...
                             pars.notch.freq, pars.notch.order, ...
                             pars.notch.transitionBandWidth));
                     end
