@@ -185,7 +185,7 @@ if ~isempty(params.MARAParams)
             set(handles.icahighpassedit, 'String', params.MARAParams.high.freq);
         end
     else
-        set(handles.highcheckbox, 'Value', 0);
+        set(handles.icahighpasscheckbox, 'Value', 0);
         set(handles.icahighpassorderedit, 'String', '')
         set(handles.icahighpassedit, 'String', '');
     end
@@ -215,7 +215,7 @@ if ~isempty(params.ICLabelParams)
             set(handles.icahighpassedit, 'String', params.ICLabelParams.high.freq);
         end
     else
-        set(handles.highcheckbox, 'Value', 0);
+        set(handles.icahighpasscheckbox, 'Value', 0);
         set(handles.icahighpassorderedit, 'String', '')
         set(handles.icahighpassedit, 'String', '');
     end
@@ -348,10 +348,12 @@ VisualisationParams = handles.VisualisationParams;
 MARAParams = params.MARAParams;
 if get(handles.icacheckbox, 'Value')
     if isempty(MARAParams)
-        MARAParams = struct();end
+        MARAParams = struct();
+        MARAParams.high = struct();
+    end
     MARAParams.largeMap = get(handles.largemapcheckbox, 'Value');
     
-    high = params.MARAParams.high;
+    high = MARAParams.high;
     if( get(handles.icahighpasscheckbox, 'Value'))
         if isempty(high)
             high = struct();
@@ -598,7 +600,9 @@ if ~isempty(PrepParams)
         if ~isnan(res)
             PrepParams.lineFrequencies = res;
         else
-            PrepParams = rmfield(PrepParams, 'lineFrequencies');
+            if isfield(PrepParams, 'lineFrequencies')
+                PrepParams = rmfield(PrepParams, 'lineFrequencies');
+            end
         end
         clear res;
     end 
@@ -843,7 +847,7 @@ function defaultpushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles = set_gui(handles, handles.RecParams, ...
+handles = set_gui(handles, handles.CGV.DefaultParams, ...
     handles.CGV.DefaultVisualisationParams);
 
 % Update handles structure
