@@ -235,12 +235,6 @@ classdef Block < handle
                 self.qualityScores = automagic.qualityScores;
                 self.isManuallyRated = automagic.isManuallyRated;
                 
-                if automagic.qualityThresholds ~= self.project.qualityThresholds
-                    warning(['Quality thresholds of the saved files are '...
-                        'not the same is the quality thresholds of the '...
-                        'current project']);
-                end
-                
                 if automagic.version ~= self.CGV.VERSION
                     warning(['Version of Automagic is not the same as the' ...
                         ' one which produced this result file.'])
@@ -528,10 +522,11 @@ classdef Block < handle
             
             if isfield(automagic, 'error_msg')
                 fprintf(fileID, sprintf(text.error.desc, automagic.error_msg));
+                fprintf(fileID, '\n');
+                fprintf(fileID, '\n');
+                fprintf(fileID, '\n');
             end
-            fprintf(fileID, '\n');
-            fprintf(fileID, '\n');
-            fprintf(fileID, '\n');
+            
             
             if(isfield(automagic, 'prep'))
                 if strcmp(automagic.prep.performed, 'yes')
@@ -570,8 +565,24 @@ classdef Block < handle
             if(isfield(automagic, 'crd'))
                 if strcmp(automagic.crd.performed, 'yes')
                     pars = automagic.crd.params;
-
                     fprintf(fileID, sprintf(text.clean_rawdata.desc));
+                    
+                    % First flat-line channels
+                    if isfield(pars, 'FlatlineCriterion') && ...
+                         ~ strcmp(pars.FlatlineCriterion , 'off') 
+                     
+                        flatLine = pars.FlatlineCriterion;
+                        fprintf(fileID, sprintf(...
+                            text.clean_rawdata.flatLine, ...
+                            flatLine));
+                    else
+                        flatLine = 5; % the default is HARDCODED
+                        fprintf(fileID, sprintf(...
+                            text.clean_rawdata.flatLine, ...
+                            flatLine));
+                    end
+                    
+                    % Second (temp) high pass filter
                     if ~ strcmp(pars.Highpass , 'off')
                         if strcmp(pars.BurstCriterion , 'off') 
                             fprintf(fileID, sprintf(...
@@ -584,12 +595,26 @@ classdef Block < handle
                         end
                     end
                     
+                    % Thirds and fourth are line noise and ransac
                     if ~ strcmp(pars.LineNoiseCriterion, 'off')
                         fprintf(fileID, sprintf(...
                             text.clean_rawdata.lineNoise, ...
                             pars.LineNoiseCriterion));
                     end
                     
+                    if ~ strcmp(pars.ChannelCriterion, 'off')
+                        if isfield(pars, 'ChannelCriterionMaxBadTime')
+                            MaxBrokenTime = pars.ChannelCriterionMaxBadTime;
+                        else
+                            MaxBrokenTime = 0.4; % the default is HARDCODED
+                        end
+                        
+                        fprintf(fileID, sprintf(...
+                            text.clean_rawdata.ransac, MaxBrokenTime, ...
+                            pars.ChannelCriterion));
+                    end
+                    
+                    % Last Busrt and window
                     if ~ strcmp(pars.BurstCriterion, 'off')
                         fprintf(fileID, sprintf(...
                             text.clean_rawdata.burst, ...
