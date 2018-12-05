@@ -513,6 +513,8 @@ end
 
 nBlock = 0;
 if isempty(ext)
+    % Change the cursor to normal
+    set(handles.mainGUI, 'pointer', 'arrow')
    return; 
 end
 
