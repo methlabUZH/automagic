@@ -122,7 +122,7 @@ classdef Project < handle
         % Address of the folder where results are (to be) saved. 
         resultFolder
         
-        % Sampling rate to crate reduced files.
+        % Sampling rate to create reduced files.
         dsRate
         
         % Sampling rate of the recorded data. This is necessary only in the
