@@ -210,8 +210,8 @@ classdef Block < handle
                 autParams = cell2struct(autParams(idx), autFields(idx));
                 if( ~ isequal(autParams, self.params))
                     msg = ['Preprocessing parameters of the ',...
-                        self.fileName, ' does not correspond to', ... 
-                        'the preprocessing parameters of this '
+                        self.fileName, ' does not correspond to ', ... 
+                        'the preprocessing parameters of this ', ...
                         'project. This file can not be merged.'];
                     popup_msg(msg, 'Error');
                     ME = MException('Automagic:Block:parameterMismatch', msg);
@@ -410,6 +410,13 @@ classdef Block < handle
             automagic.selectedQualityScore = self.getCurrentQualityScore();
             automagic.rate = self.rate;
             automagic.isManuallyRated = self.isManuallyRated;
+            
+            refChan = automagic.channelReduction.newRefChan;
+            automagic.EEGChannelCount = size(EEG.data,1);
+            automagic.SamplingFrequency = EEG.srate;
+            automagic.RecordingDuration = size(EEG.data,2);
+            automagic.EEGReference = EEG.chanlocs(refChan).labels;
+            automagic.ChannelLocationFile = EEG.chaninfo.filename;
             self.saveFiles(EEG, automagic, fig1, fig2);
             self.writeLog(automagic);
         end
