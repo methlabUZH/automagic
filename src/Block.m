@@ -285,7 +285,11 @@ classdef Block < handle
             self.subject = self.subject.updateAddresses(newDataPath, ...
                 newProjectPath);
             
-            splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
+            if ispc
+                splits = strsplit(self.sourceAddress, [slash slash self.subject.name slash]);
+            else
+                splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
+            end
             relAdd = splits{2};
             
             self.sourceAddress = [self.subject.dataFolder slash relAdd];
