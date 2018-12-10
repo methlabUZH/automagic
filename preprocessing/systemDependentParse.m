@@ -163,6 +163,8 @@ elseif(~isempty(EEGSystem.name) && ...
         case 128
             eog_channels = sort([1 32 8 14 17 21 25 125 126 127 128]);
             eeg_channels = setdiff(chan128, eog_channels);
+            tobeExcludedChans = setdiff(1:129, union(chan128, eog_channels));
+            
             EEG.data(end+1,:) = 0;
             EEG.nbchan = EEG.nbchan + 1;
             EEGSystem.refChan = EEG.nbchan;
@@ -180,6 +182,8 @@ elseif(~isempty(EEGSystem.name) && ...
         case (128 + 1)
             eog_channels = sort([1 32 8 14 17 21 25 125 126 127 128]);
             eeg_channels = setdiff(chan128, eog_channels);
+            tobeExcludedChans = setdiff(1:129, union(chan128, eog_channels));
+            
             EEGSystem.refChan = EEG.nbchan;
             if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
                     length(EEG.chanlocs) ~= EEG.nbchan)
@@ -195,6 +199,8 @@ elseif(~isempty(EEGSystem.name) && ...
             eog_channels = sort([31 32 37 46 54 252 248 244 241 25 18 10 1 226 ...
                 230 234 238]);
             eeg_channels = setdiff(chan256, eog_channels);
+            tobeExcludedChans = setdiff(1:257, union(chan256, eog_channels));
+            
             EEG.data(end+1,:) = 0;
             EEG.nbchan = EEG.nbchan + 1;
             EEGSystem.refChan = EEG.nbchan;
@@ -212,6 +218,8 @@ elseif(~isempty(EEGSystem.name) && ...
             eog_channels = sort([31 32 37 46 54 252 248 244 241 25 18 10 1 226 ...
                 230 234 238]);
             eeg_channels = setdiff(chan256, eog_channels);
+            tobeExcludedChans = setdiff(1:257, union(chan256, eog_channels));
+            
             EEGSystem.refChan = EEG.nbchan;
             if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
                     length(EEG.chanlocs) ~= EEG.nbchan)
@@ -356,6 +364,7 @@ EEGSystem.refChan = idx(idx ~= 0);
 
 EEG.automagic.EEGSystem.params = EEGSystem;
 EEG.automagic.channelReduction.params = ChannelReductionParams;
+EEG.automagic.channelReduction.excludedChannels = tobeExcludedChans;
 EEG.automagic.channelReduction.usedEEGChannels = eeg_channels;
 EEG.automagic.channelReduction.usedEOGChannels = eog_channels;
 
