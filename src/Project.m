@@ -1014,35 +1014,36 @@ classdef Project < handle
                     bidsStruct.ExcludedChannels = autStruct.channelReduction.excludedChannels;
                     bidsStruct.EEGChannels = autStruct.channelReduction.usedEEGChannels;
                     bidsStruct.EOGChannels = autStruct.channelReduction.usedEOGChannels;
-                    bidsStruct.PreprocessingSoftware = ['Automagic ' self.CGV.VERSION];
+                    bidsStruct.PreprocessingSoftware.Name = ['Automagic ' self.CGV.VERSION];
+                    bidsStruct.PreprocessingSoftware.ToolboxReference = 'Pedroni, Andreas & Bahreini, Amirreza & Langer, Nicolas. (2018). AUTOMAGIC: Standardized Preprocessing of Big EEG Data. 10.1101/460469.';
                     bidsStruct.BadChannelInterpolation.Method = autStruct.params.InterpolationParams.method;
                     bidsStruct.BadChannelInterpolation.Performed = 'No';
                     bidsStruct.BadChannelInterpolation.BadChannels = autStruct.tobeInterpolated;
                     if autStruct.isInterpolated
                         bidsStruct.BadChannelInterpolation.Performed = 'Yes';
-                        bidsStruct.BadChannelInterpolation.InterpolatedChannels = autStruct.finalBadChans;
+                        bidsStruct.BadChannelInterpolation.InterpolatedBadChannels = autStruct.finalBadChans;
                     end
                     
                     bidsStruct.BadChannelIdentification = struct;
                     if ~isempty(autStruct.params.PrepParams)
-                        bidsStruct.BadChannelIdentification.prep.IdentifcationType= 'PREP pipeline';
-                        bidsStruct.BadChannelIdentification.prep.ToolboxReference = 'Bigdely-Shamlo N, Mullen T, Kothe C, Su K-M and Robbins KA (2015)';
-                        bidsStruct.BadChannelIdentification.prep.ToolboxVersion = '';
-                        bidsStruct.BadChannelIdentification.prep.BadChannels = autStruct.prep.badChans;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.ExtremeAmplitudes.RobustDeviationThreshold = autStruct.prep.params.reference.robustDeviationThreshold;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.LackOfCorrelation.correlationWindowSeconds = autStruct.prep.params.reference.correlationWindowSeconds;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.LackOfCorrelation.correlationThreshold = autStruct.prep.params.reference.correlationThreshold;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.LackOfPredictability.ransacSampleSize = autStruct.prep.params.reference.ransacSampleSize;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.LackOfPredictability.ransacChannelFraction = autStruct.prep.params.reference.ransacChannelFraction;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.LackOfPredictability.ransacUnbrokenTime = autStruct.prep.params.reference.ransacUnbrokenTime;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.LackOfPredictability.ransacWindowSeconds = autStruct.prep.params.reference.ransacWindowSeconds;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.LackOfPredictability.ransacCorrelationThreshold = autStruct.prep.params.reference.ransacCorrelationThreshold;
-                        bidsStruct.BadChannelIdentification.prep.BadChannelCriteria.HighFrequencyNoise.highFrequencyNoiseThreshold = autStruct.prep.params.reference.highFrequencyNoiseThreshold;
+                        bidsStruct.BadChannelIdentification.PREP.IdentifcationMethod= 'PREP pipeline';
+                        bidsStruct.BadChannelIdentification.PREP.ToolboxReference = 'Bigdely-Shamlo N, Mullen T, Kothe C, Su K-M and Robbins KA (2015)';
+                        bidsStruct.BadChannelIdentification.PREP.ToolboxVersion = '0.55.3 Released 10/19/2017';
+                        bidsStruct.BadChannelIdentification.PREP.BadChannels = autStruct.prep.badChans;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.ExtremeAmplitudes.RobustDeviationThreshold = autStruct.prep.params.reference.robustDeviationThreshold;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfCorrelation.correlationWindowSeconds = autStruct.prep.params.reference.correlationWindowSeconds;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfCorrelation.correlationThreshold = autStruct.prep.params.reference.correlationThreshold;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacSampleSize = autStruct.prep.params.reference.ransacSampleSize;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacChannelFraction = autStruct.prep.params.reference.ransacChannelFraction;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacUnbrokenTime = autStruct.prep.params.reference.ransacUnbrokenTime;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacWindowSeconds = autStruct.prep.params.reference.ransacWindowSeconds;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacCorrelationThreshold = autStruct.prep.params.reference.ransacCorrelationThreshold;
+                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.HighFrequencyNoise.highFrequencyNoiseThreshold = autStruct.prep.params.reference.highFrequencyNoiseThreshold;
                         
                     end
                     
                     if ~isempty(autStruct.params.CRDParams)
-                        bidsStruct.BadChannelIdentification.CRD.IdentifcationType= 'clean_rawdata()';
+                        bidsStruct.BadChannelIdentification.CRD.IdentifcationMethod= 'clean_rawdata()';
                         bidsStruct.BadChannelIdentification.CRD.ToolboxReference = 'Christian Kothe http://sccn.ucsd.edu/wiki/Plugin_list_process';
                         bidsStruct.BadChannelIdentification.CRD.ToolboxVersion = '0.34';
                         bidsStruct.BadChannelIdentification.CRD.BadChannels = autStruct.crd.badChans;
@@ -1083,52 +1084,55 @@ classdef Project < handle
                     end
                     
                     if ~isempty(autStruct.params.HighvarParams)
-                        bidsStruct.BadChannelIdentification.highVar.IdentifcationType= 'High variance rejection';
-                        bidsStruct.BadChannelIdentification.highVar.ToolboxReference = '';
-                        bidsStruct.BadChannelIdentification.highVar.ToolboxVersion = '';
-                        bidsStruct.BadChannelIdentification.highVar.BadChannels = autStruct.highVarianceRejection.badChans;
-                        bidsStruct.BadChannelIdentification.highVar.BadChannelCriteria.sd = autStruct.highVarianceRejection.sd;
+                        bidsStruct.BadChannelIdentification.HighVar.IdentifcationMethod= 'High variance rejection';
+                        bidsStruct.BadChannelIdentification.HighVar.ToolboxReference = '';
+                        bidsStruct.BadChannelIdentification.HighVar.ToolboxVersion = '';
+                        bidsStruct.BadChannelIdentification.HighVar.BadChannels = autStruct.highVarianceRejection.badChans;
+                        bidsStruct.BadChannelIdentification.HighVar.BadChannelCriteria.sd = autStruct.highVarianceRejection.sd;
                     end
                     
                     if ~isempty(autStruct.params.FilterParams)
                         if ~isempty(autStruct.params.FilterParams.high)
-                            bidsStruct.SoftwareFilters.highpass.FilterType = 'highpass fir using pop_eegfiltnew()';
-                            bidsStruct.SoftwareFilters.highpass.HighCutoff = autStruct.filtering.highpass.freq;
-                            bidsStruct.SoftwareFilters.highpass.HighCutoffDefinition = 'half-amplitude (-6dB)';
-                            bidsStruct.SoftwareFilters.highpass.FilterOrder = autStruct.filtering.highpass.order;
-                            bidsStruct.SoftwareFilters.highpass.TransitionBandwidth = autStruct.filtering.highpass.transitionBandWidth;
+                            bidsStruct.SoftwareFilters.Highpass.FilterType = 'highpass fir using pop_eegfiltnew()';
+                            bidsStruct.SoftwareFilters.Highpass.HighCutoff = autStruct.filtering.highpass.freq;
+                            bidsStruct.SoftwareFilters.Highpass.HighCutoffDefinition = 'half-amplitude (-6dB)';
+                            bidsStruct.SoftwareFilters.Highpass.FilterOrder = autStruct.filtering.highpass.order;
+                            bidsStruct.SoftwareFilters.Highpass.TransitionBandwidth = autStruct.filtering.highpass.transitionBandWidth;
                         end
                         
                         if ~isempty(autStruct.params.FilterParams.low)
-                            bidsStruct.SoftwareFilters.lowpass.FilterType = 'lowpass fir using pop_eegfiltnew()';
-                            bidsStruct.SoftwareFilters.lowpass.LowCutoff = autStruct.filtering.lowpass.freq;
-                            bidsStruct.SoftwareFilters.lowpass.LowCutoffDefinition = 'half-amplitude (-6dB)';
-                            bidsStruct.SoftwareFilters.lowpass.FilterOrder = autStruct.filtering.lowpass.order;
-                            bidsStruct.SoftwareFilters.lowpass.TransitionBandwidth = autStruct.filtering.lowpass.transitionBandWidth;
+                            bidsStruct.SoftwareFilters.Lowpass.FilterType = 'lowpass fir using pop_eegfiltnew()';
+                            bidsStruct.SoftwareFilters.Lowpass.LowCutoff = autStruct.filtering.lowpass.freq;
+                            bidsStruct.SoftwareFilters.Lowpass.LowCutoffDefinition = 'half-amplitude (-6dB)';
+                            bidsStruct.SoftwareFilters.Lowpass.FilterOrder = autStruct.filtering.lowpass.order;
+                            bidsStruct.SoftwareFilters.Lowpass.TransitionBandwidth = autStruct.filtering.lowpass.transitionBandWidth;
                         end
                         
                         if ~isempty(autStruct.params.FilterParams.notch)
-                            bidsStruct.SoftwareFilters.notch.FilterType = 'notch fir using pop_eegfiltnew()';
-                            bidsStruct.SoftwareFilters.notch.NotchCutoff = autStruct.filtering.notch.freq;
-                            bidsStruct.SoftwareFilters.notch.NotchCutoffDefinition = 'half-amplitude (-6dB)';
-                            bidsStruct.SoftwareFilters.notch.FilterOrder = autStruct.filtering.notch.order;
-                            bidsStruct.SoftwareFilters.notch.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
+                            bidsStruct.SoftwareFilters.Notch.FilterType = 'notch fir using pop_eegfiltnew()';
+                            bidsStruct.SoftwareFilters.Notch.NotchCutoff = autStruct.filtering.notch.freq;
+                            bidsStruct.SoftwareFilters.Notch.NotchCutoffDefinition = 'half-amplitude (-6dB)';
+                            bidsStruct.SoftwareFilters.Notch.FilterOrder = autStruct.filtering.notch.order;
+                            bidsStruct.SoftwareFilters.Notch.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
                         end
                     end
                     if ~isempty(autStruct.params.EOGRegressionParams)
                         bidsStruct.ArtifactCorrection.EOGRegression.Used = 'Yes';
+                        bidsStruct.ArtifactCorrection.EOGRegression.ToolboxReference = 'Parra, Lucas C., Clay D. Spence, Adam D. Gerson, and Paul Sajda. 2005. “Recipes for the Linear Analysis of EEG.” NeuroImage 28 (2): 326–41';
                     end
                     
                     if ~isempty(autStruct.params.MARAParams)
                         bidsStruct.ArtifactCorrection.MARA.RemovedBadICs = autStruct.mara.ICARejected;
                         bidsStruct.ArtifactCorrection.MARA.PosteriorArtefactProbability = autStruct.mara.postArtefactProb;
                         bidsStruct.ArtifactCorrection.MARA.RetainedVariance = autStruct.mara.retainedVariance;
+                        bidsStruct.ArtifactCorrection.MARA.ToolboxReference = 'Winkler, Irene, Stefan Haufe, and Michael Tangermann. 2011. “Automatic Classification of Artifactual ICA-Components for Artifact Removal in EEG Signals.” Behavioral and Brain Functions: BBF 7 (August): 30';
                     end
                     
                     if ~isempty(autStruct.params.RPCAParams)
                         bidsStruct.ArtifactCorrection.RPCA.RPCALambda = autStruct.rpca.lambda;
                         bidsStruct.ArtifactCorrection.RPCA.Tolerance = autStruct.rpca.tol;
                         bidsStruct.ArtifactCorrection.RPCA.MaxIterations = autStruct.rpca.maxIter;
+                        bidsStruct.ArtifactCorrection.RPCA.ToolboxReference = 'Lin, Zhouchen, Minming Chen, and Yi Ma. 2010. “The Augmented Lagrange Multiplier Method for Exact Recovery of Corrupted Low-Rank Matrices.” arXiv [math.OC]. arXiv. http://arxiv.org/abs/1009.5055';
                     end
                     bidsStruct.QualityRating.QualityThresholds.OverallHighAmplitudeThreshold = autStruct.qualityThresholds.overallThresh;
                     bidsStruct.QualityRating.QualityThresholds.TimepointsHighVarianceThreshold = autStruct.qualityThresholds.timeThresh;
