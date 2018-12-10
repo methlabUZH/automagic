@@ -294,8 +294,9 @@ elseif (~isempty(params.PrepParams))
     else
         setLineNoise([], handles);
     end
-else
-    setLineNoise([], handles);
+elseif ~ isempty(params.EEGSystem) && ...
+        isfield(params.EEGSystem, 'powerLineFreq')
+        setLineNoise(params.EEGSystem.powerLineFreq, handles);
 end
 
 if( ~isempty(params.HighvarParams))
@@ -668,6 +669,10 @@ if ~isnan(res)
     EEGSystem.powerLineFreq = res;
 else
     EEGSystem.powerLineFreq = [];
+    popup_msg(['Warning! It is recommended to choose the power ',...
+               'line frequency even if you do not apply any filtering. ', ...
+               'You can do this in the section Line Power of Settings window'], ...
+               'WARNING')
 end
 
 if( ~get(mainGUI_handle.egiradio, 'Value') && ...
@@ -836,16 +841,16 @@ else
 end
 
 
-if( get(handles.rarcheckbox, 'Value') || ...
-        get(handles.notchcheckbox, 'Value'))
-    set(handles.euradio, 'enable', 'on')
-    set(handles.usradio, 'enable', 'on')
-    set(handles.otherradio, 'enable', 'on')
-else
-    set(handles.euradio, 'enable', 'off')
-    set(handles.usradio, 'enable', 'off')
-    set(handles.otherradio, 'enable', 'off')
-end
+% if( get(handles.rarcheckbox, 'Value') || ...
+%         get(handles.notchcheckbox, 'Value'))
+%     set(handles.euradio, 'enable', 'on')
+%     set(handles.usradio, 'enable', 'on')
+%     set(handles.otherradio, 'enable', 'on')
+% else
+%     set(handles.euradio, 'enable', 'off')
+%     set(handles.usradio, 'enable', 'off')
+%     set(handles.otherradio, 'enable', 'off')
+% end
 
 % --- Executes on button press in defaultpushbutton.
 function defaultpushbutton_Callback(hObject, eventdata, handles)
