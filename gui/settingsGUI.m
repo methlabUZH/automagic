@@ -1691,6 +1691,13 @@ function eogedit_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
+mainGUI_handle = guidata(h);
+chanIntersection = intersect(str2num(get(hObject,'String')), str2num(get(mainGUI_handle.excludeedit, 'String'))); %#ok<ST2NM>
+if chanIntersection
+    popup_msg(['Warning! Channels below are in both Excluded channels ', ...
+               'and EOG Channels:' num2str(chanIntersection)], 'WARNING')
+end
 % Hints: get(hObject,'String') returns contents of eogedit as text
 %        str2double(get(hObject,'String')) returns contents of eogedit as a double
 
