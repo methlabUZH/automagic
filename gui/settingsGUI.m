@@ -663,6 +663,12 @@ end
 
 EEGSystem = params.EEGSystem;
 EEGSystem.eogChans = str2num(get(handles.eogedit, 'String'));
+res = str2double(get(handles.notchedit, 'String'));
+if ~isnan(res)
+    EEGSystem.powerLineFreq = res;
+else
+    EEGSystem.powerLineFreq = [];
+end
 
 if( ~get(mainGUI_handle.egiradio, 'Value') && ...
         get(handles.eogcheckbox, 'Value') && ...
