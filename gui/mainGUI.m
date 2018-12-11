@@ -751,8 +751,19 @@ project = handles.projectList(name);
 if( ~ isempty(project))
     clc;
     commandwindow;
+    
+    set(handles.mainGUI, 'pointer', 'watch')
+    drawnow;
+    finishup = onCleanup(@() myCleanupFun(handles));
     project.preprocessAll();
+    set(handles.mainGUI, 'pointer', 'arrow')
 end
+
+
+
+function myCleanupFun(handles)
+% Change back the cursor to an arrow
+set(handles.mainGUI, 'pointer', 'arrow')
 
 
 % --- Load the selected project by gui
