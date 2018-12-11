@@ -511,8 +511,15 @@ if( get(handles.asrhighcheckbox, 'Value') )
         CRDParams.Highpass = highpass_val; 
     end
 else
-    if ~isempty(CRDParams)
-        CRDParams.Highpass = 'off'; end
+    if ~isempty(CRDParams) || (get(handles.linenoisecheckbox, 'Value') || ...
+            get(handles.channelcriterioncheckbox, 'Value') || ...
+            get(handles.burstcheckbox, 'Value') || ...
+            get(handles.windowcheckbox, 'Value'))
+        if isempty(CRDParams)
+            CRDParams = struct();
+        end
+        CRDParams.Highpass = 'off'; 
+    end
 end
 
 if( get(handles.linenoisecheckbox, 'Value') )
@@ -525,8 +532,15 @@ if( get(handles.linenoisecheckbox, 'Value') )
         CRDParams.LineNoiseCriterion = linenoise_val; 
     end
 else
-    if ~isempty(CRDParams)
-        CRDParams.LineNoiseCriterion = 'off'; end
+    if ~isempty(CRDParams) || (...
+            get(handles.channelcriterioncheckbox, 'Value') || ...
+            get(handles.burstcheckbox, 'Value') || ...
+            get(handles.windowcheckbox, 'Value'))
+        if isempty(CRDParams)
+            CRDParams = struct();
+        end
+        CRDParams.LineNoiseCriterion = 'off'; 
+    end
 end
 
 
@@ -539,8 +553,13 @@ if( get(handles.channelcriterioncheckbox, 'Value') )
         CRDParams.ChannelCriterion = ChannelCriterion; 
     end
 else
-    if ~isempty(CRDParams)
-        CRDParams.ChannelCriterion = 'off'; end
+    if ~isempty(CRDParams) || (get(handles.burstcheckbox, 'Value') || ...
+            get(handles.windowcheckbox, 'Value'))
+        if isempty(CRDParams)
+            CRDParams = struct();
+        end
+        CRDParams.ChannelCriterion = 'off'; 
+    end
 end
 
 
@@ -553,8 +572,12 @@ if( get(handles.burstcheckbox, 'Value') )
         CRDParams.BurstCriterion = BurstCriterion; 
     end
 else
-    if ~isempty(CRDParams)
-        CRDParams.BurstCriterion = 'off'; end
+    if ~isempty(CRDParams) || get(handles.windowcheckbox, 'Value')
+        if isempty(CRDParams)
+            CRDParams = struct();
+        end
+        CRDParams.BurstCriterion = 'off'; 
+    end
 end
 
 
@@ -594,7 +617,7 @@ if ~isempty(PrepParams)
     % selected then take the PREP param for PREP and the other one for
     % automagic notch. If automagic notch is not selected, then take the
     % frequency for the PREP (and even overwrtite it if it's already selected)
-   if( ~get(handles.notchcheckbox, 'Value') || ...
+   if( ~isfield(PrepParams, 'Fs') || ...
            (~isfield(PrepParams, 'lineFrequencies') || isempty(PrepParams.lineFrequencies)))
        
         res = str2double(get(handles.notchedit, 'String'));
@@ -673,6 +696,14 @@ else
                'line frequency even if you do not apply any filtering. ', ...
                'You can do this in the section Line Power of Settings window'], ...
                'WARNING')
+end
+
+% If the noth is not selected, override the EEGSystem.powerLineFreq with
+% Prep lineFrequencies
+if ~get(handles.notchcheckbox, 'Value') && ~isempty(PrepParams) && ...
+        isfield(PrepParams, 'lineFrequencies') && ...
+        ~isempty(PrepParams.lineFrequencies)
+    EEGSystem.powerLineFreq = PrepParams.lineFrequencies;
 end
 
 if( ~get(mainGUI_handle.egiradio, 'Value') && ...
@@ -860,7 +891,7 @@ function defaultpushbutton_Callback(hObject, eventdata, handles)
 
 handles = set_gui(handles, handles.CGV.DefaultParams, ...
     handles.CGV.DefaultVisualisationParams);
-
+handles.params.PrepParams = handles.CGV.DefaultParams.PrepParams;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -982,11 +1013,7 @@ function okpushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-try
-    handles = get_inputs(handles);
-catch
-    return;
-end
+handles = get_inputs(handles);
 % Update handles structure
 guidata(hObject, handles);
 
@@ -1520,31 +1547,31 @@ if okay
     
     % Lists that are -1 are not set by the gui
     if isfield(prepParams, 'detrendChannels') && ...
-            prepParams.detrendChannels == -1
+            all(prepParams.detrendChannels == -1)
         prepParams = rmfield(prepParams, 'detrendChannels');
     end
     
     % Lists that are -1 are not set by the gui
     if isfield(prepParams, 'lineNoiseChannels') && ...
-            prepParams.lineNoiseChannels == -1
+            all(prepParams.lineNoiseChannels == -1)
         prepParams = rmfield(prepParams, 'lineNoiseChannels');
     end
     
     % Lists that are -1 are not set by the gui
     if isfield(prepParams, 'referenceChannels') && ...
-            prepParams.referenceChannels == -1
+            all(prepParams.referenceChannels == -1)
         prepParams = rmfield(prepParams, 'referenceChannels');
     end
     
     % Lists that are -1 are not set by the gui
     if isfield(prepParams, 'evaluationChannels') && ...
-            prepParams.evaluationChannels == -1
+            all(prepParams.evaluationChannels == -1)
         prepParams = rmfield(prepParams, 'evaluationChannels');
     end
     
     % Lists that are -1 are not set by the gui
     if isfield(prepParams, 'rereferencedChannels') && ...
-            prepParams.rereferencedChannels == -1
+            all(prepParams.rereferencedChannels == -1)
         prepParams = rmfield(prepParams, 'rereferencedChannels');
     end
     
