@@ -423,7 +423,6 @@ set(handles.createbutton, 'visible', mode)
 set(handles.deleteprojectbutton, 'visible', visibility)
 set(handles.excludecheckbox, 'enable', mode);
 setEEGSystemVisibility(mode, handles);
-setSRateVisibility(mode, handles);
 
 % --- Enable or Disable the EEG system related gui components. These are
 % all closely together related. Basically the channel location, eog channel 
@@ -446,6 +445,7 @@ if( strcmp(mode, 'off'))
     set(handles.newreferenceradio, 'enable', mode)
     set(handles.hasreferenceradio, 'enable', mode)
     set(handles.hasreferenceedit, 'enable', mode)
+    set(handles.srateedit, 'enable', mode);
 elseif(strcmp(mode, 'on'))
     if( ~ get(handles.egiradio, 'Value'))
         set(handles.chanlocedit, 'enable', mode);
@@ -455,21 +455,7 @@ elseif(strcmp(mode, 'on'))
         set(handles.newreferenceradio, 'enable', mode)
         set(handles.hasreferenceradio, 'enable', mode)
         set(handles.hasreferenceedit, 'enable', mode)
-    end
-end
-
-% --- Enable or Disable the sampling rate based on the extension. If
-% extension is 'txt' it can be enabled.
-function setSRateVisibility(mode, handles)
-% handles    main handles of the gui
-% mode       string that can be either 'off' (to disable) or 'on' (to enable)
-if( strcmp(mode, 'off'))
-    set(handles.srateedit, 'enable', mode);
-elseif(strcmp(mode, 'on'))
-    if( any(strcmp(get(handles.extedit, 'Value'), {handles.CGV.EXTENSIONS.text})))
         set(handles.srateedit, 'enable', mode);
-    else
-        set(handles.srateedit, 'enable', 'off');
     end
 end
 
@@ -850,7 +836,7 @@ if ~ get(handles.egiradio, 'Value')
    
     locFile = EEGSystem.locFile;
     locType = EEGSystem.fileLocType;
-    if( ~isempty(locFile) && (isempty(locType)))
+    if( ~isempty(locFile) && isempty(locType))
         popup_msg('Channel location: A correct file extension must be given.',...
             'Error');
         return;
@@ -859,8 +845,10 @@ if ~ get(handles.egiradio, 'Value')
             'make sure the file location is at least provided in the EEG ' ...
             'structure.'}, 'Channel location');
     end
-    if strcmp(locType(1), '.')
-        EEGSystem.fileLocType = locType(2:end);
+    if ~ isempty(locType)
+        if strcmp(locType(1), '.')
+            EEGSystem.fileLocType = locType(2:end);
+        end
     end
 
    handles.params.EEGSystem = EEGSystem;
@@ -1120,13 +1108,13 @@ function extedit_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 ext = get(handles.extedit, 'String');
-if(any(strcmp(ext, {handles.CGV.EXTENSIONS.text})))
-    set(handles.srateedit, 'enable', 'on')
-    set(handles.srateedit, 'String', '')
-else
-    set(handles.srateedit, 'enable', 'off')
-    set(handles.srateedit, 'String', '')
-end
+% if(any(strcmp(ext, {handles.CGV.EXTENSIONS.text})))
+%     set(handles.srateedit, 'enable', 'on')
+%     set(handles.srateedit, 'String', '')
+% else
+%     set(handles.srateedit, 'enable', 'off')
+%     set(handles.srateedit, 'String', '')
+% end
 
 if( strcmp(get(handles.datafoldershow, 'String'), ... 
         handles.CGV.NEW_PROJECT.DATA_FOLDER))
@@ -1203,6 +1191,7 @@ switch EEGSystem.name
         set(handles.newreferenceradio, 'enable', 'off')
         set(handles.hasreferenceradio, 'enable', 'off')
         set(handles.hasreferenceedit, 'enable', 'off')
+        set(handles.srateedit, 'enable', 'off')
         handles.params.ChannelReductionParams = struct();
     case 'Others'
         set(handles.othersysradio, 'Value', 1);
@@ -1237,6 +1226,7 @@ switch EEGSystem.name
         if(get(handles.hasreferenceradio, 'Value'))
             set(handles.hasreferenceedit, 'enable', 'on')
         end
+        set(handles.srateedit, 'enable', 'on')
         handles.params.ChannelReductionParams = struct([]);
 end
 
