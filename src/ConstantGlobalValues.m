@@ -18,7 +18,7 @@ classdef ConstantGlobalValues
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     properties(Constant)
 
-        VERSION = '2.0.1';
+        VERSION = '2.0.2';
             
         DEFAULT_KEYWORD = 'Default';
                 
