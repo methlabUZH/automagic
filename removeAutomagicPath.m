@@ -21,7 +21,8 @@ allPaths = path;
 allPaths = strsplit(allPaths, pathsep);
 idx = contains(allPaths, 'automagic');
 allPaths(~idx) = [];
-cellfun(@rmpath,allPaths)
+automagicPaths = strjoin(allPaths, pathsep);
+rmpath(automagicPaths);
 fprintf('All paths related to Automagic removed from MATLAB search path.\n');
 
 end
