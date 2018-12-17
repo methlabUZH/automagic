@@ -654,6 +654,13 @@ classdef Project < handle
                     filePath = [file.folder slash file.name];
                     nameTmp = file.name;
                     splits = strsplit(nameTmp, ext);
+                    if ~ length(splits) < 2
+                        if all(isstrprop(ext(2:end), 'lower'))
+                            splits = strsplit(nameTmp, upper(ext));
+                        elseif all(isstrprop(ext(2:end), 'upper'))
+                            splits = strsplit(nameTmp, lower(ext));
+                        end
+                    end 
                     fileName = splits{1};
                     uniqueName = strcat(subjectName, '_', fileName);
 
