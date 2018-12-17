@@ -29,6 +29,5 @@ if ~ exist(folderName, 'dir')
     unzip(ZIPName, folderName);
 end
 addpath(genpath(folderName));
-fprintf('clean_rawdata() package added to path successfully.\n');
     
 end

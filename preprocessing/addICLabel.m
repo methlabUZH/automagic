@@ -36,6 +36,5 @@ Index = not(~contains(parts, 'compatibility'));
 parts(Index) = [];
 ICLabel_paths = strjoin(parts, pathsep);
 addpath(ICLabel_paths);
-fprintf('ICLabel package added to path successfully.\n');
     
 end

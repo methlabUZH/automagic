@@ -951,6 +951,7 @@ set(handles.mainGUI, 'pointer', 'watch')
 drawnow;
 
 save_state(handles);
+removeAutomagicPath()
 
 % Hint: delete(hObject) closes the figure
 delete(hObject);
