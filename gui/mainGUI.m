@@ -850,7 +850,7 @@ if ~ get(handles.egiradio, 'Value')
    
     locFile = EEGSystem.locFile;
     locType = EEGSystem.fileLocType;
-    if( ~isempty(locFile) && (isempty(locType) || ~ strcmp(locType(1), '.')))
+    if( ~isempty(locFile) && (isempty(locType)))
         popup_msg('Channel location: A correct file extension must be given.',...
             'Error');
         return;
