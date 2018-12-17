@@ -420,7 +420,11 @@ classdef Block < handle
             automagic.SamplingFrequency = EEG.srate;
             automagic.RecordingDuration = size(EEG.data,2);
             automagic.EEGReference = EEG.chanlocs(refChan).labels;
-            automagic.ChannelLocationFile = EEG.chaninfo.filename;
+            if isfield(EEG.chaninfo, 'filename')
+                automagic.ChannelLocationFile = EEG.chaninfo.filename;
+            else
+                automagic.ChannelLocationFile = [];
+            end
             self.saveFiles(EEG, automagic, fig1, fig2);
             self.writeLog(automagic);
         end

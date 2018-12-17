@@ -115,7 +115,9 @@ end
 
 info = new_EEG.etc.noiseDetection;
 % Cancel the interpolation and referecing of prep
-EEG_out.data = bsxfun(@plus, EEG_out.data, info.reference.referenceSignal);
+if isfield(info.reference, 'referenceSignal')
+    EEG_out.data = bsxfun(@plus, EEG_out.data, info.reference.referenceSignal);
+end
 
 % Get list of channels to be removed/interpolated later
 badChans = union(union(info.stillNoisyChannelNumbers, ...

@@ -371,6 +371,15 @@ end
 [~, idx] = ismember(EEGSystem.refChan, eeg_channels);
 EEGSystem.refChan = idx(idx ~= 0);
 
+% Chanloc standard dimension
+chanSize = size(EEG.chanlocs);
+if chanSize(2) == 1
+    EEG.chanlocs = EEG.chanlocs';
+    EOG.chanlocs = EOG.chanlocs';
+end
+clear chanSize;
+
+
 EEG.automagic.EEGSystem.params = EEGSystem;
 EEG.automagic.channelReduction.params = ChannelReductionParams;
 EEG.automagic.channelReduction.excludedChannels = tobeExcludedChans;
