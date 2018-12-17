@@ -29,6 +29,5 @@ if ~ exist(folderName, 'dir')
     unzip(ZIPName, libraryPath);
 end
 addpath(genpath(folderName));
-fprintf('PREP package added to path successfully.\n');
     
 end

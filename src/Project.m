@@ -653,8 +653,9 @@ classdef Project < handle
                     file = rawFiles(j);
                     filePath = [file.folder slash file.name];
                     nameTmp = file.name;
-                    splits = strsplit(nameTmp, ext);
-                    if ~ length(splits) < 2
+                    if contains(nameTmp, ext)
+                        splits = strsplit(nameTmp, ext);
+                    else
                         if all(isstrprop(ext(2:end), 'lower'))
                             splits = strsplit(nameTmp, upper(ext));
                         elseif all(isstrprop(ext(2:end), 'upper'))
@@ -1328,7 +1329,15 @@ classdef Project < handle
                     file = rawFiles(j);
                     filePath = [file.folder slash file.name];
                     nameTemp = file.name;
-                    splits = strsplit(nameTemp, ext);
+                    if contains(nameTemp, ext)
+                        splits = strsplit(nameTemp, ext);
+                    else
+                        if all(isstrprop(ext(2:end), 'lower'))
+                            splits = strsplit(nameTemp, upper(ext));
+                        elseif all(isstrprop(ext(2:end), 'upper'))
+                            splits = strsplit(nameTemp, lower(ext));
+                        end
+                    end 
                     fileName = splits{1};
                     fprintf(['...Adding file ', fileName, '\n']);
                     if(usejava('Desktop') && ishandle(h))

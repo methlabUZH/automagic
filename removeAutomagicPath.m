@@ -1,5 +1,6 @@
-function addMARA()
-% addMARA  Unzip and add the MARA package
+function removeAutomagicPath()
+% removeAutomagicPath  Removes all the Automagic paths from the MATLAB path
+%   This is used when Automagic GUI is closed.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 
@@ -14,20 +15,13 @@ function addMARA()
 % GNU General Public License for more details.
 % 
 % You should have received a copy of the GNU General Public License
-% along with this program.  If not, see <http://www.gnu.org/licenses/>
-CSTS = PreprocessingConstants;
-ZIPName = CSTS.MARACsts.ZIP;
-libraryPath = CSTS.LIBRARY_PATH;
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-parts = strsplit(ZIPName, '.zip');
-folderName = parts{1};
+allPaths = path;
+allPaths = strsplit(allPaths, pathsep);
+idx = contains(allPaths, 'automagic');
+allPaths(~idx) = [];
+cellfun(@rmpath,allPaths)
+fprintf('All paths related to Automagic removed from MATLAB search path.\n');
 
-folderName = [libraryPath folderName];
-ZIPName = [libraryPath ZIPName];
-
-if ~ exist(folderName, 'dir')
-    unzip(ZIPName, libraryPath);
-end
-addpath(genpath(folderName));
-    
 end

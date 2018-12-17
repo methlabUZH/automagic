@@ -30,6 +30,5 @@ if ~ exist(folderName, 'dir')
 end
 
 addpath(genpath(folderName));
-fprintf('RPCA package added to path successfully.\n');
     
 end

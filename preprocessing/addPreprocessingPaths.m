@@ -50,33 +50,30 @@ libraryPath = CSTS.LIBRARY_PATH;
 
 addpath(libraryPath);
 
-parts = [];
-if(~exist('pop_fileio.m', 'file'))
-    parts = addEEGLab();
-end
+parts = addEEGLab();
 
 % Check and unzip if PREP does not exist
-if( ~isempty(PrepParams) && ~ exist('performReference.m', 'file'))
+if ~isempty(PrepParams)
     addPREP();
 end
 
 % Check and unzip if cleanrawdata() does not exist
-if( ~isempty(CRDParams) && ~ exist('clean_artifacts.m', 'file'))
+if ~isempty(CRDParams) 
     addCRD();
 end
 
 % Check and unzip if cleanrawdata() does not exist
-if( ~isempty(RPCAParams) && ~ exist('inexact_alm_rpca.m', 'file'))
+if ~isempty(RPCAParams) 
     addRPCA();
 end
 
 % Check and unzip if cleanrawdata() does not exist
-if( ~isempty(MARAParams) && ~ exist('MARA.m', 'file'))
+if ~isempty(MARAParams)
     addMARA();
 end
 
 % Check and unzip if cleanrawdata() does not exist
-if( ~isempty(ICLabelParams) && ~ exist('iclabel.m', 'file'))
+if ~isempty(ICLabelParams)
     addICLabel();
 end
     
