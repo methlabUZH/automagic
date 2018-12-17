@@ -4,5 +4,5 @@ function set_color_scale(handles)
 
 scale = handles.project.colorScale;
 set(handles.scaletext, 'String', ...
-    ['[ -', num2str(scale), ' ' , num2str(scale),']']);
+    ['[ -', num2str(scale), ' ' , num2str(scale),'] microVolts']);
 set(handles.colorscale, 'Value', scale);

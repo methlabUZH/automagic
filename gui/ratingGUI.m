@@ -658,7 +658,7 @@ function colorscale_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 new_value = int16(get(hObject,'Value'));
-set(handles.scaletext, 'String', ['[ -',num2str(new_value), ' ' , num2str(new_value),']']);
+set(handles.scaletext, 'String', ['[ -',num2str(new_value), ' ' , num2str(new_value),'] microVolts ']);
 handles.project.colorScale = new_value;
 handles = load_project(handles);
 % Update handles structure
