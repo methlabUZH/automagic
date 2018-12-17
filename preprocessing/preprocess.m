@@ -262,6 +262,7 @@ for chan_idx = 1:length(removedChans)
     EEG.chanlocs = [EEG.chanlocs(1:chan_nb-1), ...
                       EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
 end
+
 % Put back refrence channel
 refChan = EEGSystem.refChan;
 EEG.data = [EEG.data(1:refChan-1,:); ...

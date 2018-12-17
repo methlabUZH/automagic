@@ -859,6 +859,9 @@ if ~ get(handles.egiradio, 'Value')
             'make sure the file location is at least provided in the EEG ' ...
             'structure.'}, 'Channel location');
     end
+    if strcmp(locType(1), '.')
+        EEGSystem.fileLocType = locType(2:end);
+    end
 
    handles.params.EEGSystem = EEGSystem;
 end
