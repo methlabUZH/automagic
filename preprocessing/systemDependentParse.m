@@ -70,7 +70,9 @@ recs = RecommendedParameters.ChannelReductionParams;
 if isempty(defaults) || ~isfield(defaults, 'tobeExcludedChans')
     defaults = recs;
 end
-if ~isfield(ChannelReductionParams, 'tobeExcludedChans')
+if isempty(ChannelReductionParams)
+    tobeExcludedChans = [];
+elseif ~isfield(ChannelReductionParams, 'tobeExcludedChans')
     tobeExcludedChans = defaults.tobeExcludedChans;
 end
 
@@ -116,7 +118,7 @@ if (~isempty(EEGSystem.name) && ...
     end
     all_chans = 1:EEG.nbchan;
     eeg_channels = setdiff(all_chans, union(eog_channels, tobeExcludedChans));
-    clear tobeExcludedChans all_chans;
+    clear all_chans;
     
     % If chanloc is not a provided field load it from the provided file
     if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
@@ -359,7 +361,7 @@ else
    end
     all_chans = 1:EEG.nbchan;
     eeg_channels = setdiff(all_chans, union(eog_channels, tobeExcludedChans));
-    clear tobeExcludedChans all_chans;
+    clear all_chans;
 end
 
 % Seperate EEG channels from EOG channels
