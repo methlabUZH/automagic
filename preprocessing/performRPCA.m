@@ -1,5 +1,6 @@
 function [data, noise] = performRPCA(data, varargin)
 % performRPCA  perform robust pca on the data 
+%
 %   [data, noise] = performRPCA(data, params) where data is the EEGLAB data
 %   structure. params is an optional parameter which must be a structure
 %   with optional fields 'lambda', 'tol', and 'maxIter' to specify

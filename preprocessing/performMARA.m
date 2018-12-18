@@ -1,8 +1,8 @@
-function EEGClean = performMARA(data, varargin)
+function EEGClean = performMARA(EEG, varargin)
 % performMARA  perform Independent Component Analysis (ICA) on the high 
 %   passsed data and classifies bad components using MARA.
 %   This function applies a high pass filter before the ICA. But the output
-%   result is NOT high passed filtered, but only cleaned with ICA. This
+%   result is NOT high passed filtered, rather only cleaned with ICA. This
 %   option allows to choose a separate high pass filter only for ICA from
 %   the desired high pass filtered after the entire preprocessing. Please
 %   note that at this stage of the preprocessing, another high pass filter
@@ -71,16 +71,16 @@ high = p.Results.high;
 if( ~ isempty(chanlocMap))
     inverseChanlocMap = containers.Map(chanlocMap.values, ...
                                          chanlocMap.keys);
-    idx = find(ismember({data.chanlocs.labels}, chanlocMap.keys));
+    idx = find(ismember({EEG.chanlocs.labels}, chanlocMap.keys));
     for i = idx
-       data.chanlocs(1,i).labels = chanlocMap(data.chanlocs(1,i).labels);
+       EEG.chanlocs(1,i).labels = chanlocMap(EEG.chanlocs(1,i).labels);
     end
     
     % Temporarily change the name of all other labels to make sure they
     % don't create conflicts
-    for i = 1:length(data.chanlocs)
+    for i = 1:length(EEG.chanlocs)
        if(~ any(i == idx))
-          data.chanlocs(1,i).labels = strcat(data.chanlocs(1,i).labels, ...
+          EEG.chanlocs(1,i).labels = strcat(EEG.chanlocs(1,i).labels, ...
                                             '_automagiced');
        end
     end
@@ -88,7 +88,7 @@ end
 
 % Check if the channel system is according to what Mara is expecting.
 intersect_labels = intersect(cellstr(CSTS.REQ_CHAN_LABELS), ...
-                            {data.chanlocs.labels});
+                            {EEG.chanlocs.labels});
 if(length(intersect_labels) < 3)
     msg = ['The channel location system was very probably ',...
     'wrong and MARA ICA could not be used correctly.' '\n' 'MARA ICA for this ',... 
@@ -98,26 +98,26 @@ if(length(intersect_labels) < 3)
     % Change back the labels to the original one
     if( ~ isempty(chanlocMap))
         for i = idx
-           data.chanlocs(1,i).labels = inverseChanlocMap(...
-                                                data.chanlocs(1,i).labels);
+           EEG.chanlocs(1,i).labels = inverseChanlocMap(...
+                                                EEG.chanlocs(1,i).labels);
         end
         
-        for i = 1:length(data.chanlocs)
+        for i = 1:length(EEG.chanlocs)
             if(~ any(i == idx))
-                data.chanlocs(1,i).labels = strtok(...
-                    data.chanlocs(1,i).labels, '_automagiced');
+                EEG.chanlocs(1,i).labels = strtok(...
+                    EEG.chanlocs(1,i).labels, '_automagiced');
             end
         end
     end
-    data.automagic.mara.performed = 'no';
+    EEG.automagic.mara.performed = 'no';
     throw(ME)
 end
 
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
-dataFiltered = data;
+dataFiltered = EEG;
 if( ~isempty(high) )
-    [~, dataFiltered, ~, b] = evalc('pop_eegfiltnew(data, high.freq, 0, high.order)');
+    [~, dataFiltered, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
     dataFiltered.automagic.mara.highpass.performed = 'yes';
     dataFiltered.automagic.mara.highpass.freq = high.freq;
     dataFiltered.automagic.mara.highpass.order = length(b)-1;
@@ -136,7 +136,7 @@ options = [0 1 0 0 0]; %#ok<NASGU>
     EEGMara.icawinv, setdiff(EEGMara.icachansind, artcomps)); 
 
 % Clean with ICA
-EEGMara.data = data.data;
+EEGMara.data = EEG.data;
 EEGClean = pop_subcomp(EEGMara, []);
 
 EEGClean.automagic.mara.performed = 'yes';

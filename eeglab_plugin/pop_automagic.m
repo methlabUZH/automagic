@@ -2,7 +2,7 @@ function [com] = pop_automagic()
 % Opens up the Automagic. 
 %
 % Usage:
-%   >> pop_automagic ();
+%   >> [com] = pop_automagic();
 %
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch

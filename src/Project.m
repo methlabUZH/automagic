@@ -653,15 +653,16 @@ classdef Project < handle
                     file = rawFiles(j);
                     filePath = [file.folder slash file.name];
                     nameTmp = file.name;
-                    if contains(nameTmp, ext)
-                        splits = strsplit(nameTmp, ext);
-                    else
+                    if ~contains(nameTmp, ext)
                         if all(isstrprop(ext(2:end), 'lower'))
-                            splits = strsplit(nameTmp, upper(ext));
+                            ext = upper(ext);
                         elseif all(isstrprop(ext(2:end), 'upper'))
-                            splits = strsplit(nameTmp, lower(ext));
+                            ext = lower(ext);
                         end
+                        self.mask = strrep(self.mask, self.fileExtension, ext);
+                        self.fileExtension = ext;
                     end 
+                    splits = strsplit(nameTmp, ext);
                     fileName = splits{1};
                     uniqueName = strcat(subjectName, '_', fileName);
 
@@ -1329,15 +1330,16 @@ classdef Project < handle
                     file = rawFiles(j);
                     filePath = [file.folder slash file.name];
                     nameTemp = file.name;
-                    if contains(nameTemp, ext)
-                        splits = strsplit(nameTemp, ext);
-                    else
+                    if ~contains(nameTemp, ext)
                         if all(isstrprop(ext(2:end), 'lower'))
-                            splits = strsplit(nameTemp, upper(ext));
+                            ext = upper(ext);
                         elseif all(isstrprop(ext(2:end), 'upper'))
-                            splits = strsplit(nameTemp, lower(ext));
+                            ext = lower(ext);
                         end
+                        self.mask = strrep(self.mask, self.fileExtension, ext);
+                        self.fileExtension = ext;
                     end 
+                    splits = strsplit(nameTemp, ext);
                     fileName = splits{1};
                     fprintf(['...Adding file ', fileName, '\n']);
                     if(usejava('Desktop') && ishandle(h))

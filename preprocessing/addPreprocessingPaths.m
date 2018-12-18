@@ -1,8 +1,5 @@
 function parts = addPreprocessingPaths(varargin)
-% addPreprocessingPaths  Unzip and add required paths
-%   If a required package is not in the path, it adds them to the path.
-%   A very naive approach is taken to see if the library is in path or not: 
-%   simply check if one of their files exists or not.
+% addPreprocessingPaths Unzip and add all the required packages to the path
 %   
 %   parts = addPreprocessingPaths(varargin)
 %   Where varargin is an optional parameter. When given, it should be a
@@ -16,7 +13,7 @@ function parts = addPreprocessingPaths(varargin)
 %   varargin is ommited, corresponsing default value is used. Please see
 %   DefaultParameters.m for more information on default parameters.
 %
-%   parts: TODO
+%   parts: All the paths in EEGLAB folder.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 
@@ -32,6 +29,7 @@ function parts = addPreprocessingPaths(varargin)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 CSTS = PreprocessingConstants;
 defaults = DefaultParameters;
 p = inputParser;

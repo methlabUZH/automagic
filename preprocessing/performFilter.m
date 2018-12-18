@@ -1,8 +1,8 @@
-function data = performFilter(data, varargin)
-% performFilter  perform a high pass filter followed by a notch filter.
-% Optionally, a low pass filter can be performed as well. See below.
-%   filtered = performFilter(data, params)
-%   where data is the EEGLAB data structure. filtered is the resulting 
+function EEG = performFilter(EEG, varargin)
+% performFilter  perform a high pass, low pass and notch filter.
+%
+%   filtered = performFilter(EEG, params)
+%   where EEG is the EEGLAB data structure. filtered is the resulting 
 %   EEGLAB data structured after filtering. params is an optional
 %   parameter which must be a structure with optional parameters
 %   'notch', 'high' and 'low', each of which a struct. An example of this
@@ -91,38 +91,38 @@ if( ~isempty(notch) && ~isfield(notch, 'freq'))
 end
 
 %% Perform filtering
-data.automagic.filtering.performed = 'no';
+EEG.automagic.filtering.performed = 'no';
 if( ~isempty(high) || ~isempty(low) || ~isempty(notch))
-    data.automagic.filtering.performed = 'yes';
+    EEG.automagic.filtering.performed = 'yes';
     if( ~isempty(high) )
-        [~, data, ~ , b] = evalc('pop_eegfiltnew(data, high.freq, 0, high.order)');
-        data.automagic.filtering.highpass.performed = 'yes';
-        data.automagic.filtering.highpass.freq = high.freq;
-        data.automagic.filtering.highpass.order = length(b)-1; 
-        data.automagic.filtering.highpass.transitionBandWidth = 3.3 / (length(b)-1) * data.srate;
+        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+        EEG.automagic.filtering.highpass.performed = 'yes';
+        EEG.automagic.filtering.highpass.freq = high.freq;
+        EEG.automagic.filtering.highpass.order = length(b)-1; 
+        EEG.automagic.filtering.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
     else
-        data.automagic.filtering.highpass.performed = 'no';
+        EEG.automagic.filtering.highpass.performed = 'no';
     end
 
     if( ~isempty(low) )
-        [~, data, ~ , b] = evalc('pop_eegfiltnew(data, 0, low.freq, low.order)');
-        data.automagic.filtering.lowpass.performed = 'yes';
-        data.automagic.filtering.lowpass.freq = low.freq;
-        data.automagic.filtering.lowpass.order = length(b)-1; 
-        data.automagic.filtering.lowpass.transitionBandWidth = 3.3 / (length(b)-1) * data.srate;
+        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, 0, low.freq, low.order)');
+        EEG.automagic.filtering.lowpass.performed = 'yes';
+        EEG.automagic.filtering.lowpass.freq = low.freq;
+        EEG.automagic.filtering.lowpass.order = length(b)-1; 
+        EEG.automagic.filtering.lowpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
     else
-        data.automagic.filtering.lowpass.performed = 'no';
+        EEG.automagic.filtering.lowpass.performed = 'no';
     end
 
     if( ~isempty(notch) )
-        [~, data, ~ , b] = evalc(['pop_eegfiltnew(data, notch.freq - 3,'...
+        [~, EEG, ~ , b] = evalc(['pop_eegfiltnew(EEG, notch.freq - 3,'...
                            'notch.freq + 3, [], 1)']); % Band-stop filter
-        data.automagic.filtering.notch.performed = 'yes';
-        data.automagic.filtering.notch.freq = notch.freq;
-        data.automagic.filtering.notch.order = length(b)-1; 
-        data.automagic.filtering.notch.transitionBandWidth = 3.3 / (length(b)-1) * data.srate;
+        EEG.automagic.filtering.notch.performed = 'yes';
+        EEG.automagic.filtering.notch.freq = notch.freq;
+        EEG.automagic.filtering.notch.order = length(b)-1; 
+        EEG.automagic.filtering.notch.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
     else
-        data.automagic.filtering.notch.performed = 'no';
+        EEG.automagic.filtering.notch.performed = 'no';
     end
 end
 

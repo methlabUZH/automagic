@@ -1,6 +1,7 @@
 function EEG_out = performHighvarianceChannelRejection(EEG_in, varargin)
 % performHighvarianceChannelRejection   reject bad channels based on high
 %   standard deviation
+%
 %   rejected = performHighvarianceChannelRejection(EEG, params)
 %   where rejected is a list of channels that must be removed. EEG is a
 %   EEGLAB data structure. params is an optional argument with optional
@@ -40,8 +41,8 @@ removedMask = EEG_in.automagic.preprocessing.removedMask;
 [s, ~] = size(EEG_in.data);
 badChansMask = false(1, s); clear s;
 
-rejected = find(nanstd(EEG_in.data,[],2) > sd_threshold);
-[~, EEG_out] = evalc('pop_select(EEG_in, ''nochannel'', rejected)');
+rejected = nanstd(EEG_in.data,[],2) > sd_threshold;
+[~, EEG_out] = evalc('pop_select(EEG_in, ''nochannel'', find(rejected))');
 
 badChansMask(rejected) = true;
 newMask = removedMask;
@@ -53,5 +54,8 @@ removedMask = newMask;
 EEG_out.automagic.highVarianceRejection.performed = 'yes';
 EEG_out.automagic.highVarianceRejection.badChans = badChans;
 EEG_out.automagic.highVarianceRejection.sd = sd_threshold;
+
+% .preprocessing field is used for internal purposes and will be removed at
+% the end of the preprocessing
 EEG_out.automagic.preprocessing.removedMask = removedMask;
 

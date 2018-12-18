@@ -8,8 +8,8 @@ function [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, varargin)
 %   will be cleaned and high passed filtered as specified in clean_rawdata(), 
 %   and noisy windows are removed. Then the same time windows are removed 
 %   from the EOG data for coherence and possibe further EOG regression
-%   which requires same length signals.
-%   
+%   which requires same length signals. Note that this behaviour is due to
+%   the behaviour of the algorithm which inherently cleans the EEG.
 %
 %   [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, params)
 %
@@ -122,5 +122,8 @@ end
 EEG_out.automagic.crd.performed = 'yes';
 EEG_out.automagic.crd.badChans = badChans;
 EEG_out.automagic.crd.params = params;
+
+% .preprocessing field is used for internal purposes and will be removed at
+% the end of the preprocessing
 EEG_out.automagic.preprocessing.toRemove = newToRemove;
 EEG_out.automagic.preprocessing.removedMask = removedMask;

@@ -1,7 +1,7 @@
-function regressed = performEOGRegression(EEG, EOG, varargin)
+function EOGregressed = performEOGRegression(EEG, EOG, varargin)
 % performEOGRegression  perform EOG regression from EOG channels
-%   regressed = performEOGRegression(EEG, EOG, params)
-%   Both EEG and EOG are input EEGLAB data structure. regressed is the
+%   EOGregressed = performEOGRegression(EEG, EOG, params)
+%   Both EEG and EOG are input EEGLAB data structure. EOGregressed is the
 %   output EEG structure after EOG regression. params is a structure.
 %   If params = struct(), then the EOG regression is performed. If params =
 %   struct([]), then EOG regression is skipped and not performed.
@@ -20,9 +20,9 @@ function regressed = performEOGRegression(EEG, EOG, varargin)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-regressed.automagic.EOGRegression.performed = 'no';
-if isempty(varargin)
+EOGregressed = EEG;
+EOGregressed.automagic.EOGRegression.performed = 'no';
+if isempty(varargin{:})
     return; end
 
 CSTS = PreprocessingConstants.EOGRegressionCsts;
@@ -32,11 +32,8 @@ eeg = EEG.data';
 eog = EOG.data';
 
 eegclean =  eeg - eog * (eog \ eeg);
-
-
-regressed = EEG;
-regressed.data = eegclean';
+EOGregressed.data = eegclean';
 
 % Write back what has happened
-regressed.automagic.EOGRegression.performed = 'yes';
+EOGregressed.automagic.EOGRegression.performed = 'yes';
 end
