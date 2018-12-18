@@ -871,7 +871,7 @@ classdef Project < handle
             blocks = values(self.blockMap, self.processedList);
             qScores = cellfun( @(block) block.getCurrentQualityScore(), blocks, 'uniform', 0);
             qScores = cell2mat(qScores);
-            ratings = rateQuality(qScores, cutoffs)';
+            ratings = rateQuality(qScores, self.CGV, cutoffs)';
             ratings = cellfun( @self.makeRatingManually, blocks, ratings, 'uniform', 0);
         end
         
@@ -890,7 +890,7 @@ classdef Project < handle
             for i = 1:length(files)
                 file = files{i};
                 block = blocks(file);
-                newRate = rateQuality(block.getCurrentQualityScore(), cutoffs);
+                newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
                 if (applyToManuallyRated || ~ block.isManuallyRated)
                     block.setRatingInfoAndUpdate(struct('rate', newRate{:}));
                     block.saveRatingsToFile();

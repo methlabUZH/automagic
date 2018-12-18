@@ -1,4 +1,4 @@
-function ratings = rateQuality (qualityScores, varargin)
+function ratings = rateQuality (qualityScores, CGV,varargin)
 % rates datasets, based on quality measures calculated with calcQuality()
 % Inputs: A structure Q with the following fields:
 
@@ -39,10 +39,9 @@ function ratings = rateQuality (qualityScores, varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-CGV = ConstantGlobalValues();
 defVis = CGV.DefaultVisualisationParams;
 defaults = defVis.RateQualityParams;
-rating_strs = ConstantGlobalValues.RATINGS;
+rating_strs = CGV.RATINGS;
 
 p = inputParser;
 addParameter(p,'overallGoodCutoff', defaults.overallGoodCutoff,@isnumeric );

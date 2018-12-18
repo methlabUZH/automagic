@@ -642,7 +642,7 @@ name = projects{idx};
 project = handles.projectList(name);
 
 if(isa(project, 'Project'))
-    ratingGUI(project);
+    ratingGUI(project, handles.CGV);
 end
 
 % Change back the cursor to an arrow
@@ -676,8 +676,8 @@ name = projects{idx};
 project = handles.projectList(name);
 
 if(isa(project, 'Project'))
-    ratingGUI(project);
-    qualityratingGUI(project);
+    ratingGUI(project, handles.CGV);
+    qualityratingGUI(project, handles.CGV);
 end
 
 % Change back the cursor to an arrow

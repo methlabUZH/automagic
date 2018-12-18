@@ -52,14 +52,16 @@ function qualityratingGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to qualityratingGUI (see VARARGIN)
 
-if( nargin - 3 ~= 1 )
+if( nargin - 4 ~= 1 )
     error('wrong number of arguments. Project must be given as argument.')
 end
 
 project = varargin{1};
+CGV = varargin{2};
 assert(isa(project, 'Project'));
+assert(isa(CGV, 'ConstantGlobalValues'));
 handles.project = project;
-handles.CGV = ConstantGlobalValues;
+handles.CGV = CGV;
 % Set the title to the current version
 handles.title_name = ['Automagic v.', handles.CGV.VERSION, ' Quality Rating'];
 set(handles.qualityrating, 'Name', handles.title_name);
