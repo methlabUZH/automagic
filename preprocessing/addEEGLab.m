@@ -3,10 +3,13 @@ function parts = addEEGLab()
 %   eeglab package is assumed to be in folder matlab_scripts located in the
 %   parent directory. The need for this function is to remove the path to
 %   few folders of eeglab which make conflicts with other MATLAB functions.
-%   
+%   This functions is strongly recommended over the use of
+%   `addpath(genpath('path/to/eeglab'))`.
+%
 %   parts = addEEGLab()
 %
-%   parts: TODO
+%   parts: all the paths in EEGLAB folder. This is returned for the cases
+%   where it is needed.
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
 % 
@@ -22,6 +25,7 @@ function parts = addEEGLab()
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 CSTS = PreprocessingConstants;
 ZIPName = CSTS.EEGLabCsts.ZIP;
 libraryPath = CSTS.LIBRARY_PATH;
@@ -39,11 +43,11 @@ eeglab_paths = genpath(folderName);
 
 parts = strsplit(eeglab_paths, pathsep);
 % Exclude paths which create conflicts
-Index = not(~contains(parts, 'compat'));
+Index = contains(parts, 'compat');
 parts(Index) = [];
-Index = not(~contains(parts, 'neuroscope'));
+Index = contains(parts, 'neuroscope');
 parts(Index) = [];
-Index = not(~contains(parts, 'dpss'));
+Index = contains(parts, 'dpss');
 parts(Index) = [];
 eeglab_paths = strjoin(parts, pathsep);
 addpath(eeglab_paths);

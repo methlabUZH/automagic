@@ -74,7 +74,7 @@ classdef PreprocessingConstants
             addpath(['.' filesep])
             matlabPaths = matlabpath;
             parts = strsplit(matlabPaths, pathsep);
-            Index = not(~contains(parts, automagic));
+            Index = contains(parts, automagic);
             automagicPath = parts{Index};
             if ~strcmp(automagicPath(end), filesep)
                 automagicPath = strcat(automagicPath, filesep);

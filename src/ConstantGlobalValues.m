@@ -18,7 +18,8 @@ classdef ConstantGlobalValues
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     properties(Constant)
 
-        VERSION = '2.0.3';
+        % Current version of Automagic. Just change this for new versions
+        VERSION = '2.0.4'; 
             
         DEFAULT_KEYWORD = 'Default';
                 
@@ -76,6 +77,8 @@ classdef ConstantGlobalValues
     
     methods
         function self = ConstantGlobalValues
+            
+            % strings below correspond to current folders of Automagic
             automagic = 'automagic'; % Folder name of automagic
             libName = 'matlab_scripts'; 
             srcFolder = 'src'; 
@@ -85,7 +88,7 @@ classdef ConstantGlobalValues
             addpath(['.' filesep])
             matlabPaths = matlabpath;
             parts = strsplit(matlabPaths, pathsep);
-            Index = not(~contains(parts, automagic));
+            Index = contains(parts, automagic);
             automagicPath = parts{Index};
             if ~strcmp(automagicPath(end), filesep)
                 automagicPath = strcat(automagicPath, filesep);
@@ -124,13 +127,11 @@ classdef ConstantGlobalValues
     methods(Static)
         function stateFile = stateFile()
             if ispc	
-                home = [getenv('HOMEDRIVE') getenv('HOMEPATH')];	
-                slash = '\';	
+                home = [getenv('HOMEDRIVE') getenv('HOMEPATH')];
             else	
                 home = getenv('HOME');	
-                slash = '/';	
             end	
-
+            slash = filesep;
             stateFile = struct('NAME', 'state.mat', ...
                                'PROJECT_NAME', 'project_state.mat', ...
                                'FOLDER', [home slash 'automagicConfigs' slash], ...

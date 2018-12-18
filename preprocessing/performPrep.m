@@ -138,4 +138,7 @@ if isfield(prepParams, 'lineFrequencies')
 end
 EEG_out.automagic.prep.badChans = badChans;
 EEG_out.automagic.prep.params = userData;
+
+% .preprocessing field is used for internal purposes and will be removed at
+% the end of the preprocessing
 EEG_out.automagic.preprocessing.toRemove = union(badChans, toRemove);

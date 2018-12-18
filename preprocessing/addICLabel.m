@@ -15,6 +15,7 @@ function addICLabel()
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>
+
 CSTS = PreprocessingConstants;
 ZIPName = CSTS.ICLabelCsts.ZIP;
 libraryPath = CSTS.LIBRARY_PATH;
@@ -32,7 +33,7 @@ ICLabel_paths = genpath(folderName);
 
 parts = strsplit(ICLabel_paths, pathsep);
 % Exclude paths which create conflicts
-Index = not(~contains(parts, 'compatibility'));
+Index = contains(parts, 'compatibility');
 parts(Index) = [];
 ICLabel_paths = strjoin(parts, pathsep);
 addpath(ICLabel_paths);

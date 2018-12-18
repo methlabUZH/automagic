@@ -48,7 +48,6 @@ classdef DefaultParameters
                         
         ChannelReductionParams = struct();
                                       
-                                      
         EEGSystem = struct('name', 'EGI',...
                            'sys10_20', 0, ...
                            'locFile', '', ...
@@ -57,7 +56,8 @@ classdef DefaultParameters
                            'eogChans', [],...
                            'powerLineFreq', []);
                        
-        Settings = struct('trackAllSteps', 0);
+        % Additonal parameters of the preprocessing
+        Settings = struct('trackAllSteps', 0); 
                         
     end
 end

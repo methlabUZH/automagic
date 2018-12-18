@@ -1,8 +1,9 @@
 function [com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG, EEG, CURRENTSET)
-% pop up a window allowing user to select which results to import. 
+% Pop up the importResultsGUI gui which allows the user to select specific 
+% files to be imported from Automagic to EEGLAB.
 %
 % Usage:
-%   >> ALLEEG = pop_import(ALLEEG);
+%   >> [com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG, EEG, CURRENTSET);
 %
 %
 % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
@@ -21,7 +22,6 @@ function [com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG, EEG, CURRENTSET)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % ------------------------------------
-
 
 params = ImportParams({});
 waitfor(importResultsGUI(params));
