@@ -65,27 +65,29 @@ function settingsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to settingsGUI (see VARARGIN)
 
-if( nargin - 3 ~= 2 )
+if( nargin - 4 ~= 2 )
     error('wrong number of arguments. params and ds rate must be given as arguments.')
 end
 
 %set(handles.settingsfigure, 'units', 'normalized', 'position', [0.05 0.2 0.6 0.8])
 %set(handles.settingspanel, 'units', 'normalized', 'position', [0.05 0.1 0.8 0.9])
-children = handles.settingsfigure.Children;
-for child_idx = 1:length(children)
-    child = children(child_idx);
-    set(child, 'units', 'normalized')
-    for grandchild_idx = 1:length(child.Children)
-       grandchild = child.Children(grandchild_idx);
-       set(grandchild, 'units', 'normalized')
-    end
-end
+% children = handles.settingsfigure.Children;
+% for child_idx = 1:length(children)
+%     child = children(child_idx);
+%     set(child, 'units', 'normalized')
+%     for grandchild_idx = 1:length(child.Children)
+%        grandchild = child.Children(grandchild_idx);
+%        set(grandchild, 'units', 'normalized')
+%     end
+% end
 
 % Get arguments
 params = varargin{1};
-assert(isa(params, 'struct'));
 VisualisationParams = varargin{2};
-CGV = ConstantGlobalValues();
+CGV = varargin{3};
+
+assert(isa(params, 'struct'));
+assert(isa(CGV, 'ConstantGlobalValues'));
 
 % Put them in the handle
 handles.params = params;
