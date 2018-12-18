@@ -309,7 +309,7 @@ classdef Block < handle
             
             if isfield(updates, 'rate')
                 self.rate = updates.rate;
-                thisRate = rateQuality(self.getCurrentQualityScore(), self.project.qualityCutoffs);
+                thisRate = rateQuality(self.getCurrentQualityScore(), self.CGV, self.project.qualityCutoffs);
                 self.isManuallyRated = ~ strcmp(updates.rate, thisRate{:});
                 if ~ strcmp(self.rate, self.CGV.RATINGS.Interpolate)
                     if ~ isfield(updates, 'tobeInterpolated')
@@ -394,7 +394,7 @@ classdef Block < handle
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
             qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), ...
-                self.project.qualityCutoffs);
+                self.CGV, self.project.qualityCutoffs);
             
             self.setRatingInfoAndUpdate(struct('rate', qRate{:}, ...
                 'tobeInterpolated', EEG.automagic.autoBadChans, ...
@@ -467,7 +467,7 @@ classdef Block < handle
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
             qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), ...
-                self.project.qualityCutoffs);
+                self.CGV, self.project.qualityCutoffs);
 
             % Put the channels back to NaN if they were not to be interpolated
             % originally

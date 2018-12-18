@@ -27,7 +27,7 @@ switch block.rate
 end
 
 qualityScore = block.getCurrentQualityScore();
-res = rateQuality(qualityScore, cutoffs);
+res = rateQuality(qualityScore, handles.CGV, cutoffs);
 set(handles.qualityscoretext, 'String',  [sprintf('%s\n','Quality Scores:'), evalc('disp(qualityScore)')])
 set(handles.qualityscoretext, 'FontUnits','normalized','FontSize',0.1310, 'HorizontalAlignment','center')
 switch res{:}

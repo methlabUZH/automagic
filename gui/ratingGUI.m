@@ -56,14 +56,16 @@ drawnow;
 if ~ exist('update_lines', 'file')
     addpath('ratingGUI_utils/');
 end
-if( nargin - 3 ~= 1 )
+if( nargin - 4 ~= 1 )
     error('wrong number of arguments. Project must be given as argument.')
 end
 
 project = varargin{1};
-assert(isa(project, 'Project') || isa(project, 'EEGLabProject'));
+CGV = varargin{2};
+assert(isa(project, 'Project'));
+assert(isa(CGV, 'ConstantGlobalValues'));
 handles.project = project;
-handles.CGV = ConstantGlobalValues;
+handles.CGV = CGV;
 
 %set(handles.ratingGUI, 'units', 'normalized', 'position', [0.05 0.3 0.8 0.8])
 
@@ -749,7 +751,7 @@ function qualitybutton_Callback(hObject, eventdata, handles)
 % hObject    handle to qualitybutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-qualityratingGUI(handles.project);
+qualityratingGUI(handles.project, handles.CGV);
 
 
 % --- Executes on button press in rawpushbutton.
