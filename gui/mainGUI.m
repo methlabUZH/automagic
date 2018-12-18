@@ -988,7 +988,7 @@ function configbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 is_created = strcmp(get(handles.createbutton, 'visible'), 'off') ;
 
-h = settingsGUI(handles.params, handles.VisualisationParams);
+h = settingsGUI(handles.params, handles.VisualisationParams, handles.CGV);
 switch_gui('off', 'off', handles);
 if(is_created)
     ui_elements = findobj(h.Children, 'Type', 'UiControl');
