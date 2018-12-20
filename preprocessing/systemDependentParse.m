@@ -74,6 +74,8 @@ if isempty(ChannelReductionParams)
     tobeExcludedChans = [];
 elseif ~isfield(ChannelReductionParams, 'tobeExcludedChans')
     tobeExcludedChans = defaults.tobeExcludedChans;
+else
+    tobeExcludedChans = ChannelReductionParams.tobeExcludedChans;
 end
 
 % Get the eog channel list
