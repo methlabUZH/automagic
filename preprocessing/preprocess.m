@@ -295,12 +295,17 @@ subplot(11,1,1)
 if ~isempty(EOG.data)
     imagesc(EOG.data);
     colormap jet
-    caxis([-100 100])
+    scale_min = round(min(min(EOG.data)));
+    scale_max = round(max(max(EOG.data)));
+    caxis([scale_min scale_max])
     XTicks = [] ;
     XTicketLabels = [];
     set(gca,'XTick', XTicks)
     set(gca,'XTickLabel', XTicketLabels)
+    yticks = get(gca,'YTickLabel');
+    set(gca,'YTickLabel', yticks, 'fontsize', 7);
     title('Filtered EOG data');
+    colorbar;
 else
     title('No EOG data available');
 end
@@ -314,6 +319,7 @@ XTicketLabels = [];
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
 title('Filtered EEG data')
+colorbar;
 %eeg figure
 subplot(11,1,4:5)
 imagesc(EEG_filtered_toplot.data);
@@ -332,6 +338,7 @@ caxis([-100 100])
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
 title('Detected bad channels')
+colorbar;
 % figure;
 subplot(11,1,6:7)
 imagesc(EEG_regressed.data);
@@ -340,6 +347,7 @@ caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
 title('EOG regressed out');
+colorbar;
 %figure;
 ica_subplot = subplot(11,1,8:9);
 imagesc(EEG_cleared.data);
@@ -360,6 +368,7 @@ else
     title_text = '';
 end
 title(title_text)
+colorbar;
 %figure;
 if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParams.lambda ~= -1))
     subplot(11,1,10:11)
@@ -371,6 +380,7 @@ if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParam
     set(gca,'XTick',XTicks)
     set(gca,'XTickLabel',XTicketLabels)
     title('RPCA noise')
+    colorbar;
 end
 
 % Pot a seperate figure for only the original filtered data
@@ -391,6 +401,7 @@ set(ax,'XTick', XTicks)
 set(ax,'XTickLabel', XTicketLabels)
 title_str = [num2str(plot_FilterParams.high.freq) ' Hz High pass filtered EEG data'];
 title(title_str, 'FontSize', 10)
+colorbar;
 
 varargout{1} = fig1;
 varargout{2} = fig2;
