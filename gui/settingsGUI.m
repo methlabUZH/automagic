@@ -2197,3 +2197,11 @@ function probtheredit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in helpsettingspushbutton.
+function helpsettingspushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpsettingspushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#setup-the-configurations', '-browser');

@@ -1473,3 +1473,30 @@ if isempty(project)
     return;
 end
 project.exportToBIDS(rootFolder, makeRaw, makeDerivatives);
+
+
+% --- Executes on button press in helpbidspushbutton.
+function helpbidspushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/BIDS-integration#finalise-and-export-to-bids-folder-structure', '-browser');
+
+% --- Executes on button press in helpbidspushbutton.
+function dirhelppushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/How-to-start#automagic-directory-hierarchy', '-browser');
+
+% --- Executes on button press in helpbidspushbutton.
+function helpcreatepushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/How-to-start#how-to-create-a-new-project', '-browser');
+
+
