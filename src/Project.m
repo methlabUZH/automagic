@@ -242,8 +242,12 @@ classdef Project < handle
             self.qualityCutoffs = vParams.RateQualityParams;
             self.colorScale = vParams.COLOR_SCALE;
             
-            if(any(strcmp(self.fileExtension, {self.CGV.EXTENSIONS.text})))
+            if ~ isempty(varargin{:})
                 self.sRate = varargin{1};
+            else
+                if(any(strcmp(self.fileExtension, {self.CGV.EXTENSIONS.text})))
+                    error('You need to provide sampling rate for the .txt extension.');
+                end
             end
             
             self.params = params;
