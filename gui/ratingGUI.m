@@ -793,3 +793,11 @@ function qualityscoretext_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to qualityscoretext (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in helpratingpushbutton.
+function helpratingpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpratingpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Quality-Assessment-and-Rating#quality-assessment', '-browser');
