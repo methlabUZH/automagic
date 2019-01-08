@@ -22,7 +22,7 @@ function varargout = qualityratingGUI(varargin)
 
 % Edit the above text to modify the response to help qualityratingGUI
 
-% Last Modified by GUIDE v2.5 19-Sep-2018 15:35:45
+% Last Modified by GUIDE v2.5 08-Jan-2019 09:52:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;

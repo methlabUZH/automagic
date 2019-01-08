@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 13-Nov-2018 15:39:42
+% Last Modified by GUIDE v2.5 08-Jan-2019 10:00:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
