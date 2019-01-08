@@ -19,7 +19,7 @@ function varargout = ratingGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 24-Sep-2018 13:35:46
+% Last Modified by GUIDE v2.5 08-Jan-2019 09:50:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;

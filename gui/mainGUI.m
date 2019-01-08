@@ -434,7 +434,6 @@ function setEEGSystemVisibility(mode, handles)
 % mode       string that can be either 'off' (to disable) or 'on' (to enable)
 
 set(handles.egiradio, 'enable', mode);
-set(handles.othersysradio, 'enable', mode);
 set(handles.checkbox1020, 'enable', mode);
 
 if( strcmp(mode, 'off'))
@@ -1177,7 +1176,6 @@ switch EEGSystem.name
     case 'EGI'
         defs = handles.CGV.DefaultParams;
         set(handles.egiradio, 'Value', 1);
-        set(handles.othersysradio, 'Value', 0);
         set(handles.chanlocedit, 'String', '');
         set(handles.loctypeedit, 'String', '');
         set(handles.chanlocedit, 'enable', 'off');
@@ -1194,7 +1192,6 @@ switch EEGSystem.name
         set(handles.srateedit, 'enable', 'off')
         handles.params.ChannelReductionParams = struct();
     case 'Others'
-        set(handles.othersysradio, 'Value', 1);
         set(handles.egiradio, 'Value', 0);
         set(handles.chanlocedit, 'enable', 'on');
         set(handles.chanlocedit, 'String', EEGSystem.locFile);
@@ -1230,6 +1227,8 @@ switch EEGSystem.name
         handles.params.ChannelReductionParams = struct([]);
 end
 
+handles.params.EEGSystem = EEGSystem;
+
 
 function params = makeDefaultParams(DefaultParams)
 params.FilterParams = DefaultParams.FilterParams;
@@ -1250,7 +1249,26 @@ function egiradio_Callback(hObject, eventdata, handles)
 % hObject    handle to egiradio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles = setEEGSystem(handles.CGV.DefaultParams, handles);
+if get(handles.egiradio, 'Value')
+    defs = handles.CGV.DefaultParams;
+    new_pars = defs.EEGSystem;
+    new_pars.name = 'EGI';
+    new_pars.eogChans = [];
+    new_pars.tobeExcludedChans = [];
+    new_params = handles.params;
+    new_params.EEGSystem = new_pars;
+    handles = setEEGSystem(new_params, handles);
+else
+    defs = handles.CGV.DefaultParams;
+    new_pars = defs.EEGSystem;
+    new_pars.name = 'Others';
+    new_pars.eogChans = [];
+    new_pars.tobeExcludedChans = [];
+    new_params = handles.params;
+    new_params.EEGSystem = new_pars;
+    handles = setEEGSystem(new_params, handles);
+end
+
 % Update handles structure
 guidata(hObject, handles);
 % Hint: get(hObject,'Value') returns toggle state of egiradio
@@ -1343,7 +1361,7 @@ function excludecheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of excludecheckbox
-if(get(handles.othersysradio, 'Value'))
+if( ~ get(handles.egiradio, 'Value'))
     if( get(handles.excludecheckbox, 'Value'))
            set(handles.excludeedit, 'enable', 'on');
     else
@@ -1425,24 +1443,6 @@ function hasreferenceradio_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of hasreferenceradio
 set(handles.hasreferenceedit, 'enable', 'on')
-
-
-% --- Executes on button press in othersysradio.
-function othersysradio_Callback(hObject, eventdata, handles)
-% hObject    handle to othersysradio (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-defs = handles.CGV.DefaultParams;
-new_pars = defs.EEGSystem;
-new_pars.name = 'Others';
-new_pars.eogChans = [];
-new_pars.tobeExcludedChans = [];
-new_params = handles.params;
-new_params.EEGSystem = new_pars;
-handles = setEEGSystem(new_params, handles);
-% Update handles structure
-guidata(hObject, handles);
-% Hint: get(hObject,'Value') returns toggle state of othersysradio
 
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
