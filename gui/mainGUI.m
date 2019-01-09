@@ -1347,7 +1347,7 @@ function choosechannelloc_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 [x, y] = uigetfile('*');
-if x ~= 0 && y ~= 0 
+if ischar(x) && ischar(y) 
     full_address = strcat(y, x);
     if(full_address ~= 0)
         set(handles.chanlocedit, 'String', full_address)
