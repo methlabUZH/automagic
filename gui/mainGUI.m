@@ -444,6 +444,7 @@ if( strcmp(mode, 'off'))
     set(handles.newreferenceradio, 'enable', mode)
     set(handles.hasreferenceradio, 'enable', mode)
     set(handles.hasreferenceedit, 'enable', mode)
+    set(handles.nonscalpradio, 'enable', mode)
     set(handles.srateedit, 'enable', mode);
 elseif(strcmp(mode, 'on'))
     if( ~ get(handles.egiradio, 'Value'))
@@ -453,7 +454,7 @@ elseif(strcmp(mode, 'on'))
         set(handles.choosechannelloc, 'enable', mode);
         set(handles.newreferenceradio, 'enable', mode)
         set(handles.hasreferenceradio, 'enable', mode)
-        set(handles.hasreferenceedit, 'enable', mode)
+        set(handles.nonscalpradio, 'enable', mode)
         set(handles.srateedit, 'enable', mode);
     end
 end
@@ -825,9 +826,17 @@ if ~ get(handles.egiradio, 'Value')
    EEGSystem.name = PrepCsts.EEGSystemCsts.OTHERS_NAME;
    EEGSystem.locFile = get(handles.chanlocedit, 'String');
    EEGSystem.fileLocType = get(handles.loctypeedit, 'String');
-   EEGSystem.refChan = str2num(get(handles.hasreferenceedit, 'String'));
+   if get(handles.nonscalpradio, 'Value')
+       EEGSystem.refChan = struct([]);
+   elseif get(handles.hasreferenceradio, 'Value')
+       EEGSystem.refChan = struct();
+       EEGSystem.refChan.idx = str2num(get(handles.hasreferenceedit, 'String'));
+   else
+       EEGSystem.refChan = struct();
+       EEGSystem.refChan.idx = [];
+   end
            
-   if( get(handles.hasreferenceradio, 'Value') && isempty(EEGSystem.refChan))
+   if( get(handles.hasreferenceradio, 'Value') && isempty(EEGSystem.refChan.idx))
         popup_msg('Please choose the index of the reference channel',...
             'Error');
         return;
@@ -1174,7 +1183,6 @@ end
 
 switch EEGSystem.name
     case 'EGI'
-        defs = handles.CGV.DefaultParams;
         set(handles.egiradio, 'Value', 1);
         set(handles.chanlocedit, 'String', '');
         set(handles.loctypeedit, 'String', '');
@@ -1185,10 +1193,12 @@ switch EEGSystem.name
         set(handles.excludeedit, 'String', '');
         set(handles.newreferenceradio, 'Value', 1)
         set(handles.hasreferenceradio, 'value', 0)
-        set(handles.hasreferenceedit, 'String', num2str(defs.EEGSystem.refChan))
+        set(handles.hasreferenceedit, 'String', '')
+        set(handles.nonscalpradio, 'value', 0)
         set(handles.newreferenceradio, 'enable', 'off')
         set(handles.hasreferenceradio, 'enable', 'off')
         set(handles.hasreferenceedit, 'enable', 'off')
+        set(handles.nonscalpradio, 'enable', 'off')
         set(handles.srateedit, 'enable', 'off')
         handles.params.ChannelReductionParams = struct();
     case 'Others'
@@ -1209,19 +1219,30 @@ switch EEGSystem.name
         set(handles.choosechannelloc, 'enable', 'on');
         
         if(isempty(EEGSystem.refChan))
+            set(handles.newreferenceradio, 'Value', 0)
+            set(handles.hasreferenceradio, 'value', 0)
+            set(handles.nonscalpradio, 'value',1)
+            set(handles.hasreferenceedit, 'String', '')
+        elseif isempty(EEGSystem.refChan.idx)
             set(handles.newreferenceradio, 'Value', 1)
             set(handles.hasreferenceradio, 'value', 0)
+            set(handles.nonscalpradio, 'value', 0)
+            set(handles.hasreferenceedit, 'String', '')
         else
             set(handles.newreferenceradio, 'Value', 0)
             set(handles.hasreferenceradio, 'value', 1)
+            set(handles.nonscalpradio, 'value',0)
+            set(handles.hasreferenceedit, 'String', ...
+            num2str(EEGSystem.refChan.idx))
         end
-        set(handles.hasreferenceedit, 'String', ...
-            num2str(EEGSystem.refChan))
         
         set(handles.newreferenceradio, 'enable', 'on')
         set(handles.hasreferenceradio, 'enable', 'on')
+        set(handles.nonscalpradio, 'enable', 'on')
         if(get(handles.hasreferenceradio, 'Value'))
             set(handles.hasreferenceedit, 'enable', 'on')
+        else
+            set(handles.hasreferenceedit, 'enable', 'off')
         end
         set(handles.srateedit, 'enable', 'on')
         handles.params.ChannelReductionParams = struct([]);
@@ -1326,9 +1347,11 @@ function choosechannelloc_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 [x, y] = uigetfile('*');
-full_address = strcat(y, x);
-if(full_address ~= 0)
-    set(handles.chanlocedit, 'String', full_address)
+if x ~= 0 && y ~= 0 
+    full_address = strcat(y, x);
+    if(full_address ~= 0)
+        set(handles.chanlocedit, 'String', full_address)
+    end
 end
 
 
@@ -1444,6 +1467,15 @@ function hasreferenceradio_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of hasreferenceradio
 set(handles.hasreferenceedit, 'enable', 'on')
 
+
+% --- Executes on button press in nonscalpradio.
+function nonscalpradio_Callback(hObject, eventdata, handles)
+% hObject    handle to hasreferenceradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of nonscalpradio
+set(handles.hasreferenceedit, 'enable', 'off')
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over existingpopupmenu.

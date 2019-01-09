@@ -107,10 +107,10 @@ end
 if (~isempty(EEGSystem.name) && ...
         strcmp(EEGSystem.name, Csts.EEGSystemCsts.OTHERS_NAME))
     
-    if(isempty(EEGSystem.refChan))
+    if(~isempty(EEGSystem.refChan) && isempty(EEGSystem.refChan.idx))
         EEG.data(end+1,:) = 0;
         EEG.nbchan = EEG.nbchan + 1;
-        EEGSystem.refChan = EEG.nbchan;
+        EEGSystem.refChan.idx = EEG.nbchan;
         
         % Add an arbitraty channel location for the reference channel
         if (size(EEG.chanlocs,2) ~= size(EEG.data,1))
@@ -178,7 +178,7 @@ elseif(~isempty(EEGSystem.name) && ...
             
             EEG.data(end+1,:) = 0;
             EEG.nbchan = EEG.nbchan + 1;
-            EEGSystem.refChan = EEG.nbchan;
+            EEGSystem.refChan.idx = EEG.nbchan;
             
             if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
                     length(EEG.chanlocs) ~= EEG.nbchan)
@@ -195,7 +195,7 @@ elseif(~isempty(EEGSystem.name) && ...
             eeg_channels = setdiff(chan128, eog_channels);
             tobeExcludedChans = setdiff(1:129, union(chan128, eog_channels));
             
-            EEGSystem.refChan = EEG.nbchan;
+            EEGSystem.refChan.idx = EEG.nbchan;
             if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
                     length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20) % Look up of the channel location coordinates based on the labels
@@ -214,7 +214,7 @@ elseif(~isempty(EEGSystem.name) && ...
             
             EEG.data(end+1,:) = 0;
             EEG.nbchan = EEG.nbchan + 1;
-            EEGSystem.refChan = EEG.nbchan;
+            EEGSystem.refChan.idx = EEG.nbchan;
             if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
                     length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20)
@@ -231,7 +231,7 @@ elseif(~isempty(EEGSystem.name) && ...
             eeg_channels = setdiff(chan256, eog_channels);
             tobeExcludedChans = setdiff(1:257, union(chan256, eog_channels));
             
-            EEGSystem.refChan = EEG.nbchan;
+            EEGSystem.refChan.idx = EEG.nbchan;
             if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
                     length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20)
@@ -287,7 +287,7 @@ elseif(~isempty(EEGSystem.name) && ...
             channel2 = find((cellfun(@(x) x == 1, eog2)));
             eog_channels = [channel1 channel2];
             eeg_channels = setdiff(eeg_channels, eog_channels); 
-            EEGSystem.refChan = EEG.nbchan;
+            EEGSystem.refChan.idx = EEG.nbchan;
             clear channel1 channel2 eegs eog1 eog2 eeglab_pos fid hd_idx hd not_wrong not_ecg eegs;
         otherwise
             error('This number of channel is not supported.')
@@ -370,8 +370,10 @@ end
 [~, EOG] = evalc('pop_select( EEG , ''channel'', eog_channels)');
 [~, EEG] = evalc('pop_select( EEG , ''channel'', eeg_channels)');
 % Map original channel lists to new ones after the above separation
-[~, idx] = ismember(EEGSystem.refChan, eeg_channels);
-EEGSystem.refChan = idx(idx ~= 0);
+if ~isempty(EEGSystem.refChan)
+    [~, idx] = ismember(EEGSystem.refChan.idx, eeg_channels);
+    EEGSystem.refChan.idx = idx(idx ~= 0);
+end
 
 % Chanloc standard dimension
 chanSize = size(EEG.chanlocs);

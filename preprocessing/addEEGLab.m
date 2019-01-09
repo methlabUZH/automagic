@@ -49,6 +49,12 @@ Index = contains(parts, 'neuroscope');
 parts(Index) = [];
 Index = contains(parts, 'dpss');
 parts(Index) = [];
+Index = contains(parts, 'maybe-missing');
+parts(Index) = [];
+Index = contains(parts, 'NaN');
+parts(Index) = [];
+Index = contains(parts, 't400_Classification');
+parts(Index) = [];
 eeglab_paths = strjoin(parts, pathsep);
 addpath(eeglab_paths);
     

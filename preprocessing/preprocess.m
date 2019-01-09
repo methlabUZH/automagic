@@ -130,7 +130,9 @@ addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, .
 EEGRef = EEG;
 
 % Remove the reference channel from the rest of preprocessing
-[~, EEG] = evalc('pop_select(EEG, ''nochannel'', EEGSystem.refChan)');
+if ~isempty(EEGSystem.refChan)
+    [~, EEG] = evalc('pop_select(EEG, ''nochannel'', EEGSystem.refChan.idx)');
+end
 EEG.automagic.channelReduction.newRefChan = EEGSystem.refChan;
 EEGOrig = EEG;
 
@@ -264,17 +266,23 @@ for chan_idx = 1:length(removedChans)
 end
 
 % Put back refrence channel
-refChan = EEGSystem.refChan;
-EEG.data = [EEG.data(1:refChan-1,:); ...
-                        zeros(1,size(EEG.data,2));...
-                        EEG.data(refChan:end,:)];
-EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
-                    EEG.chanlocs(refChan:end)];                   
-EEG.nbchan = size(EEG.data,1);
-clear chan_nb re_chan;
+if ~isempty(EEGSystem.refChan)
+    refChan = EEGSystem.refChan.idx;
+    EEG.data = [EEG.data(1:refChan-1,:); ...
+                            zeros(1,size(EEG.data,2));...
+                            EEG.data(refChan:end,:)];
+    EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
+                        EEG.chanlocs(refChan:end)];                   
+    EEG.nbchan = size(EEG.data,1);
+    clear chan_nb re_chan;
+end
 
 % Write back output
-EEG.automagic.autoBadChans = setdiff(removedChans, EEGSystem.refChan);
+if ~isempty(EEGSystem.refChan)
+    EEG.automagic.autoBadChans = setdiff(removedChans, EEGSystem.refChan.idx);
+else
+    EEG.automagic.autoBadChans = removedChans;
+end
 EEG.automagic.params = params;
 EEG.automagic = rmfield(EEG.automagic, 'preprocessing');
 
