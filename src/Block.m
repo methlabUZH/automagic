@@ -415,11 +415,15 @@ classdef Block < handle
             automagic.rate = self.rate;
             automagic.isManuallyRated = self.isManuallyRated;
             
-            refChan = automagic.channelReduction.newRefChan;
             automagic.EEGChannelCount = size(EEG.data,1);
             automagic.SamplingFrequency = EEG.srate;
             automagic.RecordingDuration = size(EEG.data,2);
-            automagic.EEGReference = EEG.chanlocs(refChan).labels;
+            if ~isempty(automagic.channelReduction.newRefChan)
+                refChan = automagic.channelReduction.newRefChan.idx;
+                automagic.EEGReference = EEG.chanlocs(refChan).labels;
+            else
+                automagic.EEGReference = [];
+            end
             if isfield(EEG.chaninfo, 'filename')
                 automagic.ChannelLocationFile = EEG.chaninfo.filename;
             else
@@ -823,6 +827,12 @@ classdef Block < handle
             elseif(any(strcmp(self.fileExtension, ...
                     {self.CGV.EXTENSIONS.set})))
                 [~ , data] = evalc('pop_loadset(self.sourceAddress)');
+                
+            % case of .edf file
+            elseif(any(strcmp(self.fileExtension, ...
+                    {self.CGV.EXTENSIONS.edf})))
+                [~, data] = evalc('pop_biosig(self.sourceAddress)');
+                
             else
                 [~ , data] = evalc('pop_fileio(self.sourceAddress)');
             end 

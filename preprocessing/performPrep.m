@@ -50,7 +50,11 @@ toRemove = EEG_in.automagic.preprocessing.toRemove;
 removedMask = EEG_in.automagic.preprocessing.removedMask;
 [s, ~] = size(EEG_in.data);
 badChansMask = false(1, s); clear s;
-
+if ~isempty(refChan)
+    refChan = refChan.idx;
+else
+    refChan = [];
+end
 
 fprintf(sprintf('Running Prep...\n'));
 % Remove the refChan containing zeros from prep preprocessing
