@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 08-Jan-2019 10:00:13
+% Last Modified by GUIDE v2.5 10-Jan-2019 15:08:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -2205,3 +2205,53 @@ function helpsettingspushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 web('https://github.com/methlabUZH/automagic/wiki/Configurations#setup-the-configurations', '-browser');
+
+
+% --- Executes on button press in helploadconfspushbutton.
+function helploadconfspushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helploadconfspushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#loading-an-existing-configuration', '-browser');
+
+% --- Executes on button press in helpoptionspushbutton.
+function helpoptionspushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpoptionspushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#additional-options', '-browser');
+
+% --- Executes on button press in helpinterpushbutton.
+function helpinterpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpinterpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#interpolation', '-browser');
+
+% --- Executes on button press in helpqualpushbutton.
+function helpqualpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpqualpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#quality-rating', '-browser');
+
+% --- Executes on button press in helpfiltpushbutton.
+function helpfiltpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpfiltpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#filtering', '-browser');
+
+% --- Executes on button press in helpartpushbutton.
+function helpartpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpartpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#artifact-removal', '-browser');
+
+% --- Executes on button press in helpbadchanpushbutton.
+function helpbadchanpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpbadchanpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#bad-channel-detection', '-browser');
