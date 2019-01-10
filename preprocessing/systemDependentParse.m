@@ -19,12 +19,13 @@ function [EEG, EOG, EEGSystem, MARAParams] = ...
 %   10-20 system to find channel locations or not. All other following 
 %   fields are optional if EEGSystem.name='EGI' and can be left empty. 
 %   But in the case of EEGSystem.name='Others':
-%   EEGSystem.refChan is the index of the reference channel in dataset. 
+%   EEGSystem.refChan.idx the index of the reference channel in dataset. 
 %   If it's left empty, a new reference channel will be added as the last 
 %   channel of the dataset where all values are zeros and this new channel 
-%   will be considered as the reference channel. If EEGSystem.refChan == -1 
-%   no reference channel is added and no channel is considered as reference 
-%   channel at all. EEGSystem.locFile must be the name of the file located 
+%   will be considered as the reference channel. If 
+%   EEGSystem.refChan == struct([]) no reference channel is added and no 
+%   channel is considered as reference channel at all. 
+%   EEGSystem.locFile must be the name of the file (preferably) located 
 %   in 'matlab_scripts' folder that can be used by pop_chanedit to find 
 %   channel locations and finally EEGSystem.fileLocType must be the type 
 %   of that file. Please see pop_chanedit for more information. Obviously 
