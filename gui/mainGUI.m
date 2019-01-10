@@ -422,6 +422,12 @@ set(handles.chooseproject, 'enable', mode);
 set(handles.createbutton, 'visible', mode)
 set(handles.deleteprojectbutton, 'visible', visibility)
 set(handles.excludecheckbox, 'enable', mode);
+set(handles.helpcreatepushbutton, 'visible', mode);
+set(handles.helpextpushbutton, 'visible', mode);
+set(handles.dirhelppushbutton, 'visible', mode);
+set(handles.helpchanlocpushbutton, 'visible', mode);
+set(handles.helppresetpushbutton, 'visible', mode);
+set(handles.helprefpushbutton, 'visible', mode);
 setEEGSystemVisibility(mode, handles);
 
 % --- Enable or Disable the EEG system related gui components. These are
@@ -1003,6 +1009,23 @@ if(is_created)
     set(ui_elements, 'enable', 'off')
     canc = findobj(h.Children, 'tag', 'cancelpushbutton');
     set(canc, 'enable', 'on');
+    
+    but1 = findobj(h.Children, 'tag', 'helpsettingspushbutton');
+    but2 = findobj(h.Children, 'tag', 'helpartpushbutton');
+    but3 = findobj(h.Children, 'tag', 'helpbadchanpushbutton');
+    but4 = findobj(h.Children, 'tag', 'helpinterpushbutton');
+    but5 = findobj(h.Children, 'tag', 'helpfiltpushbutton');
+    but6 = findobj(h.Children, 'tag', 'helpoptionspushbutton');
+    but7 = findobj(h.Children, 'tag', 'helpqualpushbutton');
+    but8 = findobj(h.Children, 'tag', 'helploadconfspushbutton');
+    set(but1, 'visible', 'off');
+    set(but2, 'visible', 'off');
+    set(but3, 'visible', 'off');
+    set(but4, 'visible', 'off');
+    set(but5, 'visible', 'off');
+    set(but6, 'visible', 'off');
+    set(but7, 'visible', 'off');
+    set(but8, 'visible', 'off');
 end
 set(handles.runpreprocessbutton, 'enable', 'off');
 set(handles.manualratingbutton, 'enable', 'off');
@@ -1530,5 +1553,38 @@ function helpcreatepushbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 web('https://github.com/methlabUZH/automagic/wiki/How-to-start#how-to-create-a-new-project', '-browser');
+
+% --- Executes on button press in helprefpushbutton.
+function helprefpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/How-to-start#reference-channel', '-browser');
+
+% --- Executes on button press in helpchanlocpushbutton.
+function helpchanlocpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/How-to-start#channel-location', '-browser');
+
+% --- Executes on button press in helpextpushbutton.
+function helpextpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/How-to-start#file-extension', '-browser');
+
+% --- Executes on button press in helppresetpushbutton.
+function helppresetpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/How-to-start#preset-values-of-langer-lab', '-browser');
+
 
 
