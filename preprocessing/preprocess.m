@@ -141,6 +141,15 @@ if Settings.trackAllSteps
    allSteps.EEGOrig = EEGOrig;
 end
 
+
+% Remove biosemi before preprocessing steps to avoid potential conflicts
+allPaths = path;
+allPaths = strsplit(allPaths, pathsep);
+idx = contains(allPaths, 'biosig');
+allPaths(~idx) = [];
+automagicPaths = strjoin(allPaths, pathsep);
+rmpath(automagicPaths);
+
 %% Preprocessing
 [s, ~] = size(EEG.data);
 EEG.automagic.preprocessing.toRemove = [];
