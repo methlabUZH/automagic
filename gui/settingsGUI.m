@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 10-Jan-2019 15:08:56
+% Last Modified by GUIDE v2.5 14-Jan-2019 12:00:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -202,7 +202,22 @@ end
 
 set(handles.iclabelcheckbox, 'Value', ~isempty(params.ICLabelParams));
 if ~isempty(params.ICLabelParams)
-    set(handles.probtheredit, 'String', params.ICLabelParams.probTher)
+    set(handles.probtheredit, 'String', params.ICLabelParams.brainTher)
+    set(handles.icmuscleedit, 'String', params.ICLabelParams.muscleTher);
+    set(handles.iceyeedit, 'String', params.ICLabelParams.eyeTher);
+    set(handles.icheartedit, 'String', params.ICLabelParams.heartTher);
+    set(handles.iclinenoiseedit, 'String', params.ICLabelParams.lineNoiseTher);
+    set(handles.icchannelnoiseedit, 'String', params.ICLabelParams.channelNoiseTher);
+    set(handles.icotheredit, 'String', params.ICLabelParams.otherTher);
+    set(handles.icbrainradio, 'Value', ~isempty(params.ICLabelParams.brainTher));
+    set(handles.icmuscleradio, 'Value', ~isempty(params.ICLabelParams.muscleTher));
+    set(handles.iceyeradio, 'Value', ~isempty(params.ICLabelParams.eyeTher));
+    set(handles.icheartradio, 'Value', ~isempty(params.ICLabelParams.heartTher));
+    set(handles.iclinenoiseradio, 'Value', ~isempty(params.ICLabelParams.lineNoiseTher));
+    set(handles.icchannelnoiseradio, 'Value', ~isempty(params.ICLabelParams.channelNoiseTher));
+    set(handles.icotherradio, 'Value', ~isempty(params.ICLabelParams.otherTher));
+    set(handles.includecompradio, 'Value', params.ICLabelParams.includeSelected == 1)
+    
     if ~isempty(params.ICLabelParams.high)
         set(handles.icahighpasscheckbox, 'Value', 1);
         if isempty(params.ICLabelParams.high.order)
@@ -223,6 +238,20 @@ if ~isempty(params.ICLabelParams)
     end
 else
     set(handles.probtheredit, 'String', '')
+    set(handles.icmuscleedit, 'String', '');
+    set(handles.iceyeedit, 'String', '');
+    set(handles.icheartedit, 'String', '');
+    set(handles.iclinenoiseedit, 'String', '');
+    set(handles.icchannelnoiseedit, 'String', '');
+    set(handles.icotheredit, 'String', '');
+    
+    set(handles.icbrainradio, 'Value', 0);
+    set(handles.icmuscleradio, 'Value', 0);
+    set(handles.iceyeradio, 'Value', 0);
+    set(handles.icheartradio, 'Value', 0);
+    set(handles.iclinenoiseradio, 'Value', 0);
+    set(handles.icchannelnoiseradio, 'Value', 0);
+    set(handles.icotherradio, 'Value', 0);
     if isempty(params.MARAParams)
         set(handles.icahighpasscheckbox, 'Value', 0)
         set(handles.icahighpassedit, 'String', '')
@@ -389,11 +418,52 @@ if get(handles.iclabelcheckbox, 'Value')
         ICLabelParams = struct();
         ICLabelParams.high = struct();
     end
+    
+    ICLabelParams.includeSelected = get(handles.includecompradio, 'Value');
     res = str2double(get(handles.probtheredit, 'String'));
-    if ~isnan(res)
-        ICLabelParams.probTher = res; 
+    if ~isnan(res) && get(handles.icbrainradio, 'Value')
+        ICLabelParams.brainTher = res;
+    else
+        ICLabelParams.brainTher = [];
     end
-        
+    
+    res = str2double(get(handles.icmuscleedit, 'String'));
+    if ~isnan(res) & get(handles.icmuscleradio, 'Value')
+        ICLabelParams.muscleTher = res;
+    else
+        ICLabelParams.muscleTher = [];
+    end
+    res = str2double(get(handles.iceyeedit, 'String'));
+    if ~isnan(res) & get(handles.iceyeradio, 'Value')
+        ICLabelParams.eyeTher = res;
+    else
+        ICLabelParams.eyeTher = [];
+    end
+    res = str2double(get(handles.icheartedit, 'String'));
+    if ~isnan(res) & get(handles.icheartradio, 'Value')
+        ICLabelParams.heartTher = res;
+    else
+        ICLabelParams.heartTher = [];
+    end
+    res = str2double(get(handles.iclinenoiseedit, 'String'));
+    if ~isnan(res) & get(handles.iclinenoiseradio, 'Value')
+        ICLabelParams.lineNoiseTher = res;
+    else
+        ICLabelParams.lineNoiseTher = [];
+    end
+    res = str2double(get(handles.icchannelnoiseedit, 'String'));
+    if ~isnan(res) & get(handles.icchannelnoiseradio, 'Value')
+        ICLabelParams.channelNoiseTher = res;
+    else
+        ICLabelParams.channelNoiseTher = [];
+    end
+    res = str2double(get(handles.icotheredit, 'String'));
+    if ~isnan(res) & get(handles.icotherradio, 'Value')
+        ICLabelParams.otherTher = res;
+    else
+        ICLabelParams.otherTher = [];
+    end
+    
     high = ICLabelParams.high;
     if( get(handles.icahighpasscheckbox, 'Value'))
         if isempty(high)
@@ -416,6 +486,18 @@ if get(handles.iclabelcheckbox, 'Value')
         high = struct([]);
     end
     ICLabelParams.high = high;
+    
+    if (~get(handles.icbrainradio, 'Value') && ...
+        ~get(handles.icmuscleradio, 'Value') && ...
+        ~get(handles.iceyeradio, 'Value') && ...
+        ~get(handles.icheartradio, 'Value') && ... 
+        ~get(handles.iclinenoiseradio, 'Value') && ...
+        ~get(handles.icchannelnoiseradio, 'Value') && ...
+        ~get(handles.icotherradio, 'Value'))
+    
+        ICLabelParams = struct([]);
+    end
+        
     clear res;
 else
     ICLabelParams = struct([]);
@@ -827,6 +909,23 @@ end
 
 if( get(handles.iclabelcheckbox, 'Value'))
     set(handles.probtheredit, 'enable', 'on');
+    set(handles.icmuscleedit, 'enable', 'on');
+    set(handles.iceyeedit, 'enable', 'on');
+    set(handles.icheartedit, 'enable', 'on');
+    set(handles.iclinenoiseedit, 'enable', 'on');
+    set(handles.icchannelnoiseedit, 'enable', 'on');
+    set(handles.icotheredit, 'enable', 'on');
+    
+    set(handles.icbrainradio, 'enable', 'on');
+    set(handles.icmuscleradio, 'enable', 'on');
+    set(handles.iceyeradio, 'enable', 'on');
+    set(handles.icheartradio, 'enable', 'on');
+    set(handles.iclinenoiseradio, 'enable', 'on');
+    set(handles.icchannelnoiseradio, 'enable', 'on');
+    set(handles.icotherradio, 'enable', 'on');
+    
+    set(handles.includecompradio, 'enable', 'on');
+    set(handles.excludecompradio, 'enable', 'on');
     
     set(handles.icahighpasscheckbox, 'enable', 'on');
     if( get(handles.icahighpasscheckbox, 'Value') )
@@ -839,6 +938,23 @@ if( get(handles.iclabelcheckbox, 'Value'))
     end
 else
     set(handles.probtheredit, 'enable', 'off');
+    set(handles.icmuscleedit, 'enable', 'off');
+    set(handles.iceyeedit, 'enable', 'off');
+    set(handles.icheartedit, 'enable', 'off');
+    set(handles.iclinenoiseedit, 'enable', 'off');
+    set(handles.icchannelnoiseedit, 'enable', 'off');
+    set(handles.icotheredit, 'enable', 'off');
+    
+    set(handles.icbrainradio, 'enable', 'off');
+    set(handles.icmuscleradio, 'enable', 'off');
+    set(handles.iceyeradio, 'enable', 'off');
+    set(handles.icheartradio, 'enable', 'off');
+    set(handles.iclinenoiseradio, 'enable', 'off');
+    set(handles.icchannelnoiseradio, 'enable', 'off');
+    set(handles.icotherradio, 'enable', 'off');
+    
+    set(handles.includecompradio, 'enable', 'off');
+    set(handles.excludecompradio, 'enable', 'off');
     if ~ get(handles.icacheckbox, 'Value')
         set(handles.icahighpasscheckbox, 'enable', 'off');
         set(handles.icahighpassedit, 'enable', 'off');
@@ -981,6 +1097,21 @@ function icacheckbox_Callback(hObject, eventdata, handles)
 
 set(handles.pcacheckbox, 'Value', 0);
 set(handles.iclabelcheckbox, 'Value', 0);
+set(handles.probtheredit, 'String', '')
+set(handles.icmuscleedit, 'String', '');
+set(handles.iceyeedit, 'String', '');
+set(handles.icheartedit, 'String', '');
+set(handles.iclinenoiseedit, 'String', '');
+set(handles.icchannelnoiseedit, 'String', '');
+set(handles.icotheredit, 'String', '');
+
+set(handles.icbrainradio, 'Value', 0);
+set(handles.icmuscleradio, 'Value', 0);
+set(handles.iceyeradio, 'Value', 0);
+set(handles.icheartradio, 'Value', 0);
+set(handles.iclinenoiseradio, 'Value', 0);
+set(handles.icchannelnoiseradio, 'Value', 0);
+set(handles.icotherradio, 'Value', 0);
 
 if (get(hObject,'Value') == get(hObject,'Max'))
     RecParams = handles.CGV.RecParams;
@@ -1001,8 +1132,6 @@ else
     set(handles.icahighpassedit, 'String', '');
     set(handles.icahighpassorderedit, 'String', '');
 end
-
-handles = switch_components(handles);
 
 handles = switch_components(handles);
 % Update handles structure
@@ -2152,7 +2281,24 @@ set(handles.icacheckbox, 'Value', 0);
 
 if (get(hObject,'Value') == get(hObject,'Max'))
     RecParams = handles.CGV.RecParams;
-    set(handles.probtheredit, 'String', RecParams.ICLabelParams.probTher);
+    set(handles.probtheredit, 'String', RecParams.ICLabelParams.brainTher);
+    set(handles.icmuscleedit, 'String', RecParams.ICLabelParams.muscleTher);
+    set(handles.iceyeedit, 'String', RecParams.ICLabelParams.eyeTher);
+    set(handles.icheartedit, 'String', RecParams.ICLabelParams.heartTher);
+    set(handles.iclinenoiseedit, 'String', RecParams.ICLabelParams.lineNoiseTher);
+    set(handles.icchannelnoiseedit, 'String', RecParams.ICLabelParams.channelNoiseTher);
+    set(handles.icotheredit, 'String', RecParams.ICLabelParams.otherTher);
+    
+    set(handles.icbrainradio, 'Value', ~isempty(RecParams.ICLabelParams.brainTher));
+    set(handles.icmuscleradio, 'Value', ~isempty(RecParams.ICLabelParams.muscleTher));
+    set(handles.iceyeradio, 'Value', ~isempty(RecParams.ICLabelParams.eyeTher));
+    set(handles.icheartradio, 'Value', ~isempty(RecParams.ICLabelParams.heartTher));
+    set(handles.iclinenoiseradio, 'Value', ~isempty(RecParams.ICLabelParams.lineNoiseTher));
+    set(handles.icchannelnoiseradio, 'Value', ~isempty(RecParams.ICLabelParams.channelNoiseTher));
+    set(handles.icotherradio, 'Value', ~isempty(RecParams.ICLabelParams.otherTher));
+    
+    set(handles.includecompradio, 'Value', RecParams.ICLabelParams.includeSelected == 1)
+    
     if ~isempty(RecParams.ICLabelParams.high)
         set(handles.icahighpasscheckbox, 'Value', 1);
         val = num2str((RecParams.ICLabelParams.high.freq));
@@ -2255,3 +2401,204 @@ function helpbadchanpushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 web('https://github.com/methlabUZH/automagic/wiki/Configurations#bad-channel-detection', '-browser');
+
+
+
+function icmuscleedit_Callback(hObject, eventdata, handles)
+% hObject    handle to icmuscleedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of icmuscleedit as text
+%        str2double(get(hObject,'String')) returns contents of icmuscleedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function icmuscleedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to icmuscleedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function iceyeedit_Callback(hObject, eventdata, handles)
+% hObject    handle to iceyeedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of iceyeedit as text
+%        str2double(get(hObject,'String')) returns contents of iceyeedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function iceyeedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to iceyeedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function icheartedit_Callback(hObject, eventdata, handles)
+% hObject    handle to icheartedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of icheartedit as text
+%        str2double(get(hObject,'String')) returns contents of icheartedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function icheartedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to icheartedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function iclinenoiseedit_Callback(hObject, eventdata, handles)
+% hObject    handle to iclinenoiseedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of iclinenoiseedit as text
+%        str2double(get(hObject,'String')) returns contents of iclinenoiseedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function iclinenoiseedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to iclinenoiseedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function icchannelnoiseedit_Callback(hObject, eventdata, handles)
+% hObject    handle to icchannelnoiseedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of icchannelnoiseedit as text
+%        str2double(get(hObject,'String')) returns contents of icchannelnoiseedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function icchannelnoiseedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to icchannelnoiseedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function icotheredit_Callback(hObject, eventdata, handles)
+% hObject    handle to icotheredit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of icotheredit as text
+%        str2double(get(hObject,'String')) returns contents of icotheredit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function icotheredit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to icotheredit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in icbrainradio.
+function icbrainradio_Callback(hObject, eventdata, handles)
+% hObject    handle to icbrainradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of icbrainradio
+
+
+% --- Executes on button press in icmuscleradio.
+function icmuscleradio_Callback(hObject, eventdata, handles)
+% hObject    handle to icmuscleradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of icmuscleradio
+
+
+% --- Executes on button press in iceyeradio.
+function iceyeradio_Callback(hObject, eventdata, handles)
+% hObject    handle to iceyeradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of iceyeradio
+
+
+% --- Executes on button press in icheartradio.
+function icheartradio_Callback(hObject, eventdata, handles)
+% hObject    handle to icheartradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of icheartradio
+
+
+% --- Executes on button press in iclinenoiseradio.
+function iclinenoiseradio_Callback(hObject, eventdata, handles)
+% hObject    handle to iclinenoiseradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of iclinenoiseradio
+
+
+% --- Executes on button press in icchannelnoiseradio.
+function icchannelnoiseradio_Callback(hObject, eventdata, handles)
+% hObject    handle to icchannelnoiseradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of icchannelnoiseradio
+
+
+% --- Executes on button press in icotherradio.
+function icotherradio_Callback(hObject, eventdata, handles)
+% hObject    handle to icotherradio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of icotherradio

@@ -12,13 +12,24 @@ function EEG = performICLabel(EEG, varargin)
 %   EEG_out = performICLabel(EEG, params) where EEG is the input EEGLAB
 %   data structure and EEG_out is the output EEGLAB data structure after ICA. 
 %   params is an optional parameter which must be a structure with optional 
-%   fields 'probTher' and 'high'. An example of params is given below:
+%   fields 'brainTher', 'muscleTher', 'eyeTher', 'heartTher', 'lineNoiseTher', 
+%   'channelNoiseTher', 'otherTher', 'includeSelected' and 'high'. An 
+%   example of params is given below:
 %
-%   params = = struct('probTher', 0.8, ...
-%                     'high',       struct('freq', 1.0, 'order', []))
+%   params = struct('brainTher', 0.8, ...
+%                   'muscleTher', [], ...
+%                   'eyeTher', [], ...
+%                   'heartTher', [], ...
+%                   'lineNoiseTher', [], ...
+%                   'channelNoiseTher', [], ...
+%                   'otherTher', 0.8, ...
+%                   'includeSelected', 1, ...
+%                   'high',     struct('freq', 1.0,...
+%                                      'order', []));
 %   
-%   Components with more than params.probTher probability of 'Brain' are 
-%   kept and other components are rejected.
+%   Components with more than params.xxxTher probability are either
+%   rejected if params.includeSelected == 0, or kept if
+%   params.includeSelected == 1.
 %   
 %   params.high is a structure indicating the high pass frequency
 %   (params.high.freq) and order (params.high.order) of the high pass
@@ -54,10 +65,24 @@ end
 CSTS = PreprocessingConstants.ICLabelCsts;
 %% Parse and check parameters
 p = inputParser;
-addParameter(p,'probTher', defaults.probTher, @isnumeric);
+addParameter(p,'brainTher', defaults.brainTher, @isnumeric);
+addParameter(p,'muscleTher', defaults.muscleTher, @isnumeric);
+addParameter(p,'eyeTher', defaults.eyeTher, @isnumeric);
+addParameter(p,'heartTher', defaults.heartTher, @isnumeric);
+addParameter(p,'lineNoiseTher', defaults.lineNoiseTher, @isnumeric);
+addParameter(p,'channelNoiseTher', defaults.channelNoiseTher, @isnumeric);
+addParameter(p,'otherTher', defaults.otherTher, @isnumeric);
+addParameter(p,'includeSelected', defaults.includeSelected, @isnumeric);
 addParameter(p,'high', defaults.high, @isstruct);
 parse(p, varargin{:});
-probTher = p.Results.probTher;
+brainTher = p.Results.brainTher;
+muscleTher = p.Results.muscleTher;
+heartTher = p.Results.heartTher;
+eyeTher = p.Results.eyeTher;
+lineNoiseTher = p.Results.lineNoiseTher;
+channelNoiseTher = p.Results.channelNoiseTher;
+otherTher = p.Results.otherTher;
+includeSelected = p.Results.includeSelected;
 high = p.Results.high;
 
 %% Perform ICA
@@ -74,7 +99,49 @@ end
 
 [~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'')');
 EEG = iclabel(EEG);
-components = find(EEG.etc.ic_classification.ICLabel.classifications(:, 1) < probTher);
+
+brainComponents = [];
+if ~ isempty(brainTher)
+    brainComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 1) > brainTher);
+end
+
+muscleComponents = [];
+if ~ isempty(muscleTher)
+    muscleComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 2) > muscleTher);
+end
+
+eyeComponents = [];
+if ~ isempty(eyeTher)
+    eyeComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 3) > eyeTher);
+end
+
+heartComponents = [];
+if ~ isempty(heartTher)
+heartComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 4) > heartTher);
+end
+
+lineNoiseComponents = [];
+if ~ isempty(lineNoiseTher)
+lineNoiseComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 5) > lineNoiseTher);
+end
+channelNoiseComponents = [];
+if ~ isempty(channelNoiseTher)
+channelNoiseComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 6) > channelNoiseTher);
+end
+
+otherComponents = [];
+if ~ isempty(otherTher)
+otherComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 7) > otherTher);
+end
+
+uni_comps = {brainComponents, muscleComponents, eyeComponents, ...
+    heartComponents, lineNoiseComponents, channelNoiseComponents, otherComponents}; 
+components = unique(cat(1, uni_comps{:}));
+
+allComps = 1:length(EEG.etc.ic_classification.ICLabel.classifications(:, 1));
+if includeSelected
+    components = setdiff(allComps, components);
+end
 if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), components))
     EEG = pop_subcomp(EEG, components);
 end
