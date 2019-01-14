@@ -19,7 +19,7 @@ classdef ConstantGlobalValues
     properties(Constant)
 
         % Current version of Automagic. Just change this for new versions
-        VERSION = '2.1.1'; 
+        VERSION = '2.2.0'; 
             
         DEFAULT_KEYWORD = 'Default';
                 
