@@ -80,6 +80,8 @@ classdef Block < handle
         % form /root/project/subject/prefix_uniqueName.mat (ie. np_subject1_001).
         resultAddress
         
+        resultFolder
+        
         % The address of the corresponding reduced file. The reduced file is
         % a downsampled file of the preprocessed file. Its use is only to be
         % plotted on the ratingGui. It is downsampled to speed up the
@@ -257,15 +259,27 @@ classdef Block < handle
             % Check in the result folder for a corresponding preprocessed 
             % file with any prefix that respects the standard pattern (See prefix).
             slash = filesep;
+            if ispc
+                splits = strsplit(self.sourceAddress, [slash slash self.subject.name slash]);
+            else
+                splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
+            end
+            relAdd = splits{2};
+            
+            if ~isempty(relAdd)
+                splits = strsplit(relAdd, [self.fileName, self.fileExtension]);
+                relAdd = splits{1};
+            end
+            
             pattern = '^[gobni]i?p_';
-            fileData = dir(strcat(self.subject.resultFolder, slash));                                        
+            fileData = dir(strcat(self.subject.resultFolder, slash, relAdd));                                        
             fileNames = {fileData.name};  
             idx = regexp(fileNames, strcat(pattern, self.fileName, '.mat')); 
             inFiles = fileNames(~cellfun(@isempty,idx));
             assert(length(inFiles) <= 1);
             if(~ isempty(inFiles))
-                resultAddress = strcat(self.subject.resultFolder, ...
-                    slash, inFiles{1});
+                resultAddress = strcat(self.subject.resultFolder, slash, relAdd, ...
+                    inFiles{1});
             else
                 resultAddress = '';
             end
@@ -291,8 +305,17 @@ classdef Block < handle
                 splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
             end
             relAdd = splits{2};
-            
             self.sourceAddress = [self.subject.dataFolder slash relAdd];
+            
+            if ~isempty(relAdd)
+                relAdd = strsplit(relAdd, [self.fileName, self.fileExtension]);
+                relAdd = relAdd{1};
+            end
+            self.resultFolder = [self.subject.dataFolder relAdd];
+            
+            if ~exist(self.resultFolder, 'dir')
+                mkdir(self.resultFolder);
+            end
             self = self.updatePrefixAndResultAddress();
         end
         
@@ -365,7 +388,7 @@ classdef Block < handle
                     isfield(self.params.Settings, 'trackAllSteps') && ...
                     self.params.Settings.trackAllSteps
                 PrepCsts = self.CGV.PreprocessingCsts;
-                pathToSteps = strcat(self.subject.resultFolder, ...
+                pathToSteps = strcat(self.resultFolder, ...
                     PrepCsts.Settings.pathToSteps, '_', ...
                     self.fileName);
                 if( exist(pathToSteps, 'file' ))
@@ -767,7 +790,7 @@ classdef Block < handle
             % The name and address of the obtained plots during
             % preprocessing
             slash = filesep;
-            img_address = [self.subject.resultFolder slash self.fileName];
+            img_address = [self.resultFolder slash self.fileName];
         end
         
         function bool = isInterpolate(self)
@@ -892,11 +915,25 @@ classdef Block < handle
             % Then the address and prefix are set based on rating info.
             slash = filesep;
             self = self.updatePrefix();
-            self.resultAddress = strcat(self.subject.resultFolder, ...
-                slash, self.prefix, '_', self.fileName, '.mat');
+            
+            if ispc
+                splits = strsplit(self.sourceAddress, [slash slash self.subject.name slash]);
+            else
+                splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
+            end
+            relAdd = splits{2};
+            if ~isempty(relAdd)
+                relAdd = strsplit(relAdd, [self.fileName, self.fileExtension]);
+                relAdd = relAdd{1};
+            end
+            self.resultFolder = [self.subject.resultFolder, slash, relAdd];
+            self.resultAddress = strcat(self.resultFolder, self.prefix, '_', self.fileName, '.mat');
             self.reducedAddress = self.extractReducedAddress(...
                 self.resultAddress, self.dsRate);
             
+            if ~exist(self.resultFolder, 'dir')
+                mkdir(self.resultFolder);
+            end
             % Rename the file if it doesn't correspond to the actual rating
             if( ~ strcmp(self.resultAddress, self.potentialResultAddress))
                 if( ~ isempty(self.potentialResultAddress) )
