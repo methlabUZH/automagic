@@ -1194,6 +1194,9 @@ if ~ isempty(params) && isfield(params, 'EEGSystem') && ...
 else
     defs = handles.CGV.DefaultParams;
     EEGSystem = defs.EEGSystem;
+    if isempty(EEGSystem)
+        EEGSystem = handles.CGV.RecParams.EEGSystem;
+    end
 end
 
 if ~ isempty(params) && isfield(params, 'ChannelReductionParams') && ...
@@ -1203,6 +1206,7 @@ else
     defs = handles.CGV.DefaultParams;
     ChannelReductionParams = defs.ChannelReductionParams;
 end
+
 
 switch EEGSystem.name
     case 'EGI'
