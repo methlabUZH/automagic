@@ -317,7 +317,7 @@ else
 end
 set(handles.rarcheckbox, 'Value', ~isempty(params.PrepParams));
 
-if ~isempty(params.FilterParams.notch)
+if ~isempty(params.FilterParams) && ~isempty(params.FilterParams.notch)
     setLineNoise(params.FilterParams.notch.freq, handles);
 elseif (~isempty(params.PrepParams))
     if isfield(params.PrepParams, 'lineFrequencies') && ~isempty(params.PrepParams.lineFrequencies)
@@ -337,6 +337,7 @@ else
     set(handles.highvarcheckbox, 'Value', 0);
     set(handles.highvaredit, 'String', '');
 end
+
 
 if ~isempty(params.RPCAParams)
     set(handles.pcacheckbox, 'Value', 1);
