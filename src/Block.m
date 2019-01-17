@@ -311,7 +311,7 @@ classdef Block < handle
                 relAdd = strsplit(relAdd, [self.fileName, self.fileExtension]);
                 relAdd = relAdd{1};
             end
-            self.resultFolder = [self.subject.dataFolder relAdd];
+            self.resultFolder = [self.subject.dataFolder slash relAdd];
             
             if ~exist(self.resultFolder, 'dir')
                 mkdir(self.resultFolder);
