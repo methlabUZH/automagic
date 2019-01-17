@@ -187,7 +187,7 @@ classdef Block < handle
             self.params = project.params;
             self.sRate = project.sRate;
             
-            self.uniqueName = self.extractUniqueName(subject, fileName);
+            self.uniqueName = self.extractUniqueName(address, subject, fileName);
             self.sourceAddress = address;
             self = self.updateRatingInfoFromFile();
         end
@@ -981,11 +981,28 @@ classdef Block < handle
                 strcat('reduced', int2str(dsRate), '_'));
         end
         
-        function uniqueName = extractUniqueName(subject, fileName)
+        function uniqueName = extractUniqueName(address, subject, fileName)
             % Return the uniqueName of this block. The uniqueName is the
             % concatenation of the subject's name and this raw file's name
             
-            uniqueName = strcat(subject.name, '_', fileName);
+            slash = filesep;
+            if ispc
+                splits = strsplit(address, [slash slash subject.name slash]);
+            else
+                splits = strsplit(address, [slash subject.name slash]);
+            end
+            relAdd = splits{2};
+            
+            if ~isempty(relAdd)
+                splits = strsplit(relAdd, [fileName, '.']);
+                relAdd = splits{1};
+            end
+            
+            if ~isempty(relAdd)
+                relAdd = strrep(relAdd, slash, '_');
+            end
+            
+            uniqueName = strcat(subject.name, '_', relAdd, fileName);
         end
 
         function bool = hasInformation(prefix)
