@@ -14,6 +14,8 @@ You need MATLAB installed and activated on your system to use **Automagic**. **A
 
 1. Download and unzip **_automagic-master_** to your favorite place on your hard drive. 
 
+Please note that if you would like to have the latest features developed in **Automagic**, download the version on the *development* branch. In the latest version you can use *ICLabel* in addition to other preprocessing steps. A better integration with the BIDS format is also implemented in the latest version.
+
 ## 2. Run automagic 
 1. To run automagic, start Matlab and change your working directory to the root folder `automagic-master`. 
    * Please do **NOT** add **Automagic** to Matlab path manually. 
