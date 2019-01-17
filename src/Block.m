@@ -892,6 +892,9 @@ classdef Block < handle
             save(self.reducedAddress, ...
                 PrepCsts.GeneralCsts.REDUCED_NAME, ...
                 '-v6');
+            
+            [~,gitHashString] = system('git rev-parse HEAD');
+            automagic.commitID = gitHashString;
             save(self.resultAddress, 'EEG', 'automagic','-v7.3');
         end
         
