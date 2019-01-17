@@ -26,4 +26,4 @@ For a comprehensive explanation on how to start and use **Automagic** please see
 
 ## Contact us
 You can find us [here](http://www.psychologie.uzh.ch/de/fachrichtungen/plafor.html).
-If you have any questions, feedbacks please email us at amirreza [dot] bahreini [at] uzh [dot] ch
+If you have any questions, feedbacks please email us at methlabuzh [at] gmail [dot] com
