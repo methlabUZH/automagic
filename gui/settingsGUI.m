@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 14-Jan-2019 12:00:18
+% Last Modified by GUIDE v2.5 25-Jan-2019 13:56:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -173,6 +173,14 @@ set(handles.channelthresholdedit, 'String', mat2str(CalcQualityParams.chanThresh
 set(handles.icacheckbox, 'Value', ~isempty(params.MARAParams));
 if ~isempty(params.MARAParams)
     set(handles.largemapcheckbox, 'Value', params.MARAParams.largeMap)
+    
+    if isfield(params.MARAParams, 'chanlocMap') && ...
+            isempty(params.MARAParams.chanlocMap)
+        set(handles.largemapcheckbox, 'Value', 1)
+    else
+        set(handles.largemapcheckbox, 'Value', 0)
+    end
+    
     if ~isempty(params.MARAParams.high)
         set(handles.icahighpasscheckbox, 'Value', 1);
         if isempty(params.MARAParams.high.order)
@@ -192,6 +200,7 @@ if ~isempty(params.MARAParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
+    set(handles.largemapcheckbox, 'Value', 0)
     set(handles.largemapcheckbox, 'Value', 0)
     if isempty(params.ICLabelParams)
         set(handles.icahighpasscheckbox, 'Value', 0)
@@ -385,6 +394,14 @@ if get(handles.icacheckbox, 'Value')
         MARAParams.high = struct();
     end
     MARAParams.largeMap = get(handles.largemapcheckbox, 'Value');
+    
+    if get(handles.maraegicheckbox, 'Value')
+        MARAParams.chanlocMap = [];
+    else
+        if isfield(MARAParams, 'chanlocMap')
+            MARAParams = rmfield(MARAParams, 'chanlocMap');
+        end
+    end
     
     high = MARAParams.high;
     if( get(handles.icahighpasscheckbox, 'Value'))
@@ -889,6 +906,7 @@ end
 
 if( get(handles.icacheckbox, 'Value'))
     set(handles.largemapcheckbox, 'enable', 'on');
+    set(handles.maraegicheckbox, 'enable', 'on');
     
     set(handles.icahighpasscheckbox, 'enable', 'on');
     if( get(handles.icahighpasscheckbox, 'Value') )
@@ -901,6 +919,7 @@ if( get(handles.icacheckbox, 'Value'))
     end
 else
     set(handles.largemapcheckbox, 'enable', 'off');
+    set(handles.maraegicheckbox, 'enable', 'off');
     if ~ get(handles.iclabelcheckbox, 'Value')
         set(handles.icahighpasscheckbox, 'enable', 'off');
         set(handles.icahighpassedit, 'enable', 'off');
@@ -2603,3 +2622,12 @@ function icotherradio_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of icotherradio
+
+
+% --- Executes on button press in maraegicheckbox.
+function maraegicheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to maraegicheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of maraegicheckbox
