@@ -4,6 +4,7 @@ function addAutomagicPaths()
 %   as it will avoid to add conflicting functions of EEGLAB.
 %
 % Copyright (C) 2018  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+%
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
