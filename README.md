@@ -1,5 +1,6 @@
 # Automagic
 
+
 <img src="https://github.com/methlabUZH/automagic/blob/master/automagic_resources/automagic.jpg" width="100">
 
 ## What is Automagic ?
