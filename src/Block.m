@@ -459,7 +459,18 @@ classdef Block < handle
             else
                 InterpolationParams = self.params.InterpolationParams;
             end
+            %save old ica data which gets corrupted:
+            orig_icasphere=EEG.icasphere;
+            orig_icachansind=EEG.icachansind;
+            orig_icaweights=EEG.icaweights;
+            orig_icawinv=EEG.icawinv;
+            
             EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
+            
+            EEG.icasphere=orig_icasphere;
+            EEG.icachansind=orig_icachansind;
+            EEG.icaweights= orig_icaweights;
+            EEG.icawinv=orig_icawinv;
 
             qScore  = calcQuality(EEG, ...
                 unique([self.finalBadChans interpolate_chans]), ...
