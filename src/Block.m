@@ -459,7 +459,8 @@ classdef Block < handle
             else
                 InterpolationParams = self.params.InterpolationParams;
             end
-            %save old ica data which gets corrupted:
+			
+            %save old ica data which gets corrupted in eeg_interp method:
             orig_icasphere=EEG.icasphere;
             orig_icachansind=EEG.icachansind;
             orig_icaweights=EEG.icaweights;
@@ -467,6 +468,7 @@ classdef Block < handle
             
             EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
             
+			%put the original icadata back into the structure
             EEG.icasphere=orig_icasphere;
             EEG.icachansind=orig_icachansind;
             EEG.icaweights= orig_icaweights;
