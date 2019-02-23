@@ -4,7 +4,7 @@ classdef Subject
 %   Blocks. A Bock represents a raw file and it's associated
 %   preprocessed file, if any (See Block).
 %
-% Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

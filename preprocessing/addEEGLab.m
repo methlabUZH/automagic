@@ -11,7 +11,7 @@ function parts = addEEGLab()
 %   parts: all the paths in EEGLAB folder. This is returned for the cases
 %   where it is needed.
 %
-% Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

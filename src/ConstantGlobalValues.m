@@ -2,7 +2,7 @@ classdef ConstantGlobalValues
     %ConstantGlobalValues is a class containing all constant values used
     %throughout the application.
     %
-    % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+    % Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
     % 
     % This program is free software: you can redistribute it and/or modify
     % it under the terms of the GNU General Public License as published by

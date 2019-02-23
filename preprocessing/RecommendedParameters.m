@@ -11,7 +11,7 @@ classdef RecommendedParameters
     %   Please do not change anything in this file unless you are sure what
     %   you are doing.
     %
-    % Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+    % Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
     % 
     % This program is free software: you can redistribute it and/or modify
     % it under the terms of the GNU General Public License as published by

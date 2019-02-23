@@ -33,7 +33,7 @@ function [EEG_out, EOG_out] = performCleanrawdata(EEG_in, EOG_in, varargin)
 %   DefaultParameters.m. The default parameters of all other parameters
 %   required by clean_rawdata() are specified by the same function
 %   clean_rawdata().
-% Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
