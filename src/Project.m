@@ -897,7 +897,7 @@ classdef Project < handle
                 block = blocks(file);
                 newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
                 if (applyToManuallyRated || ~ block.isManuallyRated)
-                    block.setRatingInfoAndUpdate(struct('rate', newRate{:}));
+                    block.setRatingInfoAndUpdate(struct('rate', newRate{:}, 'isManuallyRated', 0));
                     block.saveRatingsToFile();
                 end
             end

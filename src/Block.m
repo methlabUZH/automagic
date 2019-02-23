@@ -248,7 +248,7 @@ classdef Block < handle
                 self.finalBadChans = [];
                 self.isInterpolated = false;
                 self.qualityScores = nan;
-                self.isManuallyRated = 1;
+                self.isManuallyRated = 0;
             end
             
             % Build prefix and adress based on ratings
@@ -332,8 +332,8 @@ classdef Block < handle
             
             if isfield(updates, 'rate')
                 self.rate = updates.rate;
-                thisRate = rateQuality(self.getCurrentQualityScore(), self.CGV, self.project.qualityCutoffs);
-                self.isManuallyRated = ~ strcmp(updates.rate, thisRate{:});
+%                 thisRate = rateQuality(self.getCurrentQualityScore(), self.CGV, self.project.qualityCutoffs);
+%                 self.isManuallyRated = ~ strcmp(updates.rate, thisRate{:});
                 if ~ strcmp(self.rate, self.CGV.RATINGS.Interpolate)
                     if ~ isfield(updates, 'tobeInterpolated')
                         % If new rate is not Interpolate and no (empty) list 
@@ -342,6 +342,15 @@ classdef Block < handle
                     end
                 end
                 
+            end
+            
+            if isfield(updates, 'isManuallyRated')
+                thisRate = rateQuality(self.getCurrentQualityScore(), self.CGV, self.project.qualityCutoffs);
+                if updates.isManuallyRated && ~ strcmp(updates.rate, thisRate{:})
+                    self.isManuallyRated = 1;
+                elseif ~ updates.isManuallyRated
+                    self.isManuallyRated = 0;
+                end
             end
             
             if isfield(updates, 'tobeInterpolated')
@@ -416,10 +425,9 @@ classdef Block < handle
             qScoreIdx.MAV = arrayfun(@(x) ceil(length(x.MAV)/2), qScore);
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
-            qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), ...
-                self.CGV, self.project.qualityCutoffs);
             
-            self.setRatingInfoAndUpdate(struct('rate', qRate{:}, ...
+            self.setRatingInfoAndUpdate(struct('rate', self.CGV.RATINGS.NotRated, ...
+                'isManuallyRated', 0, ...
                 'tobeInterpolated', EEG.automagic.autoBadChans, ...
                 'finalBadChans', [], 'isInterpolated', false, ...
                 'qualityScores', qScore));
@@ -493,8 +501,6 @@ classdef Block < handle
             qScoreIdx.MAV = arrayfun(@(x) ceil(length(x.MAV)/2), qScore);
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
-            qRate = rateQuality(self.getIdxQualityScore(qScore, qScoreIdx), ...
-                self.CGV, self.project.qualityCutoffs);
 
             % Put the channels back to NaN if they were not to be interpolated
             % originally
@@ -509,7 +515,8 @@ classdef Block < handle
                 .GeneralCsts.REDUCED_NAME, '-v6');
 
             % Setting the new information
-            self.setRatingInfoAndUpdate(struct('rate', qRate{:}, ...
+            self.setRatingInfoAndUpdate(struct('rate', self.CGV.RATINGS.NotRated, ...
+                'isManuallyRated', 0, ...
                 'tobeInterpolated', [], ...
                 'finalBadChans', interpolate_chans, ...
                 'isInterpolated', true, ...

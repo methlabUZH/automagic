@@ -507,7 +507,7 @@ if( isempty(handles.rategroup.SelectedObject))
 end
 block = project.getCurrentBlock();
 new_rate = handles.rategroup.SelectedObject.String;
-block.setRatingInfoAndUpdate(struct('rate', new_rate));
+block.setRatingInfoAndUpdate(struct('rate', new_rate, 'isManuallyRated', 1));
 
 % --- Turn on the selection mode to choose channels that should be
 % interpolated
