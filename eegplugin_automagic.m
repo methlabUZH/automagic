@@ -10,7 +10,7 @@ function eegplugin_automagic(fig, try_strings, catch_strings)
 %   trystrs    - [struct] "try" strings for menu callbacks.
 %   catchstrs  - [struct] "catch" strings for menu callbacks.
 %
-% Copyright (C) 2018  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2018  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

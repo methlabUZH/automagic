@@ -24,7 +24,7 @@ function [EEG_out, EOG_out] = performPrep(EEG_in, EOG_in, prepParams, refChan)
 %
 %   Default values are specified by PREP library.
 %
-% Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

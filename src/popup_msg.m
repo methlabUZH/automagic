@@ -11,7 +11,7 @@ function popup_msg(msgStr, title)
 %   eeglab plugin) is selected (An error can not occur from the mainGUI if
 %   ratingGUI is already open).
 %
-% Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

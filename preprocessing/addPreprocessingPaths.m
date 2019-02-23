@@ -15,7 +15,7 @@ function parts = addPreprocessingPaths(varargin)
 %
 %   parts: All the paths in EEGLAB folder.
 %
-% Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

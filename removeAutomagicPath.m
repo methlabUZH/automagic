@@ -2,7 +2,7 @@ function removeAutomagicPath()
 % removeAutomagicPath  Remove all the Automagic paths from the MATLAB path
 %   This is used when Automagic GUI is closed.
 %
-% Copyright (C) 2018  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2018  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

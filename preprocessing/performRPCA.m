@@ -20,7 +20,7 @@ function [data, noise] = performRPCA(data, varargin)
 %   Default values are specified in DefaultParameters.m. If they are empty
 %   then [] is given to inexact_alm_rpca.m which implies to use defaults.
 %
-% Copyright (C) 2017  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -10,7 +10,7 @@ function log = getLogTextStruct()
 %   The text is hardcoded and need to be changed accordingly if anything in
 %   the preprocessing steps is changed.
 %
-% Copyright (C) 2018  Amirreza Bahreini, amirreza.bahreini@uzh.ch
+% Copyright (C) 2018  Amirreza Bahreini, methlabuzh@gmail.com
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
