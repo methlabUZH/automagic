@@ -25,13 +25,13 @@ function [EEG, varargout] = preprocess(data, varargin)
 %   params must be a structure with optional fields 
 %   'FilterParams', 'CRDParams', 'RPCAParams', 'MARAParams', 'PrepParams',
 %   'InterpolationParams', 'EOGRegressionParams', 'EEGSystem',
-%   'ChannelReductionParams', 'HighvarParams', 'Settings' and 
-%   'ORIGINAL_FILE' to specify parameters for filtering, clean_rawdata(), 
+%   'ChannelReductionParams', 'HighvarParams', 'Settings', 'DetrendingParams'
+%   and 'ORIGINAL_FILE' to specify parameters for filtering, clean_rawdata(), 
 %   rpca, mara ica, prep robust average referencing, interpolation, 
 %   eog regression, channel locations, reducing channels, high variance 
-%   channel rejection, settings of this preprocess.m file and original 
-%   file address respectively. The latter one is the only non-struct one, 
-%   and needed only if a '*.fif' file is used, otherwise it can be omitted.
+%   channel rejection, settings of this preprocess.m file, detrending and 
+%   original file address respectively. The latter one is the only non-struct 
+%   one, and needed only if a '*.fif' file is used, otherwise it can be omitted.
 %
 %   If params is ommited, default values are used. If any of the fields
 %   of params are ommited, corresponsing default values are used. If a
@@ -48,6 +48,9 @@ function [EEG, varargout] = preprocess(data, varargin)
 %   'method' which can be on of the following chars: 'spherical',
 %   'invdist' and 'spacetime'. To learn more about these
 %   three methods please see eeg_interp.m of EEGLAB.
+%
+%   DetrendingParams could be either struct() or struct([]) specifying
+%   whether to perfrom detrending or not.
 %
 %   'ORIGINAL_FILE' is necassary only in case of '*.fif' files. In that case,
 %   this should be the address of the file where this EEG data is loaded
@@ -97,6 +100,7 @@ addParameter(p,'InterpolationParams', Defaults.InterpolationParams, @isstruct);
 addParameter(p,'EOGRegressionParams', Defaults.EOGRegressionParams, @isstruct);
 addParameter(p,'ChannelReductionParams', Defaults.ChannelReductionParams, @isstruct);
 addParameter(p,'Settings', Defaults.Settings, @isstruct);
+addParameter(p,'DetrendingParams', Defaults.DetrendingParams, @isstruct);
 addParameter(p,'ORIGINAL_FILE', Csts.GeneralCsts.ORIGINAL_FILE, @ischar);
 parse(p, varargin{:});
 params = p.Results;
@@ -112,6 +116,7 @@ InterpolationParams = p.Results.InterpolationParams; %#ok<NASGU>
 EOGRegressionParams = p.Results.EOGRegressionParams;
 ChannelReductionParams = p.Results.ChannelReductionParams;
 Settings = p.Results.Settings;
+DetrendingParams = p.Results.DetrendingParams;
 ORIGINAL_FILE = p.Results.ORIGINAL_FILE;
 
 if isempty(Settings)
@@ -241,15 +246,17 @@ if Settings.trackAllSteps
 end
 
 % Detrending
-doubled_data = double(EEG.data);
-res = bsxfun(@minus, doubled_data, mean(doubled_data, 2));
-singled_data = single(res);
-EEG.data = singled_data;
-clear doubled_data res singled_data;
+if ~ isempty(DetrendingParams)
+    doubled_data = double(EEG.data);
+    res = bsxfun(@minus, doubled_data, mean(doubled_data, 2));
+    singled_data = single(res);
+    EEG.data = singled_data;
+    clear doubled_data res singled_data;
 
-if Settings.trackAllSteps
-   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
-   allSteps.EEGdetrended = EEG;
+    if Settings.trackAllSteps
+       allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+       allSteps.EEGdetrended = EEG;
+    end
 end
 
 % Reject channels based on high variance
