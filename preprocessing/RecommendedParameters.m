@@ -65,6 +65,8 @@ classdef RecommendedParameters
                                                   'order', []));
         
         EOGRegressionParams = struct();
+        
+        DetrendingParams = struct();
                         
         ChannelReductionParams = struct('tobeExcludedChans', []);
                                       

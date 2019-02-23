@@ -1291,6 +1291,7 @@ params.InterpolationParams = DefaultParams.InterpolationParams;
 params.EEGSystem = DefaultParams.EEGSystem;
 params.Settings = DefaultParams.Settings;
 params.HighvarParams = DefaultParams.HighvarParams;
+params.DetrendingParams = DefaultParams.DetrendingParams;
 
 % --- Executes on button press in egiradio.
 function egiradio_Callback(hObject, eventdata, handles)

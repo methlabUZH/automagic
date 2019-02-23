@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 25-Jan-2019 13:56:23
+% Last Modified by GUIDE v2.5 23-Feb-2019 10:23:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -374,6 +374,8 @@ set(handles.eogedit, 'String', params.EEGSystem.eogChans);
 contents = cellstr(get(handles.dspopupmenu,'String'));
 index = find(contains(contents, int2str(dsRate)));
 set(handles.dspopupmenu, 'Value', index);
+
+set(handles.detrendcheckbox, 'Value', ~isempty(params.DetrendingParams))
 
 if ~isempty(params.Settings)
     set(handles.savestepscheckbox, 'Value', params.Settings.trackAllSteps);
@@ -822,6 +824,13 @@ idx = get(handles.dspopupmenu, 'Value');
 dsrates = get(handles.dspopupmenu, 'String');
 ds = str2double(dsrates{idx});
 
+if get(handles.detrendcheckbox, 'Value')
+    DetrendingParams = struct();
+else
+    DetrendingParams = struct([]);
+end
+
+
 Settings = params.Settings;
 Settings.trackAllSteps = get(handles.savestepscheckbox, 'Value');
 
@@ -832,6 +841,7 @@ handles.params.FilterParams.low = low;
 handles.params.FilterParams.notch = notch;
 handles.params.CRDParams = CRDParams;
 handles.params.EOGRegressionParams = EOGRegressionParams;
+handles.params.DetrendingParams = DetrendingParams;
 handles.params.EEGSystem = EEGSystem;
 handles.params.Settings = Settings;
 handles.params.PrepParams = PrepParams;
@@ -2631,3 +2641,12 @@ function maraegicheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of maraegicheckbox
+
+
+% --- Executes on button press in detrendcheckbox.
+function detrendcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to detrendcheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of detrendcheckbox

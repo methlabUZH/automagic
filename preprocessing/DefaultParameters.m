@@ -47,6 +47,8 @@ classdef DefaultParameters
         EOGRegressionParams = struct();
                         
         ChannelReductionParams = struct();
+        
+        DetrendingParams = struct();
                                       
         EEGSystem = struct('name', 'Others',...
                            'sys10_20', 0, ...

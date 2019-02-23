@@ -215,6 +215,7 @@ classdef Project < handle
             addParameter(p,'InterpolationParams', defs.InterpolationParams, @isstruct);
             addParameter(p,'EOGRegressionParams', defs.EOGRegressionParams, @isstruct);
             addParameter(p,'ChannelReductionParams', defs.ChannelReductionParams, @isstruct);
+            addParameter(p,'DetrendingParams', defs.DetrendingParams, @isstruct);
             addParameter(p,'Settings', defs.Settings, @isstruct);
             parse(p, params);
             params = p.Results;
