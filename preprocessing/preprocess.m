@@ -279,6 +279,7 @@ for chan_idx = 1:length(removedChans)
                   EEG.data(chan_nb:end,:)];
     EEG.chanlocs = [EEG.chanlocs(1:chan_nb-1), ...
                       EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
+    EEG.nbchan = size(EEG.data,1);
 end
 
 % Put back refrence channel
