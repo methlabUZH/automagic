@@ -176,7 +176,8 @@ if ~isempty(params.MARAParams)
     
     if isfield(params.MARAParams, 'chanlocMap') && ...
             isempty(params.MARAParams.chanlocMap)
-        set(handles.largemapcheckbox, 'Value', 1)
+%         set(handles.largemapcheckbox, 'Value', 1)
+        set(handles.largemapcheckbox, 'Value', 0) % Any large map is disabled until further notice
     else
         set(handles.largemapcheckbox, 'Value', 0)
     end
@@ -200,7 +201,6 @@ if ~isempty(params.MARAParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
-    set(handles.largemapcheckbox, 'Value', 0)
     set(handles.largemapcheckbox, 'Value', 0)
     if isempty(params.ICLabelParams)
         set(handles.icahighpasscheckbox, 'Value', 0)
