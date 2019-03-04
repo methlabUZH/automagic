@@ -173,13 +173,12 @@ set(handles.channelthresholdedit, 'String', mat2str(CalcQualityParams.chanThresh
 set(handles.icacheckbox, 'Value', ~isempty(params.MARAParams));
 if ~isempty(params.MARAParams)
     set(handles.largemapcheckbox, 'Value', params.MARAParams.largeMap)
-    
     if isfield(params.MARAParams, 'chanlocMap') && ...
             isempty(params.MARAParams.chanlocMap)
-%         set(handles.largemapcheckbox, 'Value', 1)
-        set(handles.largemapcheckbox, 'Value', 0) % Any large map is disabled until further notice
-    else
+        set(handles.maraegicheckbox, 'Value', 1);
         set(handles.largemapcheckbox, 'Value', 0)
+    else
+        set(handles.maraegicheckbox, 'Value', 0);
     end
     
     if ~isempty(params.MARAParams.high)
