@@ -258,9 +258,10 @@ end
 % Special case of Load Project
 if(strcmp(name, handles.CGV.LOAD_PROJECT.LIST_NAME))
     [data_path, state_path] = loadGUI();
-    splt = strsplit(state_path, '/');
-    jne = strjoin(splt(1:end-1), '/');
-    project_path = strcat(jne, '/');
+    slash = filesep;
+    splt = strsplit(state_path, slash);
+    jne = strjoin(splt(1:end-1), slash);
+    project_path = strcat(jne, slash);
     % If user cancelled the process, choose the previous project
     if( isempty(data_path) || isempty(state_path) )
         set(handles.existingpopupmenu,...
