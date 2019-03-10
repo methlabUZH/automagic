@@ -1307,6 +1307,7 @@ if get(handles.egiradio, 'Value')
     new_params = handles.params;
     new_params.EEGSystem = new_pars;
     handles = setEEGSystem(new_params, handles);
+    handles.params.MARAParams.chanlocMap = containers.Map;
 else
     defs = handles.CGV.DefaultParams;
     new_pars = defs.EEGSystem;
@@ -1316,6 +1317,7 @@ else
     new_params = handles.params;
     new_params.EEGSystem = new_pars;
     handles = setEEGSystem(new_params, handles);
+    handles.params.MARAParams = rmfield(handles.params.MARAParams, 'chanlocMap');
 end
 
 % Update handles structure
