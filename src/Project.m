@@ -1023,7 +1023,11 @@ classdef Project < handle
                     bidsStruct.PowerLineFrequency = autStruct.params.EEGSystem.powerLineFreq;
                     bidsStruct.SamplingFrequency = autStruct.SamplingFrequency;
                     bidsStruct.RecordingDuration = autStruct.RecordingDuration;
-                    bidsStruct.RemoveDCOffset = 'Yes';
+                    if ~ isempty(DetrendingParams)
+                        bidsStruct.Detrending = 'Constant';
+                    else
+                        bidsStruct.Detrending = 'No Detrending';
+                    end
                     bidsStruct.EEGReference = autStruct.EEGReference;
                     bidsStruct.ExcludedChannels = autStruct.channelReduction.excludedChannels;
                     bidsStruct.EEGChannels = autStruct.channelReduction.usedEEGChannels;
