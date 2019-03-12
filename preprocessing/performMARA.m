@@ -27,6 +27,8 @@ function EEGClean = performMARA(EEG, varargin)
 %   applied. For more information please see processMARA. An example of
 %   such a map is given in systemDependentParse.m where a containers.Map is
 %   created for the MARAParams.chanlocMap in the case of EGI systems.
+%   Sometimes this field may be ignored, but here then it get replaced with
+%   a new empty mapping.
 %   
 %   params.high is a structure indicating the high pass frequency
 %   (params.high.freq) and order (params.high.order) of the high pass
@@ -55,7 +57,14 @@ function EEGClean = performMARA(EEG, varargin)
 
 defaults = DefaultParameters.MARAParams;
 CSTS = PreprocessingConstants.MARACsts;
-
+% chanlocMap could be inexistant. This might be necessary so that in the
+% SystemDependentParse.m the default mapping is not assigned. But here it
+% does not matter if it is existent or not as nothing will happen depending
+% on this. Existence and non existence of this field is only necessary for
+% the above mentioned function.
+if ~isfield(defaults, 'chanlocMap')
+    defaults.chanlocMap = RecommendedParameters.MARAParams.chanlocMap;
+end
 %% Parse and check parameters
 p = inputParser;
 validate_param = @(x) isa(x, 'containers.Map');

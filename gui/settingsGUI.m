@@ -397,7 +397,7 @@ if get(handles.icacheckbox, 'Value')
     MARAParams.largeMap = get(handles.largemapcheckbox, 'Value');
     
     if get(handles.maraegicheckbox, 'Value')
-        MARAParams.chanlocMap = [];
+        MARAParams.chanlocMap = containers.Map;
     else
         if isfield(MARAParams, 'chanlocMap')
             MARAParams = rmfield(MARAParams, 'chanlocMap');
