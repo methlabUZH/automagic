@@ -26,5 +26,5 @@ Please note that if you would like to have the latest features developed in **Au
 For a comprehensive explanation on how to start and use **Automagic** please see the [wiki](https://github.com/methlabUZH/automagic/wiki) page.
 
 ## Contact us
-You can find us [here](http://www.psychologie.uzh.ch/de/fachrichtungen/plafor.html).
+You can find us [here](https://www.psychology.uzh.ch/en/areas/nec/plafor.html).
 If you have any questions, feedbacks please email us at methlabuzh [at] gmail [dot] com
