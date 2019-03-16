@@ -32,7 +32,7 @@ classdef ConstantGlobalValues
         
         LOAD_PROJECT = struct('LIST_NAME', 'Load an existing project...');
         
-        PREFIX_PATTERN = '^[gobni]i?p_';
+        PREFIX_PATTERN = '^[gobni]+i?p_';
         
         RATINGS = struct('Good',        'Good', ...
                          'Bad',          'Bad', ...

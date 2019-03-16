@@ -139,6 +139,8 @@ classdef Block < handle
         %   at least once
         prefix
         
+        commitedPrefix
+        
         % List of the channels chosen by the user in the gui to be 
         % interpolated.
         tobeInterpolated
@@ -272,7 +274,7 @@ classdef Block < handle
                 relAdd = splits{1};
             end
             
-            pattern = '^[gobni]i?p_';
+            pattern = '^[gobni]+i?p_';
             fileData = dir(strcat(self.subject.resultFolder, slash, relAdd));                                        
             fileNames = {fileData.name};  
             idx = regexp(fileNames, strcat(pattern, self.fileName, '.mat')); 
@@ -379,6 +381,10 @@ classdef Block < handle
             
             % Update the result address and rename if necessary
             self = self.updatePrefixAndResultAddress();
+            
+            if isfield(updates, 'commit') && updates.commit == 1
+               self.commitedPrefix = self.prefix;
+            end
             
             % Update the rating list structure of the project
             self.project.updateRatingLists(self);
@@ -917,7 +923,12 @@ classdef Block < handle
                 i = '';
             end
             r = lower(self.rate(1));
-            self.prefix = strcat(r, i, p);
+            if isempty(self.commitedPrefix)
+                self.prefix = strcat(r, i, p);
+            else
+                self.prefix = strcat(r, self.commitedPrefix(1:end-1), i, p);
+            end
+            
         end
 
         function self = updatePrefixAndResultAddress(self)
@@ -987,7 +998,7 @@ classdef Block < handle
                 resultAddress, dsRate)
             % Return the address of the reduced file
             
-            pattern = '[gobni]i?p_';
+            pattern = '[gobni]+i?p_';
             reducedAddress = regexprep(resultAddress,pattern,...
                 strcat('reduced', int2str(dsRate), '_'));
         end
@@ -1024,7 +1035,7 @@ classdef Block < handle
             
             % If the length is 3, there must be an "i" in it, which
             % indicates it's already been rated and interpolated.
-            if(length(prefix) == 3)
+            if(length(prefix) >= 3)
                 return;
             end
             
@@ -1063,7 +1074,7 @@ classdef Block < handle
         function bool = isValidPrefix(prefix)
             % Return true if the prefix respects the standard pattern
             
-            pattern = '^[gobni]i?p$';
+            pattern = '^[gobni]+i?p$';
             reg = regexp(prefix, pattern, 'match');
             bool = ~ isempty(reg) || strcmp(prefix, '');
         end
