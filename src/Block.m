@@ -226,7 +226,8 @@ classdef Block < handle
                 self.potentialResultAddress());
             
             % If the prefix indicates that the block has been already rated
-            if(self.hasInformation(extractedPrefix))
+            if(self.hasInformation(extractedPrefix) && ...
+                    exist(self.potentialResultAddress(), 'file'))
                 preprocessed = matfile(self.potentialResultAddress());
                 automagic = preprocessed.automagic;
                 self.rate = automagic.rate;
@@ -1029,7 +1030,7 @@ classdef Block < handle
             
             switch Block.getRateFromPrefix(prefix)
                 case ConstantGlobalValues.RATINGS.NotRated
-                    bool = false;
+                    bool = true;
                 case ''
                     bool = false;
             end
