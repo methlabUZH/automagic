@@ -139,7 +139,12 @@ classdef Block < handle
         %   at least once
         prefix
         
-        commitedPrefix
+        % Number of times commit button has been applied on this block. The
+        % initial number is -1. Everytime the block is preprocessed then
+        % this number is set to the initial -1 and commited immediately and
+        % thus it becomes 0. After preprocessing everytime the commit
+        % button is clicke then it increments by 1.
+        commitedNb
         
         % List of the channels chosen by the user in the gui to be 
         % interpolated.
@@ -234,12 +239,12 @@ classdef Block < handle
                 automagic = preprocessed.automagic;
                 self.rate = automagic.rate;
                 self.tobeInterpolated = automagic.tobeInterpolated;
-                self.isInterpolated = (length(extractedPrefix) == 3);
+                self.isInterpolated = automagic.isInterpolated;
                 self.autoBadChans = automagic.autoBadChans;
                 self.finalBadChans = automagic.finalBadChans;
                 self.qualityScores = automagic.qualityScores;
                 self.isManuallyRated = automagic.isManuallyRated;
-                
+                self.commitedNb = automagic.commitedNb;
                 if automagic.version ~= self.CGV.VERSION
                     warning(['Version of Automagic is not the same as the' ...
                         ' one which produced this result file.'])
@@ -252,10 +257,11 @@ classdef Block < handle
                 self.isInterpolated = false;
                 self.qualityScores = nan;
                 self.isManuallyRated = 0;
+                self.commitedNb = -1;
             end
             
             % Build prefix and adress based on ratings
-            self = self.updatePrefixAndResultAddress();
+            self = self.updateResultAddress();
         end
         
         function resultAddress = potentialResultAddress(self)
@@ -319,7 +325,7 @@ classdef Block < handle
             if ~exist(self.resultFolder, 'dir')
                 mkdir(self.resultFolder);
             end
-            self = self.updatePrefixAndResultAddress();
+            self = self.updateResultAddress();
         end
         
         function self = setRatingInfoAndUpdate(self, updates)
@@ -379,11 +385,11 @@ classdef Block < handle
                 self.isInterpolated = updates.isInterpolated;
             end
             
-            % Update the result address and rename if necessary
-            self = self.updatePrefixAndResultAddress();
-            
             if isfield(updates, 'commit') && updates.commit == 1
-               self.commitedPrefix = self.prefix;
+               % Update the result address and rename if necessary
+               self.commitedNb = self.commitedNb + 1;
+               self = self.updatePrefix();
+               self = self.updateResultAddress();
             end
             
             % Update the rating list structure of the project
@@ -432,12 +438,13 @@ classdef Block < handle
             qScoreIdx.MAV = arrayfun(@(x) ceil(length(x.MAV)/2), qScore);
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
-            
+            self.commitedNb = -1;
             self.setRatingInfoAndUpdate(struct('rate', self.CGV.RATINGS.NotRated, ...
                 'isManuallyRated', 0, ...
                 'tobeInterpolated', EEG.automagic.autoBadChans, ...
                 'finalBadChans', [], 'isInterpolated', false, ...
-                'qualityScores', qScore));
+                'qualityScores', qScore, ...
+                'commit', 1));
             
             
             automagic = EEG.automagic;
@@ -452,6 +459,7 @@ classdef Block < handle
             automagic.selectedQualityScore = self.getCurrentQualityScore();
             automagic.rate = self.rate;
             automagic.isManuallyRated = self.isManuallyRated;
+            automagic.commitedNb = self.commitedNb;
             
             automagic.EEGChannelCount = size(EEG.data,1);
             automagic.SamplingFrequency = EEG.srate;
@@ -555,6 +563,7 @@ classdef Block < handle
             automagic.isManuallyRated = self.isManuallyRated;
             automagic.qualityScores = self.qualityScores;
             automagic.selectedQualityScore = self.getCurrentQualityScore();
+            automagic.commitedNb = self.commitedNb;
             
             % It keeps track of the history of all interpolations.
             automagic.finalBadChans = self.finalBadChans;
@@ -923,20 +932,23 @@ classdef Block < handle
                 i = '';
             end
             r = lower(self.rate(1));
-            if isempty(self.commitedPrefix)
+            if isempty(self.prefix) || self.commitedNb == 0 || ...
+                    self.commitedNb == 1
                 self.prefix = strcat(r, i, p);
             else
-                self.prefix = strcat(r, self.commitedPrefix(1:end-1), i, p);
+                self.prefix = strcat(r, self.prefix(1:end-1), i, p);
             end
             
         end
 
-        function self = updatePrefixAndResultAddress(self)
-            % Update prefix and thus addresses based on the rating
+        % TODO 20.03.2019: Is this even necessary now that we don't
+        % updatePredix inside it anymore?
+        function self = updateResultAddress(self)
+            % Update addresses based on the rating
             % information. This must be called once rating info are set. 
             % Then the address and prefix are set based on rating info.
             slash = filesep;
-            self = self.updatePrefix();
+%             self = self.updatePrefix();
             
             if ispc
                 splits = strsplit(self.sourceAddress, [slash slash self.subject.name slash]);
