@@ -1023,7 +1023,7 @@ classdef Project < handle
                     bidsStruct.PowerLineFrequency = autStruct.params.EEGSystem.powerLineFreq;
                     bidsStruct.SamplingFrequency = autStruct.SamplingFrequency;
                     bidsStruct.RecordingDuration = autStruct.RecordingDuration;
-                    if ~ isempty(DetrendingParams)
+                    if ~ isempty(autStruct.params.DetrendingParams)
                         bidsStruct.Detrending = 'Constant';
                     else
                         bidsStruct.Detrending = 'No Detrending';
