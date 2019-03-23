@@ -899,6 +899,9 @@ classdef Project < handle
                 if (applyToManuallyRated || ~ block.isManuallyRated)
                     block.setRatingInfoAndUpdate(struct('rate', newRate{:}, 'isManuallyRated', 0, 'commit', 1));
                     block.saveRatingsToFile();
+                else
+                    block.setRatingInfoAndUpdate(struct('rate', block.rate, 'isManuallyRated', 1, 'commit', 1));
+                    block.saveRatingsToFile();
                 end
             end
             self.qualityCutoffs = cutoffs;

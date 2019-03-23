@@ -219,12 +219,12 @@ set(handle, 'units', 'normalized')
 screen_size = get( groot, 'Screensize' );
 choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
     'Apply on all files',...
-    'Apply on all', 'Do not apply on manually rated files','Do not apply on manually rated files');
+    'Commit quality rating to all files', 'Do not apply quality rating on manually rated files','Do not apply quality rating on manually rated files');
 
 switch choice
-    case 'Apply on all'
+    case 'Commit quality rating to all files'
         apply_to_manually_rated = true;
-    case 'Do not apply on manually rated files'
+    case 'Do not apply quality rating on manually rated files'
         apply_to_manually_rated = false;
     otherwise
         return;
