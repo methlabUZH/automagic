@@ -271,7 +271,7 @@ classdef Project < handle
 
             if( self.current == -1)
                 subject = Subject('','');
-                block = Block(self, subject, '', '');
+                block = Block(self, subject, '', '', self.CGV);
                 block.index = -1;
                 return;
             end
@@ -747,7 +747,7 @@ classdef Project < handle
                         % the rating information from the existing files, 
                         % if any.
                         try
-                            block = Block(self, subject, fileName, filePath);
+                            block = Block(self, subject, fileName, filePath, self.CGV);
                         catch ME
                             if ~contains(ME.identifier, 'Automagic')
                                rethrow(ME); 
@@ -1369,7 +1369,7 @@ classdef Project < handle
                     % Block creation extracts and updates automatically 
                     % the rating information from the existing files, if any.
                     try
-                        block = Block(self, subject, fileName, filePath);
+                        block = Block(self, subject, fileName, filePath, self.CGV);
                     catch ME
                         if ~contains(ME.identifier, 'Automagic')
                                rethrow(ME); 

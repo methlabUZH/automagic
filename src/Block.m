@@ -181,9 +181,9 @@ classdef Block < handle
     
     %% Constructor
     methods   
-        function self = Block(project, subject, fileName, address)
+        function self = Block(project, subject, fileName, address, CGV)
   
-            self.CGV = ConstantGlobalValues();
+            self.CGV = CGV;
             
             self.project = project;
             self.subject = subject;
