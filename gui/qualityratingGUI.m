@@ -219,12 +219,12 @@ set(handle, 'units', 'normalized')
 screen_size = get( groot, 'Screensize' );
 choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
     'Apply on all files',...
-    'Commit quality rating to all files', 'Do not apply quality rating on manually rated files','Do not apply quality rating on manually rated files');
+    'Commit quality rating to all files', 'Commit and incorporate manual ratings','Commit and incorporate manual ratings');
 
 switch choice
     case 'Commit quality rating to all files'
         apply_to_manually_rated = true;
-    case 'Do not apply quality rating on manually rated files'
+    case 'Commit and incorporate manual ratings'
         apply_to_manually_rated = false;
     otherwise
         return;
@@ -242,6 +242,30 @@ function commitbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to commitbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+project = handles.project;
+
+if project.committed
+    question = 'There are already commited files in this project. Are you sure you want to commit again? This is not a good research practice.';
+    handle = findobj(allchild(0), 'flat', 'Tag', 'qualityrating');
+    set(handle, 'units', 'pixels')
+    main_pos = get(handle,'position');
+    set(handle, 'units', 'normalized')
+    screen_size = get( groot, 'Screensize' );
+    choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
+        'The project has been already commited',...
+        'Continue committing...', 'Do not commit','Do not commit');
+
+    switch choice
+        case 'Continue committing...'
+        case 'Do not commit'
+            return;
+        otherwise
+            return;
+    end
+end
+
 cutoffs = get_gui_values(handles);
 ret_val = apply_to_all(handles, cutoffs);
 if ~ isempty(ret_val)
