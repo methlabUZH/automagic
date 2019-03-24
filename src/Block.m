@@ -143,7 +143,7 @@ classdef Block < handle
         % initial number is -1. Everytime the block is preprocessed then
         % this number is set to the initial -1 and commited immediately and
         % thus it becomes 0. After preprocessing everytime the commit
-        % button is clicke then it increments by 1.
+        % button is clicked then it increments by 1.
         commitedNb
         
         % List of the channels chosen by the user in the gui to be 

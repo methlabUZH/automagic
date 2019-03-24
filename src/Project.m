@@ -167,6 +167,11 @@ classdef Project < handle
         % default it's in the resultFolder and is called project_state.mat.
         stateAddress
         
+        % A boolean determinning if this project has been already
+        % commmited. Once the commit button is clicked this will be set to
+        % 1. Otherwise it is initialised to 0.
+        committed
+        
     end
     
     properties(SetAccess=private, GetAccess=private)
@@ -243,6 +248,7 @@ classdef Project < handle
             self.qualityCutoffs = vParams.RateQualityParams;
             self.colorScale = vParams.COLOR_SCALE;
             
+            self.committed = false;
             if ~ isempty(varargin{:})
                 self.sRate = varargin{1};
             else
@@ -890,6 +896,7 @@ classdef Project < handle
             % applyToManuallyRated - boolean indicating whether to apply on
             % all blocks or only those that are not manually rated.
             
+            self.committed = true;
             files = self.processedList;
             blocks = self.blockMap;
             for i = 1:length(files)
