@@ -267,6 +267,7 @@ if ~ exist(project.stateAddress, 'file')
 end
 
 handles.currentProject = find(contains(handles.projectList.keys, name));
+set(handles.filelistbox,'Value',1);
 set(handles.filelistbox, 'String', project.processedList); 
 save_state(handles)
 
