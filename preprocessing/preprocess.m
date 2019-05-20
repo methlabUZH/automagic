@@ -309,8 +309,15 @@ if Settings.trackAllSteps
 end
 
 %% Creating the final figure to save
-plot_FilterParams.high.freq = 1;
-plot_FilterParams.high.order = [];
+if ~isempty(FilterParams.high)
+    plot_FilterParams = FilterParams;
+else
+    disp('No high-pass filter selected. Plotting with 1Hz by default');
+    plot_FilterParams.high.freq = 1;
+    plot_FilterParams.high.order = [];
+end
+% plot_FilterParams.high.freq = 1;
+% plot_FilterParams.high.order = [];
 EEG_filtered_toplot = performFilter(EEGOrig, plot_FilterParams);
 fig1 = figure('visible', 'off');
 set(gcf, 'Color', [1,1,1])
@@ -343,7 +350,11 @@ XTicks = [] ;
 XTicketLabels = [];
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
-title('Filtered EEG data')
+if isempty(FilterParams.high)
+    title('1Hz Filtered EEG data')
+else
+    title('Filtered EEG data')
+end
 colorbar;
 %eeg figure
 subplot(11,1,4:5)
@@ -365,13 +376,19 @@ set(gca,'XTickLabel', XTicketLabels)
 title('Detected bad channels')
 colorbar;
 % figure;
-subplot(11,1,6:7)
+eogRegress_subplot=subplot(11,1,6:7);
 imagesc(EEG_regressed.data);
 colormap jet
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
-title('EOG regressed out');
+if strcmp(EEG_regressed.automagic.EOGRegression.performed,'no')
+            title_text = '\color{red}No EOG-Regression requested';
+            cla(eogRegress_subplot)
+else
+    title_text = 'EOG regressed out';
+end
+title(title_text);
 colorbar;
 %figure;
 ica_subplot = subplot(11,1,8:9);
