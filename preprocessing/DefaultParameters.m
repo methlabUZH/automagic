@@ -47,7 +47,7 @@ classdef DefaultParameters
                         
         ChannelReductionParams = struct();
         
-        DetrendingParams = struct();
+        DetrendingParams = struct([]);
                                       
         EEGSystem = struct('name', 'Others',...
                            'sys10_20', 0, ...
