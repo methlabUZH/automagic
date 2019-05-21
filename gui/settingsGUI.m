@@ -374,7 +374,7 @@ contents = cellstr(get(handles.dspopupmenu,'String'));
 index = find(contains(contents, int2str(dsRate)));
 set(handles.dspopupmenu, 'Value', index);
 
-set(handles.detrendcheckbox, 'Value', isempty(params.DetrendingParams))
+set(handles.detrendcheckbox, 'Value', ~isempty(params.DetrendingParams))
 
 if ~isempty(params.Settings)
     set(handles.savestepscheckbox, 'Value', params.Settings.trackAllSteps);
