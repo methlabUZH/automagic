@@ -122,7 +122,6 @@ if exist(handles.CGV.stateFile.ADDRESS, 'file')
     if( isfield(state, 'version') && strcmp(state.version, handles.CGV.VERSION))
         handles.projectList = state.project_list;
         handles.currentProject = state.current_project;
-        handles.currentProject = 1;
     else % initialise everything if versioning doesn't correspond
         handles.projectList = containers.Map;
         handles.projectList(handles.CGV.NEW_PROJECT.LIST_NAME) = [];
