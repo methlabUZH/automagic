@@ -313,6 +313,7 @@ if ~isempty(FilterParams.high)
     plot_FilterParams = FilterParams;
 else
     disp('No high-pass filter selected. Plotting with 1Hz by default');
+
     plot_FilterParams.high.freq = 1;
     plot_FilterParams.high.order = [];
 end
@@ -423,6 +424,10 @@ if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParam
     set(gca,'XTickLabel',XTicketLabels)
     title('RPCA noise')
     colorbar;
+end
+
+if isempty(FilterParams.high)
+    annotation('textbox', [0.3, 0.2, 0, 0], 'string', 'No high-pass filter selected. Plotting with 1Hz by default','FitBoxToText','on');
 end
 
 % Pot a seperate figure for only the original filtered data
