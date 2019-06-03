@@ -1,9 +1,9 @@
 function varargout = mainGUI(varargin)
 % MAINGUI MATLAB code for mainGUI.fig
 %      MAINGUI is the main function of Automagic that must be called in
-%      order to start the application. All other functions and guis are 
+%      order to start the application. All other functions and guis are
 %      called from within the MAINGUI.
-%      
+%
 %      No argument is needed to start the application.
 %
 %      MAINGUI, by itself, creates a new MAINGUI or raises the existing
@@ -27,17 +27,17 @@ function varargout = mainGUI(varargin)
 % See also: GUIDE, GUIDATA, GUIHANDLES
 %
 % Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
-% 
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
 % (at your option) any later version.
-% 
+%
 % This program is distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 % GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -116,12 +116,15 @@ varargout{1} = handles.output;
 % project
 function handles = load_state(handles)
 % handles       main handles of this gui
-
 if exist(handles.CGV.stateFile.ADDRESS, 'file')
     load(handles.CGV.stateFile.ADDRESS);
     if( isfield(state, 'version') && strcmp(state.version, handles.CGV.VERSION))
         handles.projectList = state.project_list;
         handles.currentProject = state.current_project;
+        if ~isfield(handles,'history')
+            handles.history = [];
+            handles.currentProject = 1;
+        end
     else % initialise everything if versioning doesn't correspond
         handles.projectList = containers.Map;
         handles.projectList(handles.CGV.NEW_PROJECT.LIST_NAME) = [];
@@ -237,7 +240,7 @@ if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     set(handles.projectname, 'String', handles.CGV.NEW_PROJECT.NAME);
     set(handles.datafoldershow, 'String', handles.CGV.NEW_PROJECT.DATA_FOLDER);
     set(handles.projectfoldershow, 'String', handles.CGV.NEW_PROJECT.FOLDER);
-
+    
     set(handles.subjectnumber, 'String', '')
     set(handles.filenumber, 'String', '')
     set(handles.preprocessednumber, 'String', '')
@@ -316,7 +319,7 @@ if ~ exist(project.stateAddress, 'file')
     if(  ~ exist(project.resultFolder, 'dir') )
         % This can happen when data is on a server and connecton is lost
         popup_msg(['The project folder is unreachable or deleted. ' ...
-                        project.resultFolder], 'Error');
+            project.resultFolder], 'Error');
         
         set(handles.projectname, 'String', name);
         set(handles.datafoldershow, 'String', '');
@@ -432,9 +435,9 @@ set(handles.helprefpushbutton, 'visible', mode);
 setEEGSystemVisibility(mode, handles);
 
 % --- Enable or Disable the EEG system related gui components. These are
-% all closely together related. Basically the channel location, eog channel 
-% list and file type edit boxes can not be activated if the EGI radio is 
-% chosen. 
+% all closely together related. Basically the channel location, eog channel
+% list and file type edit boxes can not be activated if the EGI radio is
+% chosen.
 % This function is supposed to be called from the switch_gui function.
 function setEEGSystemVisibility(mode, handles)
 % handles    main handles of the gui
@@ -508,7 +511,7 @@ nBlock = 0;
 if isempty(ext)
     % Change the cursor to normal
     set(handles.mainGUI, 'pointer', 'arrow')
-   return; 
+    return;
 end
 
 if isBIDS
@@ -541,7 +544,7 @@ if isBIDS
             raw_files = raw_files(idx);
             nBlock = nBlock + length(raw_files);
         end
-    
+        
     end
 else
     if ~ isempty(ext)
@@ -554,7 +557,7 @@ else
         end
     end
 end
-                
+
 
 % Change the cursor to normal
 set(handles.mainGUI, 'pointer', 'arrow')
@@ -805,12 +808,12 @@ if(any(strcmp(ext, {handles.CGV.EXTENSIONS.text})) && isempty(sRate))
         'Error');
     return;
 end
-    
+
 
 % Get reduce checkbox
 if get(handles.excludecheckbox, 'Value')
-   handles.params.ChannelReductionParams = struct();
-
+    handles.params.ChannelReductionParams = struct();
+    
     handles.params.ChannelReductionParams.tobeExcludedChans = ...
         str2num(get(handles.excludeedit, 'String'));
 else
@@ -829,26 +832,26 @@ end
 % Get the EEG system
 EEGSystem = handles.params.EEGSystem;
 if ~ get(handles.egiradio, 'Value')
-   PrepCsts = CGV.PreprocessingCsts;
-   EEGSystem.name = PrepCsts.EEGSystemCsts.OTHERS_NAME;
-   EEGSystem.locFile = get(handles.chanlocedit, 'String');
-   EEGSystem.fileLocType = get(handles.loctypeedit, 'String');
-   if get(handles.nonscalpradio, 'Value')
-       EEGSystem.refChan = struct([]);
-   elseif get(handles.hasreferenceradio, 'Value')
-       EEGSystem.refChan = struct();
-       EEGSystem.refChan.idx = str2num(get(handles.hasreferenceedit, 'String'));
-   else
-       EEGSystem.refChan = struct();
-       EEGSystem.refChan.idx = [];
-   end
-           
-   if( get(handles.hasreferenceradio, 'Value') && isempty(EEGSystem.refChan.idx))
+    PrepCsts = CGV.PreprocessingCsts;
+    EEGSystem.name = PrepCsts.EEGSystemCsts.OTHERS_NAME;
+    EEGSystem.locFile = get(handles.chanlocedit, 'String');
+    EEGSystem.fileLocType = get(handles.loctypeedit, 'String');
+    if get(handles.nonscalpradio, 'Value')
+        EEGSystem.refChan = struct([]);
+    elseif get(handles.hasreferenceradio, 'Value')
+        EEGSystem.refChan = struct();
+        EEGSystem.refChan.idx = str2num(get(handles.hasreferenceedit, 'String'));
+    else
+        EEGSystem.refChan = struct();
+        EEGSystem.refChan.idx = [];
+    end
+    
+    if( get(handles.hasreferenceradio, 'Value') && isempty(EEGSystem.refChan.idx))
         popup_msg('Please choose the index of the reference channel',...
             'Error');
         return;
-   end
-   
+    end
+    
     locFile = EEGSystem.locFile;
     locType = EEGSystem.fileLocType;
     if( ~isempty(locFile) && isempty(locType))
@@ -865,8 +868,8 @@ if ~ get(handles.egiradio, 'Value')
             EEGSystem.fileLocType = locType(2:end);
         end
     end
-
-   handles.params.EEGSystem = EEGSystem;
+    
+    handles.params.EEGSystem = EEGSystem;
 end
 handles.params.EEGSystem.sys10_20 = get(handles.checkbox1020, 'Value');
 
@@ -1148,7 +1151,7 @@ ext = get(handles.extedit, 'String');
 %     set(handles.srateedit, 'String', '')
 % end
 
-if( strcmp(get(handles.datafoldershow, 'String'), ... 
+if( strcmp(get(handles.datafoldershow, 'String'), ...
         handles.CGV.NEW_PROJECT.DATA_FOLDER))
     return
 end
@@ -1228,14 +1231,16 @@ switch EEGSystem.name
         set(handles.hasreferenceedit, 'enable', 'off')
         set(handles.nonscalpradio, 'enable', 'off')
         set(handles.srateedit, 'enable', 'off')
+        set(handles.excludecheckbox, 'Value',0)
         handles.params.ChannelReductionParams = struct();
     case 'Others'
         set(handles.egiradio, 'Value', 0);
         set(handles.chanlocedit, 'enable', 'on');
         set(handles.chanlocedit, 'String', EEGSystem.locFile);
         if(get(handles.excludecheckbox, 'Value'))
-           set(handles.excludeedit, 'enable', 'on'); 
+            set(handles.excludeedit, 'enable', 'on');
         end
+        set(handles.excludeedit, 'enable', 'off');
         set(handles.loctypeedit, 'enable', 'on');
         set(handles.loctypeedit, 'String', EEGSystem.fileLocType);
         if isfield(ChannelReductionParams, 'tobeExcludedChans')
@@ -1261,7 +1266,7 @@ switch EEGSystem.name
             set(handles.hasreferenceradio, 'value', 1)
             set(handles.nonscalpradio, 'value',0)
             set(handles.hasreferenceedit, 'String', ...
-            num2str(EEGSystem.refChan.idx))
+                num2str(EEGSystem.refChan.idx))
         end
         
         set(handles.newreferenceradio, 'enable', 'on')
@@ -1378,7 +1383,7 @@ function choosechannelloc_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 [x, y] = uigetfile('*');
-if ischar(x) && ischar(y) 
+if ischar(x) && ischar(y)
     full_address = strcat(y, x);
     if(full_address ~= 0)
         set(handles.chanlocedit, 'String', full_address)
@@ -1417,10 +1422,10 @@ function excludecheckbox_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of excludecheckbox
 if( ~ get(handles.egiradio, 'Value'))
     if( get(handles.excludecheckbox, 'Value'))
-           set(handles.excludeedit, 'enable', 'on');
+        set(handles.excludeedit, 'enable', 'on');
     else
-           set(handles.excludeedit, 'enable', 'off');
-           set(handles.excludeedit, 'String', '');
+        set(handles.excludeedit, 'enable', 'off');
+        set(handles.excludeedit, 'String', '');
     end
 end
 
@@ -1524,7 +1529,7 @@ function bidspushbutton_Callback(hObject, eventdata, handles)
 [rootFolder, makeRaw, makeDerivatives] = BIDSinputGUI();
 
 if isempty(rootFolder)
-   return; 
+    return;
 end
 idx = get(handles.existingpopupmenu, 'Value');
 projects = get(handles.existingpopupmenu, 'String');
