@@ -961,7 +961,7 @@ classdef Block < handle
             % information. This must be called once rating info are set. 
             % Then the address and prefix are set based on rating info.
             slash = filesep;
-            self = self.updatePrefix();
+%             self = self.updatePrefix();
             
             if ispc
                 splits = strsplit(self.sourceAddress, [slash slash self.subject.name slash]);
