@@ -368,7 +368,7 @@ index = find(not(cellfun('isempty', IndexC)));
 set(handles.interpolationpopupmenu, 'Value', index);
 
 set(handles.eogcheckbox, 'Value', ~isempty(params.EOGRegressionParams))
-set(handles.eogedit, 'String', params.EEGSystem.eogChans);
+set(handles.eogedit, 'String', num2str(params.EEGSystem.eogChans));
 
 contents = cellstr(get(handles.dspopupmenu,'String'));
 index = find(contains(contents, int2str(dsRate)));
