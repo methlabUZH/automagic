@@ -1231,7 +1231,7 @@ switch EEGSystem.name
         set(handles.hasreferenceedit, 'enable', 'off')
         set(handles.nonscalpradio, 'enable', 'off')
         set(handles.srateedit, 'enable', 'off')
-        set(handles.excludecheckbox, 'Value',0)
+%         set(handles.excludecheckbox, 'Value',0)
         handles.params.ChannelReductionParams = struct();
     case 'Others'
         set(handles.egiradio, 'Value', 0);
