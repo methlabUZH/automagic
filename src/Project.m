@@ -1525,10 +1525,11 @@ classdef Project < handle
                 fileID = fopen(logFileAddress,'a');
             else
                 fileID = fopen(logFileAddress,'w');
-            endname = find('\'== sourceAddress);
-            name = name(end);
-            name = sourceAddress(name+1:end);
-            fprintf(fileID, [datestr(datetime('now')) ' The data file ' name ...
+            end
+            subjectFileName = find('\'== sourceAddress);
+            subjectFileName = subjectFileName(end);
+            subjectFileName = sourceAddress(subjectFileName+1:end);
+            fprintf(fileID, [datestr(datetime('now')) ' The data file ' subjectFileName ...
                 ' could not be preprocessed:' msg '\n']);
             fclose(fileID);
         end
