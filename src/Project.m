@@ -461,6 +461,11 @@ classdef Project < handle
                    continue; 
                 end
                 
+                if (isfield(automagic,'badChanError'))
+                    message = automagic.badChanError;
+                    self.writeToLog(block.sourceAddress, message);
+                end
+
                 if( self.current == -1)
                     self.current = 1; 
                 end
