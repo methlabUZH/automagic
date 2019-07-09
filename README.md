@@ -28,7 +28,9 @@ For a comprehensive explanation on how to start and use **Automagic** please see
 ## 4. References
 The Automagic paper is published now in [Neuroimage](https://www.sciencedirect.com/science/article/pii/S1053811919305439?via%3Dihub) or
 as preprint in [bioRxiv](https://www.biorxiv.org/content/10.1101/460469v3).  
-Please use the following citation if you use Automagic:  
+Please use the following citation if you use Automagic: 
+  
+  
 *Pedroni, A., Bahreini, A., & Langer, N. (2019). Automagic: Standardized preprocessing of big EEG data. Neuroimage. doi: 10.1016/j.neuroimage.2019.06.046*
 
 
