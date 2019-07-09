@@ -26,8 +26,13 @@ Please note that if you would like to have the latest features developed in **Au
 For a comprehensive explanation on how to start and use **Automagic** please see the [wiki](https://github.com/methlabUZH/automagic/wiki) page.
 
 ## 4. References
-The Automagic paper is published now in Neuroimage. Please use the following citation if you use Automagic:
-Pedroni, A., Bahreini, A., & Langer, N. (2019). Automagic: Standardized preprocessing of big EEG data. [Neuroimage](https://www.sciencedirect.com/science/article/pii/S1053811919305439?via%3Dihub). doi: 10.1016/j.neuroimage.2019.06.046 or as preprint in [bioRxiv](https://www.biorxiv.org/content/10.1101/460469v3)
+The Automagic paper is published now in [Neuroimage](https://www.sciencedirect.com/science/article/pii/S1053811919305439?via%3Dihub) or
+as preprint in [bioRxiv](https://www.biorxiv.org/content/10.1101/460469v3).  
+  
+Please use the following citation if you use Automagic: 
+  
+  
+*Pedroni, A., Bahreini, A., & Langer, N. (2019). Automagic: Standardized preprocessing of big EEG data. Neuroimage. doi: 10.1016/j.neuroimage.2019.06.046*
 
 ## Contact us
 You can find us [here](https://www.psychology.uzh.ch/en/areas/nec/plafor.html).
