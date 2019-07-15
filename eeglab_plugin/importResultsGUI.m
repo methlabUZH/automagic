@@ -99,7 +99,7 @@ end
 k = handles.projectList.keys;
 v = handles.projectList.values;
 nameList = k(2:end);
-for i = 1:handles.projectList.Count
+for i = 2:handles.projectList.Count
     if( ~ strcmp(k(i), handles.CGV.NEW_PROJECT.LIST_NAME) && ...
             ~ strcmp(k(i), handles.CGV.LOAD_PROJECT.LIST_NAME) )
         name = k{i};

@@ -34,10 +34,6 @@ Please use the following citation if you use Automagic:
   
 *Pedroni, A., Bahreini, A., & Langer, N. (2019). Automagic: Standardized preprocessing of big EEG data. Neuroimage. doi: 10.1016/j.neuroimage.2019.06.046*
 
-
-
-
-
 ## Contact us
 You can find us [here](https://www.psychology.uzh.ch/en/areas/nec/plafor.html).
 If you have any questions, feedbacks please email us at methlabuzh [at] gmail [dot] com

@@ -174,6 +174,12 @@ if Settings.trackAllSteps && ~isempty(CRDParams)
    allSteps.EEGcrd = EEG;
 end
 
+if (length(EEG.automagic.crd.badChans) == length(EEG.automagic.channelReduction.usedEEGChannels))
+    message = 'All non-excluded channels identified as bad channels. Interpolation will not be possible';
+    warning(message)
+    EEG.automagic.badChanError = message;
+end
+
 % Filtering on the whole dataset
 display(PreprocessingConstants.FilterCsts.RUN_MESSAGE);
 EEG = performFilter(EEG, FilterParams);
