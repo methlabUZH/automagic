@@ -360,8 +360,7 @@ else
     EEGSystem = defs.EEGSystem;
 end
 
-if ~ isempty(project.params) && isfield(project.params, 'ChannelReductionParams') && ...
-        ~ isempty(project.params.ChannelReductionParams)
+if ~ isempty(project.params) && isfield(project.params, 'ChannelReductionParams')
     ChannelReductionParams = project.params.ChannelReductionParams;
 else
     defs = handles.CGV.DefaultParams;
@@ -1203,8 +1202,7 @@ else
     end
 end
 
-if ~ isempty(params) && isfield(params, 'ChannelReductionParams') && ...
-        ~ isempty(params.ChannelReductionParams)
+if ~ isempty(params) && isfield(params, 'ChannelReductionParams')
     ChannelReductionParams = params.ChannelReductionParams;
 else
     defs = handles.CGV.DefaultParams;
