@@ -1017,7 +1017,8 @@ classdef Project < handle
                 newJSONFile = [newResSubAdd fileName '_automagic_eeg.json'];
                 newlogFile = [newResSubAdd fileName '_log.txt'];
                 newRawFile = [newRawSubAdd fileName]; %#ok<NASGU>
-                
+                datasetDescriptionFile = [raw_fol 'dataset_description.json'];
+
                 if makeRaw
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
                     [~, ~] = evalc('pop_writebva(EEG, newRawFile)');
@@ -1184,7 +1185,20 @@ classdef Project < handle
                     bidsStruct.QualityRating.ManuallyRated = autStruct.isManuallyRated;
                     
                     jsonwrite(newJSONFile, bidsStruct, struct('indent','  '));
+                                        
+                    dataset_description.Name = [''];
+                    dataset_description.BIDSVersion = [''];
+                    dataset_description.License = [''];
+                    dataset_description.Authors = [''];
+                    dataset_description.Acknowledgements = [''];
+                    dataset_description.HowToAcknowledge = [''];
+                    dataset_description.Funding = [''];
+                    dataset_description.ReferencesAndLinks = [''];
+                    dataset_description.DatasetDOI = [''];
+
+                    jsonwrite(datasetDescriptionFile, dataset_description, struct('indent','  '));
                     
+
                     % log file
                     logFile = [block.subject.resultFolder slash block.fileName '_log.txt'];
                      copyfile(logFile, newlogFile);
