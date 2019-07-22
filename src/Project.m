@@ -1187,7 +1187,7 @@ classdef Project < handle
                     jsonwrite(newJSONFile, bidsStruct, struct('indent','  '));
                                         
                     dataset_description.Name = [''];
-                    dataset_description.BIDSVersion = [''];
+                    dataset_description.BIDSVersion = ['1.2.0'];
                     dataset_description.License = [''];
                     dataset_description.Authors = [''];
                     dataset_description.Acknowledgements = [''];
