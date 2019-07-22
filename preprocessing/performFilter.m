@@ -95,7 +95,7 @@ EEG.automagic.filtering.performed = 'no';
 if( ~isempty(high) || ~isempty(low) || ~isempty(notch))
     EEG.automagic.filtering.performed = 'yes';
     if( ~isempty(high) )
-        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+        [FilterInfo, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
         EEG.automagic.filtering.highpass.performed = 'yes';
         EEG.automagic.filtering.highpass.freq = high.freq;
         EEG.automagic.filtering.highpass.order = length(b)-1; 
