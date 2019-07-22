@@ -1222,6 +1222,8 @@ classdef Project < handle
             
             params = self.params; 
             vParams = self.vParams;
+            params.samplingrate = block.sRate;
+            
             if ~ exist(code_fol, 'dir')
                     mkdir(code_fol);
             end
