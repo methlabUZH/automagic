@@ -797,7 +797,6 @@ classdef Block < handle
                     automagic.highVarianceRejection.sd));
                 fprintf(fileID, '\n');
             end
-            save 'self.mat' 'self'
             committedOHAThresh = automagic.qualityThresholds.overallThresh(find(automagic.qualityScores.OHA==automagic.selectedQualityScore.OHA));
             committedTHVThresh = automagic.qualityThresholds.timeThresh(find(automagic.qualityScores.THV==automagic.selectedQualityScore.THV));
             committedCHVThresh = automagic.qualityThresholds.chanThresh(find(automagic.qualityScores.CHV==automagic.selectedQualityScore.CHV));
