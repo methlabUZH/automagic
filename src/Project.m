@@ -1021,11 +1021,13 @@ classdef Project < handle
                     mkdir(newRawSubAdd);
                 end
                 
-                newResFile = [newResSubAdd fileName '_' block.prefix '_eeg.mat'];
-                newJSONFile = [newResSubAdd fileName '_automagic_eeg.json'];
-                newlogFile = [newResSubAdd fileName '_log.txt'];
-                newRawFile = [newRawSubAdd fileName]; %#ok<NASGU>
-                
+                newResFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_' block.prefix '_eeg.mat'];
+                newJSONFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_automagic_eeg.json'];
+                newlogFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_log.txt'];
+                newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName]; %#ok<NASGU>
+                datasetDescriptionFile_raw = [raw_fol 'dataset_description.json'];
+                datasetDescriptionFile_deriv = [automagic_fol 'dataset_description.json'];
+
                 if makeRaw
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
                     [~, ~] = evalc('pop_writebva(EEG, newRawFile)');
@@ -1192,7 +1194,22 @@ classdef Project < handle
                     bidsStruct.QualityRating.ManuallyRated = autStruct.isManuallyRated;
                     
                     jsonwrite(newJSONFile, bidsStruct, struct('indent','  '));
-                    
+                                        
+                    dataset_description.Name = [''];
+                    dataset_description.BIDSVersion = ['1.2.0'];
+                    dataset_description.License = [''];
+                    dataset_description.Authors = [''];
+                    dataset_description.Acknowledgements = [''];
+                    dataset_description.HowToAcknowledge = [''];
+                    dataset_description.Funding = [''];
+                    dataset_description.ReferencesAndLinks = [''];
+                    dataset_description.DatasetDOI = [''];
+
+                    jsonwrite(datasetDescriptionFile_deriv, dataset_description, struct('indent','  '));
+                    if makeRaw
+                        jsonwrite(datasetDescriptionFile_raw, dataset_description, struct('indent','  '));
+                    end                    
+
                     % log file
                     logFile = [block.subject.resultFolder slash block.fileName '_log.txt'];
                      copyfile(logFile, newlogFile);
@@ -1204,6 +1221,7 @@ classdef Project < handle
                         image = images(imIdx);
                         imageAddress = [image.folder slash image.name];
                         imageName = image.name;
+                        imageName = ['sub-' block.subject.name '_' imageName];
                         newImageName = strrep(imageName, '.jpg', '_photo.jpg');
                         newImageAdd = [newResSubAdd newImageName];
                         copyfile(imageAddress, newImageAdd);
@@ -1216,6 +1234,8 @@ classdef Project < handle
             
             params = self.params; 
             vParams = self.vParams;
+            params.samplingrate = block.sRate;
+            
             if ~ exist(code_fol, 'dir')
                     mkdir(code_fol);
             end
