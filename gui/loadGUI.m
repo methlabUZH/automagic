@@ -22,7 +22,7 @@ function varargout = loadGUI(varargin)
 
 % Edit the above text to modify the response to help loadGUI
 
-% Last Modified by GUIDE v2.5 19-Sep-2018 15:35:02
+% Last Modified by GUIDE v2.5 01-Aug-2019 16:10:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,6 +74,7 @@ function varargout = loadGUI_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = get(handles.dataedit, 'String');
 varargout{2} = get(handles.stateedit, 'String');
+varargout{3} = get(handles.channellocationedit, 'String');
 delete(handles.figure1);
 
 
@@ -155,6 +156,10 @@ function okpushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+if ~ isfile(get(handles.channellocationedit, 'String'))
+    set(handles.channellocationedit, 'String', '');
+end
+    
 close('loadGUI');
 
 % --- Executes on button press in cancelpushbutton.
@@ -165,6 +170,7 @@ function cancelpushbutton_Callback(hObject, eventdata, handles)
 
 set(handles.stateedit, 'String', '');
 set(handles.dataedit, 'String', '');
+set(handles.channellocationedit, 'String', '');
 close('loadGUI');
 
 
@@ -179,4 +185,38 @@ if isequal(get(hObject, 'waitstatus'), 'waiting')
     uiresume(hObject)
 else
     delete(hObject);
+end
+
+
+% --- Executes on button press in channellocationpushbutton.
+function channellocationpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to channellocationpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[name, chanloc_path, ~] = uigetfile('*');
+if( name ~= 0 )
+    path = strcat(chanloc_path, name);
+    set(handles.channellocationedit, 'String', path)
+end
+
+
+function channellocationedit_Callback(hObject, eventdata, handles)
+% hObject    handle to channellocationedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of channellocationedit as text
+%        str2double(get(hObject,'String')) returns contents of channellocationedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function channellocationedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to channellocationedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

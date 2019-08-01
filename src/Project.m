@@ -433,7 +433,8 @@ classdef Project < handle
             for i = 1:length(self.blockList)
                 uniqueName = self.blockList{i};
                 block = self.blockMap(uniqueName);
-                block.updateAddresses(self.dataFolder, self.resultFolder);
+                block.updateAddresses(self.dataFolder, self.resultFolder, ...
+                    self.params.EEGSystem.locFile);
                 subjectName = block.subject.name;
 
                 fprintf(['Processing file ', block.uniqueName ,' ...', ... 
@@ -493,7 +494,8 @@ classdef Project < handle
                 index = intList(i);
                 uniqueName = self.blockList{index};
                 block = self.blockMap(uniqueName);
-                block.updateAddresses(self.dataFolder, self.resultFolder);
+                block.updateAddresses(self.dataFolder, self.resultFolder, ...
+                    self.params.EEGSystem.locFile);
 
                 fprintf(['Processing file ', block.uniqueName ,' ...', '(file ', ...
                     int2str(i), ' out of ', int2str(length(intList)), ')\n']); 
@@ -920,7 +922,7 @@ classdef Project < handle
         end
         
         function self = updateAddressesFormStateFile(self, ...
-                pFolder, dataFolder)
+                pFolder, dataFolder, varargin)
             % This method must be called only when this project is a new
             % project loaded from a state file. The loaded project
             % may have not been created from this operating system, thus addresses
@@ -928,9 +930,15 @@ classdef Project < handle
             % different on this system, and they must be updated.
             % pFolder - the new address of the resultFolder
             % dataFolder - the new address of the dataFolder
+            % varargin - It could contain the path to the channel location
+            % if the previous file does not exist anymore
             
             self = self.setDataFolder(dataFolder);
             self = self.setResultFolder(pFolder);
+            if ~ isempty(varargin) && ~ isempty(varargin{1})
+                self.params.EEGSystem.locFile = varargin{1};
+            end
+            
             self.stateAddress = self.makeStateAddress(pFolder);
             self.saveProject();
         end

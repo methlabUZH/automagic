@@ -260,7 +260,7 @@ end
 
 % Special case of Load Project
 if(strcmp(name, handles.CGV.LOAD_PROJECT.LIST_NAME))
-    [data_path, state_path] = loadGUI();
+    [data_path, state_path, chanloc] = loadGUI();
     slash = filesep;
     splt = strsplit(state_path, slash);
     jne = strjoin(splt(1:end-1), slash);
@@ -284,7 +284,7 @@ if(strcmp(name, handles.CGV.LOAD_PROJECT.LIST_NAME))
             % After load addresses must be updated as this system may have
             % a diferent adsresses than the system where project has been
             % created.
-            self.updateAddressesFormStateFile(project_path, data_path);
+            self.updateAddressesFormStateFile(project_path, data_path, chanloc);
             handles.projectList(name) = self;
         else
             popup_msg(['This project already exists. You can not ',...

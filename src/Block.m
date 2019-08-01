@@ -295,7 +295,7 @@ classdef Block < handle
         end
        
         function self = updateAddresses(self, newDataPath, ...
-                newProjectPath)
+                newProjectPath, chanlocPath)
             % The method is to be called to update addresses in case the 
             % project is loaded from another operating system and may have 
             % a different path to the dataFolder or resultFolder. This can
@@ -325,6 +325,8 @@ classdef Block < handle
             if ~exist(self.resultFolder, 'dir')
                 mkdir(self.resultFolder);
             end
+            
+            self.params.EEGSystem.locFile = chanlocPath;
             self = self.updateResultAddress();
         end
         
