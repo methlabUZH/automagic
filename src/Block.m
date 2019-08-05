@@ -295,7 +295,7 @@ classdef Block < handle
         end
        
         function self = updateAddresses(self, newDataPath, ...
-                newProjectPath, chanlocPath)
+                newProjectPath, varargin)
             % The method is to be called to update addresses in case the 
             % project is loaded from another operating system and may have 
             % a different path to the dataFolder or resultFolder. This can
@@ -304,6 +304,9 @@ classdef Block < handle
             % project is loaded from a windows to a iOS or vice versa. 
             % newDataPath - Set the data path to this path
             % newProjectPath - Set the project path to this path
+            % varargin - It could contain the path to the channel location
+            % if the previous file does not exist anymore
+            
             slash = filesep;
             self.subject = self.subject.updateAddresses(newDataPath, ...
                 newProjectPath);
@@ -326,7 +329,9 @@ classdef Block < handle
                 mkdir(self.resultFolder);
             end
             
-            self.params.EEGSystem.locFile = chanlocPath;
+            if ~ isempty(varargin) && ~ isempty(varargin{1})
+                self.params.EEGSystem.locFile = varargin{1};
+            end
             self = self.updateResultAddress();
         end
         
