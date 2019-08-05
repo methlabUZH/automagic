@@ -1021,7 +1021,7 @@ classdef Project < handle
                     mkdir(newRawSubAdd);
                 end
                 
-                newResFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_' block.prefix '_eeg.mat'];
+                newResFile = [newResSubAdd 'sub-' block.subject.name '_' block.prefix '_' fileName '_eeg.mat'];
                 newJSONFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_automagic_eeg.json'];
                 newlogFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_log.txt'];
                 newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName]; %#ok<NASGU>
