@@ -1524,7 +1524,7 @@ function bidspushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to configbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[rootFolder, makeRaw, makeDerivatives] = BIDSinputGUI();
+[rootFolder, makeRawBVA, makeDerivativesBVA, makeRawSET, makeDerivativesSET] = BIDSinputGUI();
 
 if isempty(rootFolder)
     return;
@@ -1538,7 +1538,7 @@ if isempty(project)
         'Error');
     return;
 end
-project.exportToBIDS(rootFolder, makeRaw, makeDerivatives);
+project.exportToBIDS(rootFolder, makeRawBVA, makeDerivativesBVA, makeRawSET, makeDerivativesSET);
 
 
 % --- Executes on button press in helpbidspushbutton.
