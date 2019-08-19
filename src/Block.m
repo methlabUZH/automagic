@@ -248,6 +248,16 @@ classdef Block < handle
                 self.qualityScores = automagic.qualityScores;
                 self.isManuallyRated = automagic.isManuallyRated;
                 self.commitedNb = automagic.commitedNb;
+                
+                if isempty(self.project.qualityScoreIdx)
+                    qScore = self.qualityScores;
+                    qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
+                    qScoreIdx.THV = arrayfun(@(x) ceil(length(x.THV)/2), qScore);
+                    qScoreIdx.CHV = arrayfun(@(x) ceil(length(x.CHV)/2), qScore);
+                    qScoreIdx.MAV = arrayfun(@(x) ceil(length(x.MAV)/2), qScore);
+                    qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
+                    self.project.qualityScoreIdx = qScoreIdx; 
+                end
                 if automagic.version ~= self.CGV.VERSION
                     warning(['Version of Automagic is not the same as the' ...
                         ' one which produced this result file.'])
@@ -1141,4 +1151,5 @@ classdef Block < handle
     end
     
 end
+
 
