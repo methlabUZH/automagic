@@ -4,7 +4,7 @@ classdef Project < handle
     %   project. This information include the name of the project, address
     %   of the dataFolder, resultFolder, list of all exisiting blocks,
     %   list of all preprocessed blocks, five different list of ratings
-    %   corresponding to each rate and many more. Please see the properties 
+    %   corresponding to each rate and many more. Please see the properties
     %   for more information.
     %
     %   Project is a subclass of handle, meaning it's a refrence to an
@@ -17,27 +17,27 @@ classdef Project < handle
     %   where name is a char specifying the desired project name, dFolder
     %   is the address of the folder where raw data is placed, pFolder is
     %   the address of the folder where you want the results to be saved,
-    %   ext is the fileExtension of raw files, params is a struct that 
+    %   ext is the fileExtension of raw files, params is a struct that
     %   contains parameters of preprocessing, vParams is a struct that
-    %   contains parameters of visualisation and varargin is can be the 
+    %   contains parameters of visualisation and varargin is can be the
     %   sampling rate in case the extension file is .txt
     %
-    %   preprocessAll - Start the preprocessing. It iterates on all the 
-    %   raw files in dataFolder, preprocess them all and put the results 
-    %   in resultFolder. If some files have been already preprocessed, 
+    %   preprocessAll - Start the preprocessing. It iterates on all the
+    %   raw files in dataFolder, preprocess them all and put the results
+    %   in resultFolder. If some files have been already preprocessed,
     %   user is asked to whether overwrite the previous results or just
     %   skip them and continue with the rest of unpreprocessed files.
     %
     %   interpolateSelected - Interpolate all the channels selected to be
     %   interpolated.
-    %   
+    %
     %   getCurrentBlock - Return the current selected block. Used mostly in
     %   ratingGUI for visualisation.
     %
-    %   getNextIndex - Return the index of the next (not filtered) block 
+    %   getNextIndex - Return the index of the next (not filtered) block
     %   in the list. Used mostly in ratingGUI for visualisation.
     %
-    %   getPreviousIndex - Return the index of the prebious (not filtered) 
+    %   getPreviousIndex - Return the index of the prebious (not filtered)
     %   block in the list. Used mostly in ratingGUI for visualisation.
     %
     %   updateRatingStructures - Whenever changes has been made to the
@@ -50,11 +50,11 @@ classdef Project < handle
     %   time the rating of a single block is changed.
     %
     %   updateAddressesFormStateFile - The method is to be called
-    %   just after a project is "loaded" from a state file. The loaded 
-    %   project may have not been created from this operating system, 
-    %   therefore addresses to the folders (which can even be on a server) 
+    %   just after a project is "loaded" from a state file. The loaded
+    %   project may have not been created from this operating system,
+    %   therefore addresses to the folders (which can even be on a server)
     %   could be different on this system, and they must be updated.
-    %   
+    %
     %   getQualityratings - Return the quality ratings of
     %   all blocks given the cutoffs.
     %
@@ -62,37 +62,37 @@ classdef Project < handle
     %
     %   getRatedCount - Return the number of rated blocks in this
     %   project.
-    %   
+    %
     %   toBeInterpolatedCount - Return number of blocks rated to be
     %   interpolated in this project.
-    %   
+    %
     %   areFoldersChanged - Return a boolean. It's true if any of the
     %   dataFolder or resultFolder has been changed since the last update.
-    %   It can be used to decide whether to call updateRatingStructures or 
-    %   not. Note that at this stage this method only returns based on the 
+    %   It can be used to decide whether to call updateRatingStructures or
+    %   not. Note that at this stage this method only returns based on the
     %   number of files in the folder.
-    %   
+    %
     %   saveProject - Save the entire project class in a .m file
-    %   
+    %
     %   getSubjectFilesList - List all folders in the dataFolder
-    %   
+    %
     %   getPreprocessedFilesList - List all folders in the resultFolder
     %
     % Copyright (C) 2017  Amirreza Bahreini, methlabuzh@gmail.com
-    % 
+    %
     % This program is free software: you can redistribute it and/or modify
     % it under the terms of the GNU General Public License as published by
     % the Free Software Foundation, either version 3 of the License, or
     % (at your option) any later version.
-    % 
+    %
     % This program is distributed in the hope that it will be useful,
     % but WITHOUT ANY WARRANTY; without even the implied warranty of
     % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     % GNU General Public License for more details.
-    % 
+    %
     % You should have received a copy of the GNU General Public License
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-        
+    
     properties
         
         % The index of the current block that must be shown in ratingGUI.
@@ -119,7 +119,7 @@ classdef Project < handle
         % Adress of the folder where raw data are stored.
         dataFolder
         
-        % Address of the folder where results are (to be) saved. 
+        % Address of the folder where results are (to be) saved.
         resultFolder
         
         % Sampling rate to create reduced files.
@@ -132,8 +132,8 @@ classdef Project < handle
         % File extension of the raw files in this project. (ie. .raw)
         fileExtension
         
-        % All files with this mask at the end are loaded. It must include 
-        % the fileExtension in itself (ie. ***_EEG.raw) 
+        % All files with this mask at the end are loaded. It must include
+        % the fileExtension in itself (ie. ***_EEG.raw)
         mask
         
         % Parameters of the preprocessing. To learn more please see
@@ -145,7 +145,7 @@ classdef Project < handle
         
         % List of names of all preprocessed blocks so far.
         processedList
-         
+        
         % Map each block name to the block itself.
         blockMap
         
@@ -176,7 +176,7 @@ classdef Project < handle
     
     properties(SetAccess=private, GetAccess=private)
         
-       % List of names of all existing blocks in the dataDolder.
+        % List of names of all existing blocks in the dataDolder.
         blockList
         
         % List of indices of blocks that are rated as Interpolate.
@@ -192,7 +192,7 @@ classdef Project < handle
         okList
         
         % List of indices of blocks that are not rated (or rated as Not Rated).
-        notRatedList 
+        notRatedList
         
         % List of indices of blocks that are already interpolated
         alreadyInterpolated
@@ -224,7 +224,7 @@ classdef Project < handle
             addParameter(p,'Settings', defs.Settings, @isstruct);
             parse(p, params);
             params = p.Results;
-
+            
             defVParam = self.CGV.DefaultVisualisationParams;
             p = inputParser;
             addParameter(p,'CalcQualityParams', defVParam.CalcQualityParams, @isstruct);
@@ -266,9 +266,9 @@ classdef Project < handle
     %% Public Methods
     methods
         function block = getCurrentBlock(self)
-            % Return the block pointed by the current index. If 
+            % Return the block pointed by the current index. If
             % current == -1, a mock block is returned.
-
+            
             if( self.current == -1)
                 subject = Subject('','');
                 block = Block(self, subject, '', '', self.CGV);
@@ -314,28 +314,28 @@ classdef Project < handle
                 end
             end
             if(okBool)
-               possibleOks = find(self.okList > currentIndex, 1);
+                possibleOks = find(self.okList > currentIndex, 1);
                 if( ~ isempty(possibleOks))
                     nextOk = self.okList(possibleOks(1));
                 end
             end
             if(badBool)
-               possibleBads = find(self.badList > currentIndex, 1);
+                possibleBads = find(self.badList > currentIndex, 1);
                 if( ~ isempty(possibleBads))
                     nextBad = self.badList(possibleBads(1));
                 end
             end
             if(interpolateBool)
-               possibleInterpolates = ...
-                   find(self.interpolateList > currentIndex, 1);
+                possibleInterpolates = ...
+                    find(self.interpolateList > currentIndex, 1);
                 if( ~ isempty(possibleInterpolates))
                     nextInterpolate = ...
                         self.interpolateList(possibleInterpolates(1));
                 end
             end
             if(notratedBool)
-               possibleNotrateds = ...
-                   find(self.notRatedList > currentIndex, 1);
+                possibleNotrateds = ...
+                    find(self.notRatedList > currentIndex, 1);
                 if( ~ isempty(possibleNotrateds))
                     nextNotrated = ...
                         self.notRatedList(possibleNotrateds(1));
@@ -353,7 +353,7 @@ classdef Project < handle
             % parameters indicate if the previous block to be returned should
             % have the corresponding rating or not. These are so called
             % filters in the ratingGUI.
-            % previousIdx - Return this block if no other previous block 
+            % previousIdx - Return this block if no other previous block
             %   exists in the list. This should be usually the current index.
             % ***Bool - Whether to return the block if it has this rating
             % or not.
@@ -362,14 +362,14 @@ classdef Project < handle
             block =  self.getCurrentBlock();
             currentIndex = block.index;
             
-            % If nothing is filtered simply return the previous in the list 
+            % If nothing is filtered simply return the previous in the list
             if( goodBool && okBool && badBool && ...
                     interpolateBool && notratedBool)
                 previous = max(self.current - 1, 1);
                 return;
             end
-
-            % Now for each rating, find the possible choices, and then 
+            
+            % Now for each rating, find the possible choices, and then
             % choose the closest one
             previousGood = [];
             previousOk = [];
@@ -384,28 +384,28 @@ classdef Project < handle
                 end
             end
             if(okBool)
-               possibleOks = find(self.okList < currentIndex, 1, 'last');
+                possibleOks = find(self.okList < currentIndex, 1, 'last');
                 if( ~ isempty(possibleOks))
                     previousOk = self.okList(possibleOks(end));
                 end
             end
             if(badBool)
-               possibleBads = find(self.badList < currentIndex, 1, 'last');
+                possibleBads = find(self.badList < currentIndex, 1, 'last');
                 if( ~ isempty(possibleBads))
                     previousBad = self.badList(possibleBads(end));
                 end
             end
             if(interpolateBool)
-               possibleInterpolates = ...
-                   find(self.interpolateList < currentIndex, 1, 'last');
+                possibleInterpolates = ...
+                    find(self.interpolateList < currentIndex, 1, 'last');
                 if( ~ isempty(possibleInterpolates))
                     previousInterpolate = ...
                         self.interpolateList(possibleInterpolates(end));
                 end
             end
             if(notratedBool)
-               possibleNotrateds = ...
-                   find(self.notRatedList < currentIndex, 1, 'last');
+                possibleNotrateds = ...
+                    find(self.notRatedList < currentIndex, 1, 'last');
                 if( ~ isempty(possibleNotrateds))
                     previousNotrated = ...
                         self.notRatedList(possibleNotrateds(end));
@@ -427,7 +427,7 @@ classdef Project < handle
             
             % Ask to overwrite the existing preprocessed files, if any
             skip = self.checkExistings();
-
+            
             fprintf('*******Start preprocessing all dataset*******\n');
             startTime = cputime;
             for i = 1:length(self.blockList)
@@ -436,39 +436,39 @@ classdef Project < handle
                 block.updateAddresses(self.dataFolder, self.resultFolder, ...
                     self.params.EEGSystem.locFile);
                 subjectName = block.subject.name;
-
-                fprintf(['Processing file ', block.uniqueName ,' ...', ... 
+                
+                fprintf(['Processing file ', block.uniqueName ,' ...', ...
                     '(file ', int2str(i), ' out of ', ...
-                    int2str(length(self.blockList)), ')\n']); 
-
+                    int2str(length(self.blockList)), ')\n']);
+                
                 % Create the subject folder if it doesn't exist yet
                 if(~ exist([self.resultFolder subjectName], 'dir'))
                     mkdir([self.resultFolder subjectName]);
                 end
-
+                
                 % Don't preprocess the file if skip
                 if skip && exist(block.potentialResultAddress, 'file')
                     fprintf(['Results already exits. Skipping '...
-                             'prerocessing for this subject...\n']);
+                        'prerocessing for this subject...\n']);
                     continue;
                 end
                 
                 % preprocess the file
                 [EEG, automagic] = block.preprocess();
-
+                
                 if( isempty(EEG) || isfield(automagic, 'error_msg'))
                     message = automagic.error_msg;
                     self.writeToLog(block.sourceAddress, message);
-                   continue; 
+                    continue;
                 end
                 
                 if (isfield(automagic,'badChanError'))
                     message = automagic.badChanError;
                     self.writeToLog(block.sourceAddress, message);
                 end
-
+                
                 if( self.current == -1)
-                    self.current = 1; 
+                    self.current = 1;
                 end
                 self.saveProject();
             end
@@ -476,7 +476,7 @@ classdef Project < handle
             self.updatemainGUI();
             endTime = cputime - startTime;
             fprintf(['*******Pre-processing finished. Total elapsed '...
-                'time: ', num2str(endTime),'***************\n'])         
+                'time: ', num2str(endTime),'***************\n'])
         end
         
         function self = interpolateSelected(self)
@@ -486,7 +486,7 @@ classdef Project < handle
                     'Error');
                 return;
             end
-
+            
             fprintf('*******Start Interpolation**************\n');
             startTime = cputime;
             intList = self.interpolateList;
@@ -496,11 +496,11 @@ classdef Project < handle
                 block = self.blockMap(uniqueName);
                 block.updateAddresses(self.dataFolder, self.resultFolder, ...
                     self.params.EEGSystem.locFile);
-
+                
                 fprintf(['Processing file ', block.uniqueName ,' ...', '(file ', ...
-                    int2str(i), ' out of ', int2str(length(intList)), ')\n']); 
+                    int2str(i), ' out of ', int2str(length(intList)), ')\n']);
                 assert(strcmp(block.rate, self.CGV.RATINGS.Interpolate) == 1);
-
+                
                 block.interpolate();
                 
                 self.alreadyInterpolated = [self.alreadyInterpolated index];
@@ -529,7 +529,7 @@ classdef Project < handle
                         self.interpolateList(...
                             self.interpolateList == block.index) = [];
                         self.goodList = sort(unique(self.goodList));
-
+                        
                     end
                 case self.CGV.RATINGS.OK
                     if( ~ ismember(block.index, self.okList ) )
@@ -582,8 +582,8 @@ classdef Project < handle
         function self = updateRatingStructures(self)
             % Updates the data structures of this project. Look
             % createRatingStructure() for more info.
-            % This method may be time consuming depending on the number of 
-            % files in both dataFolder and resultFolder as it goes 
+            % This method may be time consuming depending on the number of
+            % files in both dataFolder and resultFolder as it goes
             % through every block and fetches relevant information.
             %
             % This functionality helps to merge different projects
@@ -640,7 +640,7 @@ classdef Project < handle
                 
                 subjectName = subjects{i};
                 subject = Subject([self.dataFolder subjectName], ...
-                                    [self.resultFolder subjectName]);
+                    [self.resultFolder subjectName]);
                 
                 rawFiles = [];
                 if isBIDS
@@ -679,11 +679,11 @@ classdef Project < handle
                         end
                         self.mask = strrep(self.mask, self.fileExtension, ext);
                         self.fileExtension = ext;
-                    end 
+                    end
                     splits = strsplit(nameTmp, ext);
                     fileName = splits{1};
                     uniqueName = strcat(subjectName, '_', fileName);
-
+                    
                     fprintf(['...Adding file ', fileName, '\n']);
                     if(usejava('Desktop') && ishandle(h))
                         waitbar((i-1) / length(subjects), h, ...
@@ -691,25 +691,25 @@ classdef Project < handle
                             ' Adding file ', fileName, '...'])
                     end
                     % Merge data and update blockList
-                    if isKey(self.blockMap, uniqueName) 
+                    if isKey(self.blockMap, uniqueName)
                         % File has been here
                         
                         block = self.blockMap(uniqueName);
-                        % Add it to the new list anyways. So that if 
-                        % anything has been deleted, it's not copied to 
+                        % Add it to the new list anyways. So that if
+                        % anything has been deleted, it's not copied to
                         % this new list.
-                        map(block.uniqueName) = block; 
+                        map(block.uniqueName) = block;
                         list{filesCount} = block.uniqueName;
                         block.index = filesCount;
-                        if (~ isempty(block.potentialResultAddress)) 
+                        if (~ isempty(block.potentialResultAddress))
                             % Some results exist
                             
                             IndexC = strfind(self.processedList, uniqueName);
                             Index = find(not(cellfun('isempty', IndexC)), 1);
                             if( ~isempty(Index))
-                                % Currently a result file exists. There has 
-                                % been a result file before as well. So 
-                                % don't do anything. Here we don't check 
+                                % Currently a result file exists. There has
+                                % been a result file before as well. So
+                                % don't do anything. Here we don't check
                                 % whether the rating info has been changed.
                             else % The result is new
                                 % Update the rating info of the block
@@ -717,12 +717,12 @@ classdef Project < handle
                                     block.updateRatingInfoFromFile();
                                 catch ME
                                     if ~contains(ME.identifier, 'Automagic')
-                                        rethrow(ME); 
+                                        rethrow(ME);
                                     end
                                     list{filesCount} = [];
                                     filesCount = filesCount - 1;
                                     remove(map, block.uniqueName);
-
+                                    
                                     warning(ME.message)
                                     self.writeToLog(...
                                         block.sourceAddress, ME.message);
@@ -735,7 +735,7 @@ classdef Project < handle
                                 block.updateRatingInfoFromFile();
                             catch ME
                                 if ~contains(ME.identifier, 'Automagic')
-                                    rethrow(ME); 
+                                    rethrow(ME);
                                 end
                                 list{filesCount} = [];
                                 filesCount = filesCount - 1;
@@ -750,14 +750,14 @@ classdef Project < handle
                     else
                         % File is new
                         
-                        % Block creation extracts and updates automatically 
-                        % the rating information from the existing files, 
+                        % Block creation extracts and updates automatically
+                        % the rating information from the existing files,
                         % if any.
                         try
                             block = Block(self, subject, fileName, filePath, self.CGV);
                         catch ME
                             if ~contains(ME.identifier, 'Automagic')
-                               rethrow(ME); 
+                                rethrow(ME);
                             end
                             filesCount = filesCount - 1;
                             warning(ME.message)
@@ -773,35 +773,35 @@ classdef Project < handle
                         list{filesCount} = block.uniqueName;
                         block.index = filesCount;
                     end
-
-                    % Update the processedList 
+                    
+                    % Update the processedList
                     if (~ isempty(block.potentialResultAddress))
-
+                        
                         switch block.rate
-                        case self.CGV.RATINGS.Good
-                            gList = [gList block.index];
-                        case self.CGV.RATINGS.OK
-                            oList = [oList block.index];
-                        case self.CGV.RATINGS.Bad
-                            bList = [bList block.index];
-                        case self.CGV.RATINGS.Interpolate
-                            iList = [iList block.index];
-                        case self.CGV.RATINGS.NotRated
-                            nList = [nList block.index];
+                            case self.CGV.RATINGS.Good
+                                gList = [gList block.index];
+                            case self.CGV.RATINGS.OK
+                                oList = [oList block.index];
+                            case self.CGV.RATINGS.Bad
+                                bList = [bList block.index];
+                            case self.CGV.RATINGS.Interpolate
+                                iList = [iList block.index];
+                            case self.CGV.RATINGS.NotRated
+                                nList = [nList block.index];
                         end
-
+                        
                         if block.isInterpolated
                             alreadyList = [alreadyList block.index];
                         end
-                       pList{end + 1} = block.uniqueName;
-                       nPreprocessedFile = ...
-                           nPreprocessedFile + 1;
-                       temp = temp + 1;
+                        pList{end + 1} = block.uniqueName;
+                        nPreprocessedFile = ...
+                            nPreprocessedFile + 1;
+                        temp = temp + 1;
                     end
                 end
                 if (~isempty(rawFiles) && temp == length(rawFiles))
                     nPreprocessedSubject = ...
-                        nPreprocessedSubject + 1; 
+                        nPreprocessedSubject + 1;
                 end
             end
             if(usejava('Desktop') && ishandle(h))
@@ -820,7 +820,7 @@ classdef Project < handle
                         'to the project folder.'], 'More results');
                 end
             end
-
+            
             if( nPreprocessedFile < self.nProcessedFiles || ...
                     nPreprocessedSubject < self.nProcessedSubjects)
                 if( nPreprocessedSubject < self.nProcessedSubjects)
@@ -833,7 +833,7 @@ classdef Project < handle
                         'Less results');
                 end
             end
-
+            
             % Inform user if data folder has been modified
             if( filesCount > self.nBlock || ...
                     sCount > self.nSubject)
@@ -845,7 +845,7 @@ classdef Project < handle
                         'New results');
                 end
             end
-
+            
             if( filesCount < self.nBlock || ...
                     sCount < self.nSubject)
                 if( sCount < self.nSubject)
@@ -857,7 +857,7 @@ classdef Project < handle
                 end
             end
             self.nProcessedFiles = nPreprocessedFile;
-            self.nProcessedSubjects = nPreprocessedSubject;   
+            self.nProcessedSubjects = nPreprocessedSubject;
             self.processedList = pList;
             self.blockMap = map;
             self.blockList = list;
@@ -869,7 +869,7 @@ classdef Project < handle
             self.okList = oList;
             self.notRatedList = nList;
             self.alreadyInterpolated = alreadyList;
-
+            
             % Assign current index
             if( isempty(self.processedList))
                 self.current = -1;
@@ -880,7 +880,7 @@ classdef Project < handle
             end
             self.saveProject();
         end
-    
+        
         function ratings = getQualityRatings(self, cutoffs)
             % Return the quality ratings of all blocks given the cutoffs
             % cutoffs - the cutoffs for which the quality ratings are
@@ -926,7 +926,7 @@ classdef Project < handle
             % This method must be called only when this project is a new
             % project loaded from a state file. The loaded project
             % may have not been created from this operating system, thus addresses
-            % to the folders (which can be on the server as well) could be 
+            % to the folders (which can be on the server as well) could be
             % different on this system, and they must be updated.
             % pFolder - the new address of the resultFolder
             % dataFolder - the new address of the dataFolder
@@ -946,8 +946,8 @@ classdef Project < handle
         function ratedCount = getRatedCount(self)
             % Return number of files that has been already rated
             ratedCount = length(self.processedList) - ...
-                          (length(self.notRatedList) + ...
-                          length(self.interpolateList));
+                (length(self.notRatedList) + ...
+                length(self.interpolateList));
         end
         
         function count = toBeInterpolatedCount(self)
@@ -967,11 +967,10 @@ classdef Project < handle
             modified = dataChanged || resultChanged;
         end
         
-        function exportToBIDS(self, folder, makeRaw, makeDerivatives)
-            if ~ (makeDerivatives || makeRaw)
+        function exportToBIDS(self, folder, makeRawBVA, makeDerivativesBVA, makeRawSET, makeDerivativesSET)
+            if ~ (makeRawBVA || makeRawSET || makeDerivativesBVA || makeDerivativesSET)
                 return;
             end
-            
             slash = filesep;
             if ~exist(folder, 'dir')
                 mkdir(folder);
@@ -983,7 +982,7 @@ classdef Project < handle
             else
                 fprintf('Exporting results folder to BIDS format. Please wait...\n');
             end
-
+            
             fileNames = self.blockMap.keys;
             for i = 1:length(fileNames)
                 if(usejava('Desktop') && ishandle(h))
@@ -1014,10 +1013,10 @@ classdef Project < handle
                     newRawSubAdd = strcat(newRawSubAdd, 'eeg', slash);
                 end
                 
-                if ~ exist(newResSubAdd, 'dir') && makeDerivatives
+                if ~ exist(newResSubAdd, 'dir') && (makeDerivativesBVA || makeDerivativesSET)
                     mkdir(newResSubAdd);
                 end
-                if ~ exist(newRawSubAdd, 'dir') && makeRaw
+                if ~ exist(newRawSubAdd, 'dir') && (makeRawBVA || makeRawSET)
                     mkdir(newRawSubAdd);
                 end
                 
@@ -1027,16 +1026,33 @@ classdef Project < handle
                 newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName]; %#ok<NASGU>
                 datasetDescriptionFile_raw = [raw_fol 'dataset_description.json'];
                 datasetDescriptionFile_deriv = [automagic_fol 'dataset_description.json'];
-
-                if makeRaw
+                
+                if makeRawSET
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
+                    newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.set'];
+                    [~, ~] = evalc('pop_saveset(EEG, newRawFile)');
+                end
+                
+                if makeRawBVA
+                    EEG = block.loadEEGFromFile(); %#ok<NASGU>
+                    newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.dat']; %#ok<NASGU>
                     [~, ~] = evalc('pop_writebva(EEG, newRawFile)');
                 end
                 
-                if exist(block.resultAddress, 'file') && makeDerivatives
+                
+                
+                if exist(block.resultAddress, 'file') && makeDerivativesBVA || makeDerivativesSET
                     % Result file
-                    copyfile(block.resultAddress, newResFile);
+                    if makeDerivativesBVA
+                        copyfile(block.resultAddress, newResFile);
+                    end
                     
+                    if makeDerivativesSET
+                        newResFile = [newResSubAdd 'sub-' block.subject.name '_' block.prefix '_' fileName '_eeg.set'];
+                        resFile = load(block.resultAddress);
+                        resFile = resFile.EEG;
+                        [~, ~] = evalc('pop_saveset(resFile, newResFile)');
+                    end
                     % Automagic field
                     preprocessed = matfile(block.resultAddress,'Writable',true);
                     autStruct = preprocessed.automagic;
@@ -1091,12 +1107,12 @@ classdef Project < handle
                         bidsStruct.BadChannelIdentification.CRD.ToolboxVersion = '0.34';
                         bidsStruct.BadChannelIdentification.CRD.BadChannels = autStruct.crd.badChans;
                         if isfield(autStruct.crd.params, 'FlatlineCriterion') && ...
-                         ~ strcmp(pars.FlatlineCriterion , 'off') 
+                                ~ strcmp(pars.FlatlineCriterion , 'off')
                             flatLine = autStruct.crd.params.FlatlineCriterion;
                             bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'Yes';
                             bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.FlatLine = flatLine;
                         elseif isfield(autStruct.crd.params, 'FlatlineCriterion') && ...
-                                strcmp(pars.FlatlineCriterion , 'off') 
+                                strcmp(pars.FlatlineCriterion , 'off')
                             bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'No';
                         else
                             flatLine = 5; % the default is HARDCODED
@@ -1117,7 +1133,7 @@ classdef Project < handle
                             else
                                 MaxBrokenTime = 0.4; % the default is HARDCODED
                             end
-
+                            
                             bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.Used = 'Yes';
                             bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.MaxBrokenTime = MaxBrokenTime;
                             bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.ChannelCriterion = autStruct.crd.params.ChannelCriterion;
@@ -1194,7 +1210,7 @@ classdef Project < handle
                     bidsStruct.QualityRating.ManuallyRated = autStruct.isManuallyRated;
                     
                     jsonwrite(newJSONFile, bidsStruct, struct('indent','  '));
-                                        
+                    
                     dataset_description.Name = [''];
                     dataset_description.BIDSVersion = ['1.2.0'];
                     dataset_description.License = [''];
@@ -1204,15 +1220,15 @@ classdef Project < handle
                     dataset_description.Funding = [''];
                     dataset_description.ReferencesAndLinks = [''];
                     dataset_description.DatasetDOI = [''];
-
+                    
                     jsonwrite(datasetDescriptionFile_deriv, dataset_description, struct('indent','  '));
-                    if makeRaw
+                    if makeRawBVA || makeRawSET
                         jsonwrite(datasetDescriptionFile_raw, dataset_description, struct('indent','  '));
-                    end                    
-
+                    end
+                    
                     % log file
                     logFile = [block.subject.resultFolder slash block.fileName '_log.txt'];
-                     copyfile(logFile, newlogFile);
+                    copyfile(logFile, newlogFile);
                     
                     % JPEG files
                     images = dir([block.subject.resultFolder slash block.fileName '_orig.jpg']);
@@ -1228,16 +1244,17 @@ classdef Project < handle
                     end
                 end
             end
-            paramsJSON = [der_fol 'automagic_params.json'];
-            jsonwrite(paramsJSON, self.params, struct('indent','  '));
-         
+            if makeDerivativesBVA || makeDerivativesSET
+                paramsJSON = [der_fol 'automagic_params.json'];
+                jsonwrite(paramsJSON, self.params, struct('indent','  '));
+            end
             
-            params = self.params; 
+            params = self.params;
             vParams = self.vParams;
             params.samplingrate = block.sRate;
             
             if ~ exist(code_fol, 'dir')
-                    mkdir(code_fol);
+                mkdir(code_fol);
             end
             save([code_fol 'params.mat'], 'params');
             save([code_fol 'vParams.mat'], 'vParams');
@@ -1259,8 +1276,8 @@ classdef Project < handle
         end
         
         function list = listSubjectFiles(self)
-           % List all folders in the dataFolder
-           list = self.listSubjects(self.dataFolder);
+            % List all folders in the dataFolder
+            list = self.listSubjects(self.dataFolder);
         end
         
         function list = listPreprocessedSubjects(self)
@@ -1351,8 +1368,8 @@ classdef Project < handle
                 subjectName = subjects{i};
                 fprintf(['Adding subject ', subjectName, '\n']);
                 subject = Subject([self.dataFolder subjectName], ...
-                                    [self.resultFolder subjectName]);
-
+                    [self.resultFolder subjectName]);
+                
                 rawFiles = [];
                 if isBIDS
                     sessOrEEG = self.listSubjects(subject.dataFolder);
@@ -1376,7 +1393,7 @@ classdef Project < handle
                         [self.dataFolder subjectName slash '*' self.mask]);
                 end
                 
-                temp = 0; 
+                temp = 0;
                 for j = 1:length(rawFiles)
                     filesCount = filesCount + 1;
                     file = rawFiles(j);
@@ -1390,7 +1407,7 @@ classdef Project < handle
                         end
                         self.mask = strrep(self.mask, self.fileExtension, ext);
                         self.fileExtension = ext;
-                    end 
+                    end
                     splits = strsplit(nameTemp, ext);
                     fileName = splits{1};
                     fprintf(['...Adding file ', fileName, '\n']);
@@ -1399,13 +1416,13 @@ classdef Project < handle
                             ['Setting up project. Please wait.', ...
                             ' Adding file ', fileName, '...'])
                     end
-                    % Block creation extracts and updates automatically 
+                    % Block creation extracts and updates automatically
                     % the rating information from the existing files, if any.
                     try
                         block = Block(self, subject, fileName, filePath, self.CGV);
                     catch ME
                         if ~contains(ME.identifier, 'Automagic')
-                               rethrow(ME); 
+                            rethrow(ME);
                         end
                         filesCount = filesCount - 1;
                         warning(ME.message)
@@ -1420,34 +1437,34 @@ classdef Project < handle
                     map(block.uniqueName) = block;
                     list{filesCount} = block.uniqueName;
                     block.index = filesCount;
-
-                    if ( ~ isempty(block.potentialResultAddress))       
-
+                    
+                    if ( ~ isempty(block.potentialResultAddress))
+                        
                         switch block.rate
-                        case self.CGV.RATINGS.Good
-                            gList = [gList block.index];
-                        case self.CGV.RATINGS.OK
-                            oList = [oList block.index];
-                        case self.CGV.RATINGS.Bad
-                            bList = [bList block.index];
-                        case self.CGV.RATINGS.Interpolate
-                            iList = [iList block.index];
-                        case self.CGV.RATINGS.NotRated
-                            nList = [nList block.index];
+                            case self.CGV.RATINGS.Good
+                                gList = [gList block.index];
+                            case self.CGV.RATINGS.OK
+                                oList = [oList block.index];
+                            case self.CGV.RATINGS.Bad
+                                bList = [bList block.index];
+                            case self.CGV.RATINGS.Interpolate
+                                iList = [iList block.index];
+                            case self.CGV.RATINGS.NotRated
+                                nList = [nList block.index];
                         end
-
+                        
                         if block.isInterpolated
                             alreadyList = [alreadyList block.index];
                         end
-                       pList{end + 1} = block.uniqueName;      
-                       nPreprocessedFile = ...
-                           nPreprocessedFile + 1;
-                       temp = temp + 1;
+                        pList{end + 1} = block.uniqueName;
+                        nPreprocessedFile = ...
+                            nPreprocessedFile + 1;
+                        temp = temp + 1;
                     end
                 end
                 if (~isempty(rawFiles) && temp == length(rawFiles))
                     nPreprocessedSubject = ...
-                        nPreprocessedSubject + 1; 
+                        nPreprocessedSubject + 1;
                 end
             end
             if(usejava('Desktop') && ishandle(h))
@@ -1457,7 +1474,7 @@ classdef Project < handle
             
             self.processedList = pList;
             self.nProcessedFiles = nPreprocessedFile;
-            self.nProcessedSubjects = nPreprocessedSubject; 
+            self.nProcessedSubjects = nPreprocessedSubject;
             self.nBlock = filesCount;
             self.nSubject = sCount;
             self.blockMap = map;
@@ -1483,8 +1500,8 @@ classdef Project < handle
             % Name must be a valid file name
             if (~isempty(regexp(name, '[/\*:?"<>|]', 'once')))
                 popup_msg(['Please enter a valid name not containing'
-                           ' any of the following: '...
-                           '/ \ * : ? " < > |'], 'Error');
+                    ' any of the following: '...
+                    '/ \ * : ? " < > |'], 'Error');
                 return;
             end
             self.name = name;
@@ -1494,8 +1511,8 @@ classdef Project < handle
             % Set the address of the dataFolder
             
             if(~ exist(dataFolder, 'dir') && isunix)
-               popup_msg(strcat(['This data folder does not exist: ', ...
-                   dataFolder]), 'Error');
+                popup_msg(strcat(['This data folder does not exist: ', ...
+                    dataFolder]), 'Error');
                 return;
             end
             
@@ -1514,29 +1531,29 @@ classdef Project < handle
         
         function skip = checkExistings(self)
             % If there is already at least one preprocessed file in the
-            % resultFolder, ask the user whether to overwrite them or 
+            % resultFolder, ask the user whether to overwrite them or
             % skip them
-
+            
             skip = 1;
             if( self.nProcessedFiles > 0)
                 
                 if ~ usejava('Desktop')
-                   fprintf(['Already existing preprocessing files are skipped ',...
-                       'and not preprocessed again. If you wish to preprocess ',...
-                       'them again, please remove the files and run the ', ...
-                       'preprocessing again.\n']);
-                   return;
+                    fprintf(['Already existing preprocessing files are skipped ',...
+                        'and not preprocessed again. If you wish to preprocess ',...
+                        'them again, please remove the files and run the ', ...
+                        'preprocessing again.\n']);
+                    return;
                 end
-            
+                
                 handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
                 main_pos = get(handle,'position');
                 screen_size = get( groot, 'Screensize' );
                 choice = MFquestdlg(...
                     [main_pos(3)/2/screen_size(3) main_pos(4)/2/screen_size(4)], ...
-                    ['Some files are already processed. Would ',... 
-                   'you like to overwrite them or skip them ?'], ...
-                   'Pre-existing files in the project folder.',...
-                   'Over Write', 'Skip','Over Write');
+                    ['Some files are already processed. Would ',...
+                    'you like to overwrite them or skip them ?'], ...
+                    'Pre-existing files in the project folder.',...
+                    'Over Write', 'Skip','Over Write');
                 switch choice
                     case 'Over Write'
                         skip = 0;
@@ -1596,7 +1613,7 @@ classdef Project < handle
             end
         end
         
-       function addAutomagicPaths()
+        function addAutomagicPaths()
             CGV = ConstantGlobalValues;
             addpath(CGV.AUTOMAGIC_PATH);
             addpath(CGV.SRC_PATH);
@@ -1609,7 +1626,7 @@ classdef Project < handle
             
             address = strcat(p_folder, ...
                 ConstantGlobalValues.stateFile.PROJECT_NAME);
-        end 
+        end
     end
     
     %% Private utility static methods
@@ -1650,9 +1667,9 @@ classdef Project < handle
         function modified = isFolderChanged(folder, folder_counts, ...
                 nBlocks, ext, allSteps)
             % Return true if the number of files or folders in the
-            % folder are changed since the last update. 
+            % folder are changed since the last update.
             % NOTE: This is a very naive way of checking if changes
-            % happened. There could be changes in files, but not number of 
+            % happened. There could be changes in files, but not number of
             % files, which are not detected. Use with cautious.
             slash = filesep;
             modified = false;
@@ -1663,14 +1680,14 @@ classdef Project < handle
             else
                 isBIDS = 0;
             end
-
+            
             if( ~ isempty(folder_counts) )
                 if( nSubject ~= folder_counts )
                     modified = true;
                     return;
                 end
             end
-
+            
             nBlock = 0;
             for i = 1:nSubject
                 subject = subjects{i};
@@ -1700,8 +1717,8 @@ classdef Project < handle
                     nBlock = nBlock + length(files);
                 end
             end
-
-            % NOTE: Very risky. The assumption is that for each result 
+            
+            % NOTE: Very risky. The assumption is that for each result
             % file, there is a corresponding reduced file as well.
             if isempty(folder_counts) % Case of results folder
                 if allSteps
@@ -1719,7 +1736,7 @@ classdef Project < handle
                 end
             end
         end
-
+        
     end
     
     
