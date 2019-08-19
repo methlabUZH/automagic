@@ -591,6 +591,7 @@ classdef Block < handle
             % It keeps track of the history of all interpolations.
             automagic.finalBadChans = self.finalBadChans;
             preprocessed.automagic = automagic;
+            self.writeLog(automagic);
         end
         
         function writeLog(self, automagic)
