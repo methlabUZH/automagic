@@ -765,8 +765,8 @@ classdef Block < handle
             end
             fprintf(fileID, '\n');
             
-            if(isfield(automagic, 'eogRegression'))
-                if strcmp(automagic.eogRegression.performed, 'yes')
+            if(isfield(automagic, 'EOGRegression'))
+                if strcmp(automagic.EOGRegression.performed, 'yes')
                     fprintf(fileID, sprintf(text.eog.desc));
                     fprintf(fileID, '\n');
                 end
