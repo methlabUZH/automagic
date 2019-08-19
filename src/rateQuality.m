@@ -86,8 +86,8 @@ THVGoodIdx = zeros(1, length(Qs));
 THVOKIdx = zeros(1, length(Qs));
 THVBadIdx = zeros(1, length(Qs));
 if any(strfind(settings.Qmeasure,'THV'))
-    THVGoodIdx = [Qs.THV] < settings.overallGoodCutoff;
-    THVOKIdx = [Qs.THV] >= settings.overallGoodCutoff & [Qs.THV] < settings.overallBadCutoff;
+    THVGoodIdx = [Qs.THV] < settings.timeGoodCutoff;
+    THVOKIdx = [Qs.THV] >= settings.timeGoodCutoff & [Qs.THV] < settings.timeBadCutoff;
     THVBadIdx = ~(THVGoodIdx | THVOKIdx);
 end
 
@@ -96,8 +96,8 @@ CHVGoodIdx = zeros(1, length(Qs));
 CHVOKIdx = zeros(1, length(Qs));
 CHVBadIdx = zeros(1, length(Qs));
 if any(strfind(settings.Qmeasure,'CHV'))
-    CHVGoodIdx = [Qs.CHV] < settings.overallGoodCutoff;
-    CHVOKIdx = [Qs.CHV] >= settings.overallGoodCutoff & [Qs.CHV] < settings.overallBadCutoff;
+    CHVGoodIdx = [Qs.CHV] < settings.channelGoodCutoff;
+    CHVOKIdx = [Qs.CHV] >= settings.channelGoodCutoff & [Qs.CHV] < settings.channelBadCutoff;
     CHVBadIdx = ~(CHVGoodIdx | CHVOKIdx);
 end
 
@@ -106,8 +106,8 @@ RBCGoodIdx = zeros(1, length(Qs));
 RBCOKIdx = zeros(1, length(Qs));
 RBCBadIdx = zeros(1, length(Qs));
 if any(strfind(settings.Qmeasure,'RBC'))
-    RBCGoodIdx = [Qs.RBC] < settings.overallGoodCutoff;
-    RBCOKIdx = [Qs.RBC] >= settings.overallGoodCutoff & [Qs.RBC] < settings.overallBadCutoff;
+    RBCGoodIdx = [Qs.RBC] < settings.BadChannelGoodCutoff;
+    RBCOKIdx = [Qs.RBC] >= settings.BadChannelGoodCutoff & [Qs.RBC] < settings.BadChannelBadCutoff;
     RBCBadIdx = ~(RBCGoodIdx | RBCOKIdx);
 end
 
