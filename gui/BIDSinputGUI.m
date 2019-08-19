@@ -22,7 +22,7 @@ function varargout = BIDSinputGUI(varargin)
 
 % Edit the above text to modify the response to help BIDSinputGUI
 
-% Last Modified by GUIDE v2.5 03-Dec-2018 13:57:14
+% Last Modified by GUIDE v2.5 19-Aug-2019 10:33:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,10 +51,11 @@ function BIDSinputGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to BIDSinputGUI (see VARARGIN)
-
 movegui(handles.figure1,'center')
-set(handles.rawcheckbox, 'Value', 0);
-set(handles.derivativescheckbox, 'Value', 1);
+set(handles.rawBVAcheckbox, 'Value', 0);
+set(handles.derivativesBVAcheckbox, 'Value', 1);
+set(handles.rawSETcheckbox, 'Value', 0);
+set(handles.derivativesSETcheckbox, 'Value', 0);
 
 % Choose default command line output for BIDSinputGUI
 handles.output = hObject;
@@ -75,8 +76,10 @@ function varargout = BIDSinputGUI_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = get(handles.dataedit, 'String');
-varargout{2} = get(handles.rawcheckbox, 'Value');
-varargout{3} = get(handles.derivativescheckbox, 'Value');
+varargout{2} = get(handles.rawBVAcheckbox, 'Value');
+varargout{3} = get(handles.derivativesBVAcheckbox, 'Value');
+varargout{4} = get(handles.rawSETcheckbox, 'Value');
+varargout{5} = get(handles.derivativesSETcheckbox, 'Value');
 delete(handles.figure1);
 
 
@@ -150,7 +153,23 @@ end
 
 
 % --- Executes on button press in rawcheckbox.
-function rawcheckbox_Callback(hObject, eventdata, handles)
+function rawBVAcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to rawcheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of rawcheckbox
+
+% --- Executes on button press in derivativesBVAcheckbox.
+function derivativesBVAcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to derivativesBVAcheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of derivativesBVAcheckbox
+
+% --- Executes on button press in rawcheckbox.
+function rawSETcheckbox_Callback(hObject, eventdata, handles)
 % hObject    handle to rawcheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -158,10 +177,11 @@ function rawcheckbox_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of rawcheckbox
 
 
-% --- Executes on button press in derivativescheckbox.
-function derivativescheckbox_Callback(hObject, eventdata, handles)
-% hObject    handle to derivativescheckbox (see GCBO)
+% --- Executes on button press in derivativesBVAcheckbox.
+function derivativesSETcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to derivativesBVAcheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of derivativescheckbox
+% Hint: get(hObject,'Value') returns toggle state of derivativesBVAcheckbox
+
