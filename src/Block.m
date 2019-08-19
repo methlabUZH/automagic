@@ -601,6 +601,7 @@ classdef Block < handle
             % It keeps track of the history of all interpolations.
             automagic.finalBadChans = self.finalBadChans;
             preprocessed.automagic = automagic;
+            self.writeLog(automagic);
         end
         
         function writeLog(self, automagic)
@@ -774,8 +775,8 @@ classdef Block < handle
             end
             fprintf(fileID, '\n');
             
-            if(isfield(automagic, 'eogRegression'))
-                if strcmp(automagic.eogRegression.performed, 'yes')
+            if(isfield(automagic, 'EOGRegression'))
+                if strcmp(automagic.EOGRegression.performed, 'yes')
                     fprintf(fileID, sprintf(text.eog.desc));
                     fprintf(fileID, '\n');
                 end
@@ -845,6 +846,7 @@ classdef Block < handle
                 sprintf('%0.7f ', self.vParams.RateQualityParams.channelBadCutoff)));
             fprintf(fileID, '\n');
             fprintf(fileID, sprintf(text.quality.RBC,...
+                sprintf('%0.7f ', automagic.qualityScores.RBC),...
                 sprintf('%0.7f ', self.vParams.RateQualityParams.BadChannelGoodCutoff),...
                 sprintf('%0.7f ', self.vParams.RateQualityParams.BadChannelBadCutoff)));
             fprintf(fileID, '\n');
