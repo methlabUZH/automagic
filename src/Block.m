@@ -1027,9 +1027,10 @@ classdef Block < handle
                     self.commitedNb == 1
                 self.prefix = strcat(r, i, p);
             else
-                self.prefix = strcat(r, self.prefix(1:end-1), i, p);
+                if self.prefix(1) ~= r                     
+                self.prefix = strcat(r, self.prefix(1:end-1), p);
+                end
             end
-            
         end
 
         % TODO 20.03.2019: Is this even necessary now that we don't
