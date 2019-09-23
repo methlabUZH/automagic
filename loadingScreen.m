@@ -1,7 +1,7 @@
 function [hFig]=loadingScreen()
 
 % get the figure and axes handles
-logo = imread('\automagic_resources\logo.png');
+logo = imread('logo.png');
 imshow(logo);
 hFig = gcf;
 hAx  = gca;
