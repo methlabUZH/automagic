@@ -18,6 +18,6 @@ title(['\fontsize{16}A {\color{magenta}U '...
 '\color[rgb]{0 .5 .5}T \color{red}O} \fontsize{16}M {\color{magenta}A '...
 '\color[rgb]{0 .5 .5}G \color{red}I} \fontsize{16}C']);
 set(hFig,'NumberTitle','off');
-t = text(180, 1000 ,'Loading...');
+t = text(100, 500 ,'Loading...');
 t.FontSize = 20;
 set(hFig,'Name','Automagic v.2.3.8');
