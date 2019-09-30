@@ -336,10 +336,9 @@ subplot(11,1,1)
 if ~isempty(EOG.data)
     imagesc(EOG.data);
     colormap jet
-%     scale_min = round(min(min(EOG.data)));
-%     scale_max = round(max(max(EOG.data)));
-%     caxis([scale_min scale_max])
-    caxis([-200 200])
+    scale_min = round(min(min(EOG.data)));
+    scale_max = round(max(max(EOG.data)));
+    caxis(0.8*[scale_min scale_max])
     XTicks = [] ;
     XTicketLabels = [];
     set(gca,'XTick', XTicks)
@@ -409,7 +408,7 @@ set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
 if (~isempty(MARAParams))
     if strcmp(EEG.automagic.mara.performed, 'FAILED')
-        title_text = '\color{red}ICA FALIED';
+        title_text = '\color{red}ICA FAILED';
         cla(ica_subplot)
     else
         title_text = 'ICA corrected clean data';
