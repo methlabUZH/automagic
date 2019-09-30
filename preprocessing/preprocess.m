@@ -336,9 +336,10 @@ subplot(11,1,1)
 if ~isempty(EOG.data)
     imagesc(EOG.data);
     colormap jet
-    scale_min = round(min(min(EOG.data)));
-    scale_max = round(max(max(EOG.data)));
-    caxis([scale_min scale_max])
+%     scale_min = round(min(min(EOG.data)));
+%     scale_max = round(max(max(EOG.data)));
+%     caxis([scale_min scale_max])
+    caxis([-200 200])
     XTicks = [] ;
     XTicketLabels = [];
     set(gca,'XTick', XTicks)
