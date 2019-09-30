@@ -1,7 +1,7 @@
 function [hFig]=loadingScreen()
 
 % get the figure and axes handles
-logo = imread('logo.png');
+logo = imread('playful2.jpg');
 logo = imresize(logo,[490,286]);
 imshow(logo);
 hFig = gcf;
