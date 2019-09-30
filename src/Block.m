@@ -757,18 +757,6 @@ classdef Block < handle
                 end
             end
             
-            fprintf(fileID, sprintf(text.badchans.desc, ...
-                length(automagic.autoBadChans)));
-            if strcmp(automagic.prep.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.prep, ...
-                    length(automagic.prep.badChans)));
-            end
-            
-            if strcmp(automagic.crd.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.crd, ...
-                    length(automagic.crd.badChans)));
-            end
-            
             if strcmp(automagic.highVarianceRejection.performed, 'yes')
                 fprintf(fileID, sprintf(text.badchans.flatline, ...
                     length(automagic.highVarianceRejection.badChans)));
@@ -810,12 +798,34 @@ classdef Block < handle
                 end
             end
          
-            fprintf(fileID, sprintf(text.dc.desc));
-            fprintf(fileID, '\n');
+            if ~isempty(automagic.params.DetrendingParams)
+                fprintf(fileID, sprintf(text.dc.desc));
+                fprintf(fileID, '\n');
+            end
             
             if strcmp(automagic.highVarianceRejection.performed, 'yes')
                 fprintf(fileID, sprintf(text.highvar.desc, ...
                     automagic.highVarianceRejection.sd));
+                fprintf(fileID, '\n');
+            end
+            
+            fprintf(fileID, sprintf(text.badchans.desc, ...
+                length(automagic.autoBadChans)));
+            if strcmp(automagic.prep.performed, 'yes')
+                fprintf(fileID, sprintf(text.badchans.prep, ...
+                    length(automagic.prep.badChans)));
+            end
+            
+            if strcmp(automagic.crd.performed, 'yes')
+                fprintf(fileID, sprintf(text.badchans.crd, ...
+                    length(automagic.crd.badChans)));
+            end
+            
+            fprintf(fileID, '\n');
+            
+            if isfield(automagic, 'interpolation')
+                fprintf(fileID, sprintf(text.interpolate.desc, ...
+                    automagic.interpolation.params.method));
                 fprintf(fileID, '\n');
             end
             
@@ -882,12 +892,6 @@ classdef Block < handle
                 sprintf('%0.2f ', []),...
                 sprintf('%0.2f ', [])));
             fprintf(fileID, '\n');
-            end
-            
-            if isfield(automagic, 'interpolation')
-                fprintf(fileID, sprintf(text.interpolate.desc, ...
-                    automagic.interpolation.params.method));
-                fprintf(fileID, '\n');
             end
             
             fclose(fileID);
