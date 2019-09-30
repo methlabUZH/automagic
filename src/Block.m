@@ -820,9 +820,9 @@ classdef Block < handle
             end
             
             if automagic.commitedNb>0
-            committedOHAThresh = automagic.qualityThresholds.overallThresh(find(automagic.qualityScores.OHA==automagic.selectedQualityScore.OHA));
-            committedTHVThresh = automagic.qualityThresholds.timeThresh(find(automagic.qualityScores.THV==automagic.selectedQualityScore.THV));
-            committedCHVThresh = automagic.qualityThresholds.chanThresh(find(automagic.qualityScores.CHV==automagic.selectedQualityScore.CHV));
+            committedOHAThresh = min(automagic.qualityThresholds.overallThresh(find(automagic.qualityScores.OHA==automagic.selectedQualityScore.OHA)));
+            committedTHVThresh = min(automagic.qualityThresholds.timeThresh(find(automagic.qualityScores.THV==automagic.selectedQualityScore.THV)));
+            committedCHVThresh = min(automagic.qualityThresholds.chanThresh(find(automagic.qualityScores.CHV==automagic.selectedQualityScore.CHV)));
             fprintf(fileID, sprintf(text.quality.OHA,...
                 sprintf('%0.0f ', automagic.qualityThresholds.overallThresh),...
                 sprintf('%0.7f ',automagic.qualityScores.OHA),...
