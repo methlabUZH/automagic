@@ -286,7 +286,10 @@ classdef Block < handle
             else
                 splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
             end
-            relAdd = splits{2};
+            relAdd = '';
+            if length(splits) == 2
+                relAdd = splits{2};
+            end
             
             if ~isempty(relAdd)
                 splits = strsplit(relAdd, [self.fileName, self.fileExtension]);
@@ -329,7 +332,10 @@ classdef Block < handle
             else
                 splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
             end
-            relAdd = splits{2};
+            relAdd = '';
+            if length(splits) == 2
+                relAdd = splits{2};
+            end
             self.sourceAddress = [self.subject.dataFolder slash relAdd];
             
             if ~isempty(relAdd)
@@ -1051,7 +1057,10 @@ classdef Block < handle
             else
                 splits = strsplit(self.sourceAddress, [slash self.subject.name slash]);
             end
-            relAdd = splits{2};
+            relAdd = '';
+            if length(splits) == 2
+                relAdd = splits{2};
+            end
             if ~isempty(relAdd)
                 relAdd = strsplit(relAdd, [self.fileName, self.fileExtension]);
                 relAdd = relAdd{1};
@@ -1121,7 +1130,11 @@ classdef Block < handle
             else
                 splits = strsplit(address, [slash subject.name slash]);
             end
-            relAdd = splits{2};
+            relAdd = '';
+            if length(splits) == 2
+                relAdd = splits{2};
+            end
+            
             
             if ~isempty(relAdd)
                 splits = strsplit(relAdd, [fileName, '.']);
