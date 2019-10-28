@@ -1577,6 +1577,9 @@ classdef Project < handle
                 fileID = fopen(logFileAddress,'w');
             end
             subjectFileName = find('\'== sourceAddress);
+            if isempty(subjectFileName)
+                subjectFileName = find('/'== sourceAddress);
+            end
             subjectFileName = subjectFileName(end);
             subjectFileName = sourceAddress(subjectFileName+1:end);
             fprintf(fileID, [datestr(datetime('now')) ' The data file ' subjectFileName ...
