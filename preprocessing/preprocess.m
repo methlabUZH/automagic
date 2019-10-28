@@ -334,18 +334,20 @@ hold on
 % eog figure
 subplot(11,1,1)
 if ~isempty(EOG.data)
-    imagesc(EOG.data);
+    visEOG = zscore(EOG.data');
+    visEOG = visEOG';
+    imagesc(visEOG);
     colormap jet
-    scale_min = round(min(min(EOG.data)));
-    scale_max = round(max(max(EOG.data)));
-    caxis(0.8*[scale_min scale_max])
+    scale_min = round(min(min(visEOG)));
+    scale_max = round(max(max(visEOG)));
+    caxis(1*[scale_min scale_max])
     XTicks = [] ;
     XTicketLabels = [];
     set(gca,'XTick', XTicks)
     set(gca,'XTickLabel', XTicketLabels)
     yticks = get(gca,'YTickLabel');
     set(gca,'YTickLabel', yticks, 'fontsize', 7);
-    title('Filtered EOG data');
+    title('Filtered (z-scored) EOG data');
     colorbar;
 else
     title('No EOG data available');
