@@ -121,6 +121,15 @@ end
 % Add the info to the output structure
 EEG_out.automagic.crd.performed = 'yes';
 EEG_out.automagic.crd.badChans = badChans;
+if isfield(EEG_out.etc, 'flatlines')
+    EEG_out.automagic.crd.flatlines = find(EEG_out.etc.flatlines);
+end
+if isfield(EEG_out.etc, 'ChannelCriterion')
+    EEG_out.automagic.crd.ChannelCriterion = find(EEG_out.etc.ChannelCriterion);
+end
+if isfield(EEG_out.etc, 'LineNoiseCriterion')
+    EEG_out.automagic.crd.LineNoiseCriterion = find(EEG_out.etc.LineNoiseCriterion);
+end
 EEG_out.automagic.crd.params = params;
 
 % .preprocessing field is used for internal purposes and will be removed at
