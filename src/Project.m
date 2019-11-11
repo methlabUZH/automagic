@@ -1180,7 +1180,7 @@ classdef Project < handle
                         bidsStruct.ArtifactCorrection.EOGRegression.ToolboxReference = 'Parra, Lucas C., Clay D. Spence, Adam D. Gerson, and Paul Sajda. 2005. “Recipes for the Linear Analysis of EEG.�? NeuroImage 28 (2): 326–41';
                     end
                     
-                    if ~isempty(autStruct.params.MARAParams)
+                    if ~isempty(autStruct.params.MARAParams) && ~strcmp(autStruct.mara.performed,'FAILED')
                         bidsStruct.ArtifactCorrection.MARA.RemovedBadICs = autStruct.mara.ICARejected;
                         bidsStruct.ArtifactCorrection.MARA.PosteriorArtefactProbability = autStruct.mara.postArtefactProb;
                         bidsStruct.ArtifactCorrection.MARA.RetainedVariance = autStruct.mara.retainedVariance;
