@@ -428,6 +428,12 @@ classdef Project < handle
             % Ask to overwrite the existing preprocessed files, if any
             skip = self.checkExistings();
             
+            % Check for a file size exclusion list
+            excluLoc = strcat(self.resultFolder,'exclusionList.mat');
+            if exist(excluLoc,'file')
+                excluList = load(strcat(self.resultFolder,'exclusionList.mat'));
+            end
+            
             fprintf('*******Start preprocessing all dataset*******\n');
             startTime = cputime;
             for i = 1:length(self.blockList)
@@ -451,6 +457,16 @@ classdef Project < handle
                     fprintf(['Results already exits. Skipping '...
                         'prerocessing for this subject...\n']);
                     continue;
+                end
+                
+                if exist('excluList')
+                    if excluList.exclusionList(i)==1
+                        fprintf(['File-size too small. Skipping '...
+                        'prerocessing for this file...\n']);
+                    message = ' File-size too small';
+                    self.writeToLog(block.sourceAddress, message);
+                    continue;
+                    end
                 end
                 
                 % preprocess the file

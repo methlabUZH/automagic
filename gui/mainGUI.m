@@ -791,7 +791,6 @@ dataFolder = get(handles.datafoldershow, 'String');
 if( strcmp(dataFolder, handles.CGV.NEW_PROJECT.DATA_FOLDER) || ...
         strcmp(projectFolder, handles.CGV.NEW_PROJECT.FOLDER) || ...
         strcmp(name, handles.CGV.NEW_PROJECT.NAME))
-    
     popup_msg('You must choose a name, project folder and data folder.',...
         'Error');
     return;
@@ -1525,6 +1524,66 @@ function existingpopupmenu_ButtonDownFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% --- Executes on button press in fileSizeFilterspushbutton.
+function fileSizeFilterspushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to configbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+k = keys(handles.projectList);
+projName = k{handles.currentProject};
+projDetails = handles.projectList(projName);
+datafolder{1} = projDetails.dataFolder;
+[absThresh,absCheckbox,MADcheckbox,IQRcheckbox,changeCheck,] = fileSizeFilterGUI(datafolder,handles);
+handles.filesizeParams.absThresh = absThresh;
+handles.filesizeParams.absCheckbox = absCheckbox;
+handles.filesizeParams.MADcheckbox = MADcheckbox;
+handles.filesizeParams.IQRcheckbox = IQRcheckbox;
+guidata(hObject,handles);
+if changeCheck
+resultsFolder = datafolder{1};
+fileSizeList = [];
+subjFolders = dir(resultsFolder);
+for subj = 3 : size(subjFolders,1)
+%     disp(subj-2)
+    subjName = subjFolders(subj).name;
+    filepath = [resultsFolder subjName];
+    subjFiles = dir(filepath);
+    for file = 3 : size(subjFiles,1)
+        fileSize = subjFiles(file).bytes;
+        fileSizeList = [fileSizeList; fileSize];
+    end
+end
+absCase = absCheckbox;
+madCase = MADcheckbox;
+iqrCase = IQRcheckbox; 
+absThresh = str2double(absThresh);
+if isempty(absThresh)
+    absCase = 0;
+end
+if absCase
+    absList = fileSizeList<absThresh;
+else
+    absList = zeros(numel(fileSizeList),1);
+end    
+if madCase
+    madThr = mad(fileSizeList,1); % median 
+    madList = fileSizeList>madThr+median(fileSizeList);
+else
+    madList = zeros(numel(fileSizeList),1);    
+end
+if iqrCase
+    iqrThr = [quantile(fileSizeList,0.25),quantile(fileSizeList,0.75)];
+    iqrList = [fileSizeList<iqrThr(:,1),fileSizeList>iqrThr(:,2)];
+    iqrList = iqrList(:,1)|iqrList(:,2);
+else
+    iqrList = zeros(numel(fileSizeList),1);    
+end
+exclusionList = absList | madList | iqrList;
+% percentExcluded = 100*sum(exclusionList)/length(exclusionList);
+% disp(percentExcluded);
+storeSite = projDetails.resultFolder;
+save(strcat(storeSite,'exclusionList.mat'),'exclusionList'); 
+end
 
 % --- Executes on button press in bidspushbutton.
 function bidspushbutton_Callback(hObject, eventdata, handles)
