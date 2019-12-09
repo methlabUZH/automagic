@@ -55,11 +55,25 @@ function fileSizeFilterGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 movegui(handles.figure1,'center')
 handles.resultsfolder = varargin{1};
 params = varargin{2};
+set(handles.dataedit,'enable','off');
+set(handles.MADedit,'enable','off');
+set(handles.IQRedit,'enable','off');
 if isfield(params,'filesizeParams')
     set(handles.dataedit, 'String', params.filesizeParams.absThresh);
     set(handles.absCheckbox, 'Value', params.filesizeParams.absCheckbox);
     set(handles.MADcheckbox, 'Value', params.filesizeParams.MADcheckbox);
     set(handles.IQRcheckbox, 'Value', params.filesizeParams.IQRcheckbox);
+    set(handles.IQRedit, 'String', params.filesizeParams.IQRedit);
+    set(handles.MADedit, 'String', params.filesizeParams.MADedit);
+    if params.filesizeParams.absCheckbox == 1
+        set(handles.dataedit,'enable','on');
+    end
+    if params.filesizeParams.MADcheckbox == 1
+        set(handles.MADedit,'enable','on');
+    end
+    if params.filesizeParams.IQRcheckbox == 1
+        set(handles.IQRedit,'enable','on');
+    end
 end
 % Choose default command line output for fileSizeFilterGUI
 handles.output = hObject;
@@ -81,6 +95,8 @@ varargout{2} = get(handles.absCheckbox, 'Value');
 varargout{3} = get(handles.MADcheckbox, 'Value');
 varargout{4} = get(handles.IQRcheckbox, 'Value');
 varargout{5} = (varargout{2}|varargout{3}|varargout{4});
+varargout{6} = get(handles.MADedit, 'String');
+varargout{7} = get(handles.IQRedit, 'String');
 guidata(hObject, handles);
 delete(handles.figure1);
 
@@ -133,7 +149,6 @@ function cancelpushbutton_Callback(hObject, eventdata, handles)
 % set(handles.dataedit, 'String', '');
 close('File Size Filter');
 
-
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -147,29 +162,40 @@ else
     delete(hObject);
 end
 
-
-% --- Executes on button press in rawcheckbox.
+% --- Executes on button press in absCheckbox.
 function absCheckbox_Callback(hObject, eventdata, handles)
-% hObject    handle to rawcheckbox (see GCBO)
+% hObject    handle to absCheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if get(handles.absCheckbox,'Value')
+    set(handles.dataedit,'enable','on');
+else
+    set(handles.dataedit,'enable','off');
+end
+% Hint: get(hObject,'Value') returns toggle state of absCheckbox
 
-% Hint: get(hObject,'Value') returns toggle state of rawcheckbox
-
-% --- Executes on button press in rawcheckbox.
+% --- Executes on button press in MADcheckbox.
 function MADcheckbox_Callback(hObject, eventdata, handles)
-% hObject    handle to rawcheckbox (see GCBO)
+% hObject    handle to MADcheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of rawcheckbox
+if get(handles.MADcheckbox,'Value')
+    set(handles.MADedit,'enable','on');
+else
+    set(handles.MADedit,'enable','off');
+end
+% Hint: get(hObject,'Value') returns toggle state of MADcheckbox
 
 % --- Executes on button press in derivativesBVAcheckbox.
 function IQRcheckbox_Callback(hObject, eventdata, handles)
 % hObject    handle to derivativesBVAcheckbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+if get(handles.IQRcheckbox,'Value')
+    set(handles.IQRedit,'enable','on');
+else
+    set(handles.IQRedit,'enable','off');
+end
 % Hint: get(hObject,'Value') returns toggle state of derivativesBVAcheckbox
 
 function percentLost_Callback(hObject, eventdata, handles)
@@ -278,7 +304,6 @@ function IQRedit_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of IQRedit as text
 %        str2double(get(hObject,'String')) returns contents of IQRedit as a double
 
-
 % --- Executes during object creation, after setting all properties.
 function IQRedit_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to IQRedit (see GCBO)
@@ -291,13 +316,10 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 function MADedit_Callback(hObject, eventdata, handles)
 % hObject    handle to MADedit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 % Hints: get(hObject,'String') returns contents of MADedit as text
 %        str2double(get(hObject,'String')) returns contents of MADedit as a double
 
@@ -313,3 +335,4 @@ function MADedit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
