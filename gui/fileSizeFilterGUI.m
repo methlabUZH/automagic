@@ -22,7 +22,7 @@ function varargout = fileSizeFilterGUI(varargin)
 
 % Edit the above text to modify the response to help fileSizeFilterGUI
 
-% Last Modified by GUIDE v2.5 09-Dec-2019 14:11:53
+% Last Modified by GUIDE v2.5 09-Dec-2019 14:38:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -214,6 +214,10 @@ absThresh = get(handles.dataedit, 'String');
 absCase = get(handles.absCheckbox, 'Value');
 madCase = get(handles.MADcheckbox, 'Value');
 iqrCase = get(handles.IQRcheckbox, 'Value');
+IQRquantile = get(handles.IQRedit, 'String');
+MADscalar = get(handles.MADedit, 'String');
+IQRquantile = str2double(IQRquantile)/100;
+MADscalar = str2double(MADscalar);
 absThresh = str2double(absThresh);
 if isempty(absThresh)
     absCase = 0;
@@ -224,13 +228,13 @@ else
     absList = zeros(numel(fileSizeList),1);
 end    
 if madCase
-    madThr = mad(fileSizeList,1); % median 
-    madList = fileSizeList>madThr+median(fileSizeList);
+    madThr = MADscalar*mad(fileSizeList,1); % median 
+    madList = fileSizeList<madThr+median(fileSizeList);
 else
     madList = zeros(numel(fileSizeList),1);    
 end
 if iqrCase
-    iqrThr = [quantile(fileSizeList,0.25),quantile(fileSizeList,0.75)];
+    iqrThr = [quantile(fileSizeList,IQRquantile),quantile(fileSizeList,(1-IQRquantile))];
     iqrList = [fileSizeList<iqrThr(:,1),fileSizeList>iqrThr(:,2)];
     iqrList = iqrList(:,1)|iqrList(:,2);
 else
@@ -263,3 +267,49 @@ histogram(fileSizeList/10e6);
 ylabel('Frequency');
 xlabel('File Size (MBytes)');
 title('Histogram of whole dataset file sizes');
+
+
+
+function IQRedit_Callback(hObject, eventdata, handles)
+% hObject    handle to IQRedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of IQRedit as text
+%        str2double(get(hObject,'String')) returns contents of IQRedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function IQRedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to IQRedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function MADedit_Callback(hObject, eventdata, handles)
+% hObject    handle to MADedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of MADedit as text
+%        str2double(get(hObject,'String')) returns contents of MADedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function MADedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to MADedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
