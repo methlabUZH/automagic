@@ -209,6 +209,7 @@ for subj = 3 : size(subjFolders,1)
         fileSizeList = [fileSizeList; fileSize];
     end
 end
+fileSizeList = fileSizeList/10e6;
 absThresh = get(handles.dataedit, 'String');
 absCase = get(handles.absCheckbox, 'Value');
 madCase = get(handles.MADcheckbox, 'Value');
