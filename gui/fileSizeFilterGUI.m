@@ -258,19 +258,19 @@ if isempty(IQRquantile)
     set(handles.IQRedit,'String', '0');
 end
 if absCase
-    absList = fileSizeList<absThresh;
+    absList = fileSizeList<=absThresh;
 else
     absList = zeros(numel(fileSizeList),1);
 end    
 if madCase
     madThr = MADscalar*mad(fileSizeList,1); % median 
-    madList = fileSizeList<madThr+median(fileSizeList);
+    madList = fileSizeList<=madThr+median(fileSizeList);
 else
     madList = zeros(numel(fileSizeList),1);    
 end
 if iqrCase
     iqrThr = [quantile(fileSizeList,IQRquantile),quantile(fileSizeList,(1-IQRquantile))];
-    iqrList = [fileSizeList<iqrThr(:,1),fileSizeList>iqrThr(:,2)];
+    iqrList = [fileSizeList<=iqrThr(:,1),fileSizeList>=iqrThr(:,2)];
     iqrList = iqrList(:,1)|iqrList(:,2);
 else
     iqrList = zeros(numel(fileSizeList),1);    
