@@ -1551,7 +1551,6 @@ resultsFolder = datafolder{1};
 fileSizeList = [];
 subjFolders = dir(resultsFolder);
 for subj = 3 : size(subjFolders,1)
-%     disp(subj-2)
     subjName = subjFolders(subj).name;
     filepath = [resultsFolder subjName];
     subjFiles = dir(filepath);
@@ -1560,6 +1559,7 @@ for subj = 3 : size(subjFolders,1)
         fileSizeList = [fileSizeList; fileSize];
     end
 end
+fileSizeList = fileSizeList/10e6;
 absCase = absCheckbox;
 madCase = MADcheckbox;
 iqrCase = IQRcheckbox; 
