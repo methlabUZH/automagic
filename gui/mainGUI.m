@@ -1540,11 +1540,14 @@ catch ME
     noProject = 1;
 end
 if ~noProject
-[absThresh,absCheckbox,MADcheckbox,IQRcheckbox,changeCheck,] = fileSizeFilterGUI(datafolder,handles);
+[absThresh,absCheckbox,MADcheckbox,IQRcheckbox,changeCheck,MADscalar,IQRquantile] = fileSizeFilterGUI(datafolder,handles);
 handles.filesizeParams.absThresh = absThresh;
 handles.filesizeParams.absCheckbox = absCheckbox;
 handles.filesizeParams.MADcheckbox = MADcheckbox;
 handles.filesizeParams.IQRcheckbox = IQRcheckbox;
+handles.filesizeParams.IQRedit = IQRquantile;
+handles.filesizeParams.MADedit = MADscalar;
+
 guidata(hObject,handles);
 if changeCheck
 resultsFolder = datafolder{1};
@@ -1563,6 +1566,8 @@ fileSizeList = fileSizeList/10e6;
 absCase = absCheckbox;
 madCase = MADcheckbox;
 iqrCase = IQRcheckbox; 
+IQRquantile = str2double(IQRquantile)/100;
+MADscalar = str2double(MADscalar);
 absThresh = str2double(absThresh);
 if isempty(absThresh)
     absCase = 0;
@@ -1573,21 +1578,20 @@ else
     absList = zeros(numel(fileSizeList),1);
 end    
 if madCase
-    madThr = mad(fileSizeList,1); % median 
-    madList = fileSizeList>madThr+median(fileSizeList);
+    madThr = MADscalar*mad(fileSizeList,1); % median 
+    madList = fileSizeList<madThr+median(fileSizeList);
 else
     madList = zeros(numel(fileSizeList),1);    
 end
 if iqrCase
-    iqrThr = [quantile(fileSizeList,0.25),quantile(fileSizeList,0.75)];
+    iqrThr = [quantile(fileSizeList,IQRquantile),quantile(fileSizeList,(1-IQRquantile))];
     iqrList = [fileSizeList<iqrThr(:,1),fileSizeList>iqrThr(:,2)];
     iqrList = iqrList(:,1)|iqrList(:,2);
 else
     iqrList = zeros(numel(fileSizeList),1);    
 end
 exclusionList = absList | madList | iqrList;
-% percentExcluded = 100*sum(exclusionList)/length(exclusionList);
-% disp(percentExcluded);
+% percentLost = num2str(100*sum(exclusionList)/l% disp(percentExcluded);
 storeSite = projDetails.resultFolder;
 save(strcat(storeSite,'exclusionList.mat'),'exclusionList'); 
 end
