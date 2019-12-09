@@ -246,7 +246,16 @@ IQRquantile = str2double(IQRquantile)/100;
 MADscalar = str2double(MADscalar);
 absThresh = str2double(absThresh);
 if isempty(absThresh)
-    absCase = 0;
+    absThresh = 0;
+    set(handles.dataedit,'String', '0');
+end
+if isempty(MADscalar)
+    MADscalar = 0;
+    set(handles.MADedit,'String', '0');
+end
+if isempty(IQRquantile)
+    IQRquantile = 0;
+    set(handles.IQRedit,'String', '0');
 end
 if absCase
     absList = fileSizeList<absThresh;
