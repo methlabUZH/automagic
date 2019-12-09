@@ -1532,7 +1532,14 @@ function fileSizeFilterspushbutton_Callback(hObject, eventdata, handles)
 k = keys(handles.projectList);
 projName = k{handles.currentProject};
 projDetails = handles.projectList(projName);
-datafolder{1} = projDetails.dataFolder;
+try 
+    datafolder{1} = projDetails.dataFolder;
+    noProject = 0;
+catch ME
+    warning('You must first create the project')
+    noProject = 1;
+end
+if ~noProject
 [absThresh,absCheckbox,MADcheckbox,IQRcheckbox,changeCheck,] = fileSizeFilterGUI(datafolder,handles);
 handles.filesizeParams.absThresh = absThresh;
 handles.filesizeParams.absCheckbox = absCheckbox;
@@ -1583,6 +1590,7 @@ exclusionList = absList | madList | iqrList;
 % disp(percentExcluded);
 storeSite = projDetails.resultFolder;
 save(strcat(storeSite,'exclusionList.mat'),'exclusionList'); 
+end
 end
 
 % --- Executes on button press in bidspushbutton.
