@@ -22,7 +22,7 @@ function varargout = fileSizeFilterGUI(varargin)
 
 % Edit the above text to modify the response to help fileSizeFilterGUI
 
-% Last Modified by GUIDE v2.5 04-Dec-2019 09:12:57
+% Last Modified by GUIDE v2.5 09-Dec-2019 14:11:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -239,3 +239,27 @@ end
 exclusionList = absList | madList | iqrList;
 percentLost = num2str(100*sum(exclusionList)/length(exclusionList));
 set(handles.percentLost,'String',percentLost);
+
+
+% --- Executes on button press in createHistogram.
+function createHistogram_Callback(hObject, eventdata, handles)
+% hObject    handle to createHistogram (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+resultsFolder = handles.resultsfolder{1};
+fileSizeList = [];
+subjFolders = dir(resultsFolder);
+for subj = 3 : size(subjFolders,1)
+    subjName = subjFolders(subj).name;
+    filepath = [resultsFolder subjName];
+    subjFiles = dir(filepath);
+    for file = 3 : size(subjFiles,1)
+        fileSize = subjFiles(file).bytes;
+        fileSizeList = [fileSizeList; fileSize];
+    end
+end
+figure;
+histogram(fileSizeList/10e6);
+ylabel('Frequency');
+xlabel('File Size (MBytes)');
+title('Histogram of whole dataset file sizes');
