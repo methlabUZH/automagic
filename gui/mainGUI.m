@@ -723,6 +723,29 @@ if(~ isempty(project))
     commandwindow;
     project.interpolateSelected();
 end
+    if isfield(handles,'emailOptions')
+        if handles.emailOptions.agree == 1
+            recipientAddress = handles.emailOptions.emailAddress;
+            processing_step = 'Interpolation';
+            if handles.emailOptions.errorlog == 1
+                try
+                    attachment = [handles.projectfoldershow.String 'preprocessing.log'];
+                catch ME
+                    problem = ME.message;
+                    warning(['Could attach error-log file because ' ME.message])
+                end
+            else
+                attachment = [];
+            end
+            disp('Sending E-mail notification...');
+            sent_status = autoEmail(recipientAddress, processing_step, attachment);
+            if sent_status == 1
+            disp('E-mail sent');
+            else
+                disp('Gmail user? Check your settings: https://myaccount.google.com/lesssecureapps');
+            end
+        end 
+    end
 
 % --- Run preprocessing on all subjects
 function runpreprocessbutton_Callback(hObject, eventdata, handles)
@@ -754,9 +777,31 @@ if( ~ isempty(project))
     drawnow;
     finishup = onCleanup(@() myCleanupFun(handles));
     project.preprocessAll();
+    if isfield(handles,'emailOptions')
+        if handles.emailOptions.agree == 1
+            recipientAddress = handles.emailOptions.emailAddress;
+            processing_step = 'Preprocessing';
+            if handles.emailOptions.errorlog == 1
+                try
+                    attachment = [handles.projectfoldershow.String 'preprocessing.log'];
+                catch ME
+                    problem = ME.message;
+                    warning(['Could attach error-log file because ' ME.message])
+                end
+            else
+                attachment = [];
+            end
+            disp('Sending E-mail notification...');
+            sent_status = autoEmail(recipientAddress, processing_step, attachment);
+            if sent_status == 1
+            disp('E-mail sent');
+            else
+                disp('Gmail user? Check your settings: https://myaccount.google.com/lesssecureapps');
+            end
+        end 
+    end
     set(handles.mainGUI, 'pointer', 'arrow')
 end
-
 
 
 function myCleanupFun(handles)
@@ -781,7 +826,7 @@ function createbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to createbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+handles
 CGV = handles.CGV;
 name = get(handles.projectname, 'String');
 projectFolder = get(handles.projectfoldershow, 'String');
@@ -1617,6 +1662,14 @@ if isempty(project)
     return;
 end
 project.exportToBIDS(rootFolder, makeRawBVA, makeDerivativesBVA, makeRawSET, makeDerivativesSET);
+
+% --- Executes on button press in emailpushbutton.
+function emailpushbutton_Callback(hObject, eventdata, handles)
+[tcagree,errorlogattach,emailTextbox] = emailFeatureGUI(handles);
+handles.emailOptions.agree = tcagree;
+handles.emailOptions.errorlog = errorlogattach;
+handles.emailOptions.emailAddress = emailTextbox;
+guidata(hObject,handles);
 
 
 % --- Executes on button press in helpbidspushbutton.
