@@ -30,6 +30,10 @@ addpath(['.' filesep])
 matlabPaths = matlabpath;
 parts = strsplit(matlabPaths, pathsep);
 Index = contains(parts, automagic);
+if sum(Index)==0
+    warning('You need to include Automagic in your matlab path');
+    return
+end
 automagicPath = parts{Index};
 if ~strcmp(automagicPath(end), filesep)
     automagicPath = strcat(automagicPath, filesep);
