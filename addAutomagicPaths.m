@@ -49,3 +49,23 @@ addpath([automagicPath guiFolder filesep])
 addpath([automagicPath preproFolder filesep])
 addpath([automagicPath libName filesep])
 addpath([automagicPath pluginFolder filesep])
+pathCheck{1}=automagicPath;
+pathCheck{2}=[automagicPath srcFolder filesep];
+pathCheck{3}=[automagicPath guiFolder filesep];
+pathCheck{4}=[automagicPath preproFolder filesep];
+pathCheck{5}=[automagicPath libName filesep];
+pathCheck{6}=[automagicPath pluginFolder filesep];
+matlabPaths = matlabpath;
+parts = strsplit(matlabPaths, pathsep);
+Index = contains(parts, pathCheck);
+if sum(Index)<6
+    warning('You need to include Automagic in your matlab path');
+end
+% if ~strcmp(automagicPath(end), filesep)
+%     automagicPath = strcat(automagicPath, filesep);
+% end
+% automagicPath = regexp(automagicPath, ['.*' automagic '.*?' filesep], 'match');
+% automagicPath = automagicPath{1};
+% if ~strcmp(automagicPath(end), filesep)
+%     automagicPath = strcat(automagicPath, filesep);
+% end
