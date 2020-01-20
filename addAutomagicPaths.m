@@ -25,6 +25,7 @@ srcFolder = 'src';
 guiFolder = 'gui';
 preproFolder = 'preprocessing';
 pluginFolder = 'eeglab_plugin';
+
 automagicPath= fileparts(mfilename('fullpath'));
 addpath(automagicPath)
 if ~strcmp(automagicPath(end), filesep)
