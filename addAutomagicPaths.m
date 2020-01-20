@@ -58,7 +58,7 @@ pathCheck{6}=[automagicPath pluginFolder filesep];
 matlabPaths = matlabpath;
 parts = strsplit(matlabPaths, pathsep);
 Index = contains(parts, pathCheck);
-if sum(Index)<6
+if sum(Index)<5
     warning('You need to include Automagic in your matlab path');
 end
 % if ~strcmp(automagicPath(end), filesep)
