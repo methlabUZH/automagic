@@ -1001,18 +1001,9 @@ function mainGUI_CloseRequestFcn(hObject, eventdata, handles)
 % Change the cursor to a watch while updating...
 set(handles.mainGUI, 'pointer', 'watch')
 drawnow;
+
 save_state(handles);
-direc = dir;
-plug = 0;
-for n = 1:length(direc)
-    name = direc(n).name;
-    if contains(name,'eeglab.m')
-        plug = 1;
-    end
-end
-if ~plug
-    removeAutomagicPath()
-end
+removeAutomagicPath()
 
 % Hint: delete(hObject) closes the figure
 delete(hObject);
