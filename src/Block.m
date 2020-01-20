@@ -427,11 +427,13 @@ classdef Block < handle
           
             % Load the file
             data = self.loadEEGFromFile();
-            if ~isempty(self.params.ChannelReductionParams.tobeExcludedChans)
-                if max(self.params.ChannelReductionParams.tobeExcludedChans) < size(data.data,1)
-                    popup_msg(['An excluded channel does not exist.',...
-            'You must create a new project, specifying the correct channels to exclude.'], 'Error');
-            error('An excluded channel does not exist. You must create a new project, specifying the correct channels to exclude.');               
+            if isfield(self.params.ChannelReductionParams,'tobeExcludedChans')
+                if ~isempty(self.params.ChannelReductionParams.tobeExcludedChans)
+                    if max(self.params.ChannelReductionParams.tobeExcludedChans) < size(data.data,1)
+                        popup_msg(['An excluded channel does not exist.',...
+                            'You must create a new project, specifying the correct channels to exclude.'], 'Error');
+                        error('An excluded channel does not exist. You must create a new project, specifying the correct channels to exclude.');
+                    end
                 end
             end
             if(any(strcmp({self.CGV.EXTENSIONS.fif}, self.fileExtension))) 
