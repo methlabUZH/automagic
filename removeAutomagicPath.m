@@ -17,12 +17,7 @@ function removeAutomagicPath()
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-allPaths = path;
-allPaths = strsplit(allPaths, pathsep);
-idx = contains(allPaths, 'automagic');
-allPaths(~idx) = [];
-automagicPaths = strjoin(allPaths, pathsep);
-rmpath(automagicPaths);
+warning('off', 'MATLAB:rmpath:DirNotFound');
+rmpath(genpath(fileparts(mfilename('fullpath'))));
 fprintf('All paths related to Automagic removed from MATLAB search path.\n');
-
 end
