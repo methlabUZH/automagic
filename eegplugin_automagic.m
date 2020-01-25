@@ -35,7 +35,7 @@ addAutomagicPaths();
 
 % Create the menu and its submenues
 % ------------------------------------
-start_command = '[com] = pop_automagic();';
+start_command = 'addAutomagicPaths; [com] = pop_automagic();';
 import_command = '[com, ALLEEG, EEG, CURRENTSET] = pop_import(ALLEEG, EEG, CURRENTSET);';
 import_command = [import_command 'eeglab redraw;'];
 
