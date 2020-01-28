@@ -26,18 +26,24 @@ function parts = addEEGLab()
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-CSTS = PreprocessingConstants;
-ZIPName = CSTS.EEGLabCsts.ZIP;
-libraryPath = CSTS.LIBRARY_PATH;
+if ~ exist('eeglab', 'file')
+    
+    CSTS = PreprocessingConstants;
+    ZIPName = CSTS.EEGLabCsts.ZIP;
+    libraryPath = CSTS.LIBRARY_PATH;
 
-parts = strsplit(ZIPName, '.zip');
-folderName = parts{1};
+    parts = strsplit(ZIPName, '.zip');
+    folderName = parts{1};
 
-folderName = [libraryPath folderName];
-ZIPName = [libraryPath ZIPName];
+    folderName = [libraryPath folderName];
+    ZIPName = [libraryPath ZIPName];
 
-if ~ exist(folderName, 'dir')
-    unzip(ZIPName, libraryPath);
+    if ~ exist(folderName, 'dir')
+        unzip(ZIPName, libraryPath);
+    end
+    
+else
+    folderName = fileparts(which('eeglab'));
 end
 eeglab_paths = genpath(folderName);
 
