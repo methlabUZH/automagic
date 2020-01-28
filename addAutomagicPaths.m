@@ -26,15 +26,8 @@ guiFolder = 'gui';
 preproFolder = 'preprocessing';
 pluginFolder = 'eeglab_plugin';
 
-addpath(['.' filesep])
-matlabPaths = matlabpath;
-parts = strsplit(matlabPaths, pathsep);
-Index = contains(parts, automagic);
-if sum(Index)==0
-    warning('You need to include Automagic in your matlab path');
-    return
-end
-automagicPath = parts{Index};
+automagicPath= fileparts(mfilename('fullpath'));
+addpath(automagicPath)
 if ~strcmp(automagicPath(end), filesep)
     automagicPath = strcat(automagicPath, filesep);
 end
@@ -49,6 +42,8 @@ addpath([automagicPath guiFolder filesep])
 addpath([automagicPath preproFolder filesep])
 addpath([automagicPath libName filesep])
 addpath([automagicPath pluginFolder filesep])
+
+
 pathCheck{1}=automagicPath;
 pathCheck{2}=[automagicPath srcFolder filesep];
 pathCheck{3}=[automagicPath guiFolder filesep];
@@ -61,11 +56,3 @@ Index = contains(parts, pathCheck);
 if sum(Index)<5
     warning('You need to include Automagic in your matlab path');
 end
-% if ~strcmp(automagicPath(end), filesep)
-%     automagicPath = strcat(automagicPath, filesep);
-% end
-% automagicPath = regexp(automagicPath, ['.*' automagic '.*?' filesep], 'match');
-% automagicPath = automagicPath{1};
-% if ~strcmp(automagicPath(end), filesep)
-%     automagicPath = strcat(automagicPath, filesep);
-% end
