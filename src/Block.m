@@ -545,9 +545,14 @@ classdef Block < handle
             orig_icachansind=EEG.icachansind;
             orig_icaweights=EEG.icaweights;
             orig_icawinv=EEG.icawinv;
-            
-            EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
-            
+            if size(EEG.data,1)==length(interpolate_chans)
+                disp('All channels are bad. Skipping interpolation...');
+                filenamE = strsplit(EEG.comments,filesep);
+                filenamE = filenamE{end};
+                automagic.error_msg = ['Interpolation skipped because all channels are bad: ',filenamE];
+            else
+                EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
+            end
 			%put the original icadata back into the structure
             EEG.icasphere=orig_icasphere;
             EEG.icachansind=orig_icachansind;
