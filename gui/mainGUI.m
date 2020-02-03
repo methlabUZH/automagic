@@ -826,7 +826,6 @@ function createbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to createbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles
 CGV = handles.CGV;
 name = get(handles.projectname, 'String');
 projectFolder = get(handles.projectfoldershow, 'String');
@@ -1602,11 +1601,15 @@ for subj = 3 : size(subjFolders,1)
     filepath = [resultsFolder subjName];
     subjFiles = dir(filepath);
     for file = 3 : size(subjFiles,1)
+        filename = subjFiles(file).name;
+        exten = handles.extedit.String;
         fileSize = subjFiles(file).bytes;
+        if contains(filename,exten)
         fileSizeList = [fileSizeList; fileSize];
+        end
     end
 end
-fileSizeList = fileSizeList/10e6;
+fileSizeList = fileSizeList/10e5;
 absCase = absCheckbox;
 madCase = MADcheckbox;
 iqrCase = IQRcheckbox; 

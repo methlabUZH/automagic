@@ -55,6 +55,7 @@ function fileSizeFilterGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 movegui(handles.figure1,'center')
 handles.resultsfolder = varargin{1};
 params = varargin{2};
+handles.params = params;
 set(handles.dataedit,'enable','off');
 set(handles.MADedit,'enable','off');
 set(handles.IQRedit,'enable','off');
@@ -231,11 +232,15 @@ for subj = 3 : size(subjFolders,1)
     filepath = [resultsFolder subjName];
     subjFiles = dir(filepath);
     for file = 3 : size(subjFiles,1)
+        filename = subjFiles(file).name;
+        exten = handles.params.extedit.String;
         fileSize = subjFiles(file).bytes;
+        if contains(filename,exten)
         fileSizeList = [fileSizeList; fileSize];
+        end
     end
 end
-fileSizeList = fileSizeList/10e6;
+fileSizeList = fileSizeList/10e5;
 absThresh = get(handles.dataedit, 'String');
 absCase = get(handles.absCheckbox, 'Value');
 madCase = get(handles.MADcheckbox, 'Value');
