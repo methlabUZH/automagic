@@ -161,7 +161,15 @@ EEG.automagic.preprocessing.toRemove = [];
 EEG.automagic.preprocessing.removedMask = false(1, s); clear s;
 
 % Running prep
+try
 [EEG, EOG] = performPrep(EEG, EOG, PrepParams, EEGSystem.refChan);
+catch ME
+    message = ['PREP is not done on this subject, continue with the next steps: ' ...
+        ME.message];
+        warning(message)
+        EEG.automagic.PREP.performed = 'FAILED';
+        EEG.automagic.error_msg = message;
+end
 if Settings.trackAllSteps && ~isempty(PrepParams)
    allSteps = matfile(Settings.pathToSteps, 'Writable', true);
    allSteps.EEGprep = EEG;
