@@ -19,7 +19,7 @@ function varargout = ratingGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 08-Jan-2019 09:50:54
+% Last Modified by GUIDE v2.5 24-Feb-2020 13:39:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -801,3 +801,58 @@ function helpratingpushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 web('https://github.com/methlabUZH/automagic/wiki/Quality-Assessment-and-Rating#quality-assessment', '-browser');
+
+
+% --- Executes on button press in ThresholdEffects.
+function ThresholdEffects_Callback(hObject, eventdata, handles)
+% hObject    handle to ThresholdEffects (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[~, data] = load_current(handles, true);
+
+%% Parse and check parameters
+CGV = ConstantGlobalValues();
+defVis = CGV.DefaultVisualisationParams;
+defaults = defVis.CalcQualityParams;
+p = inputParser;
+addParameter(p,'overallThresh', defaults.overallThresh,@isnumeric );
+addParameter(p,'timeThresh', defaults.timeThresh,@isnumeric );
+addParameter(p,'chanThresh', defaults.chanThresh,@isnumeric );
+addParameter(p,'avRef', defaults.avRef,@isnumeric );
+thresholds = handles.project.qualityThresholds;
+parse(p, thresholds);
+settings = p.Results;
+if nargin < 1
+    disp('No data to rate')
+elseif nargin < 2
+    disp('No bad channel information...')
+end
+% Data preparation
+X = data.data;
+% Get dimensions of data
+t = size(X,2);
+c = size(X,1);
+% average reference
+if settings.avRef 
+X = X - repmat(nanmean(X,1),c,1);
+end
+qualityScoreIdx = handles.project.qualityScoreIdx;
+% overall timepoints of high amplitude
+OHA_Blue = abs(X) > settings.overallThresh(qualityScoreIdx.OHA);
+% timepoints of high variance
+THV_Red = bsxfun(@gt, std(X,[],1)', settings.timeThresh(qualityScoreIdx.THV));
+% channels above threshold...
+CHV_Green = nanstd(X,[],2) > settings.chanThresh(qualityScoreIdx.CHV);
+
+figure;
+emptyDataImage = nan(c,t);
+emptyDataImage(:,find(THV_Red==1))=1;
+emptyDataImage(find(CHV_Green==1),:)=2;
+emptyDataImage(find(OHA_Blue==1))=3;
+c = [ 1 0 0;0 1 0; 0 0 1]; % [ red, green, blue]
+colormap(c)
+nanimage(emptyDataImage)
+title('Effect of applied quality thresholds');
+xlabel('Time Points');
+ylabel('Channel Indices');
+clear data;
