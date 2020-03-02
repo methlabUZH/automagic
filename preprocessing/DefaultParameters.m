@@ -40,7 +40,8 @@ classdef DefaultParameters
         MARAParams = struct('largeMap',   0, ...
                             'high',       struct('freq', 1.0,...
                                                  'order', []))
-                                             
+        AMICAParams = struct('numprocs', 1, 'max_threads', 1, 'num_models',1, 'max_iter', 2000);
+        
         ICLabelParams = struct([]);
                     
         EOGRegressionParams = struct();
