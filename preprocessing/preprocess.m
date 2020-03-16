@@ -244,7 +244,12 @@ elseif ( ~isempty(MARAParams) )
             ME.message];
         warning(message)
         EEG.automagic.mara.performed = 'FAILED';
-        EEG.automagic.error_msg = message;
+        if size(EEG.chanlocs,2) < 3 && contains(ME.identifier,'Automagic:MARA:notEnoughChannels')
+            message = 'MARA ICA is not done on this subject: Most likely too few good channels remain';
+            EEG.automagic.error_msg = message;
+        else
+            EEG.automagic.error_msg = message;
+        end        
     end
 elseif ( ~isempty(RPCAParams))
     [EEG, pca_noise] = performRPCA(EEG, RPCAParams);
