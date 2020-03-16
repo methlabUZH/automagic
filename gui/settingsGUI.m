@@ -440,44 +440,44 @@ if get(handles.iclabelcheckbox, 'Value')
     
     ICLabelParams.includeSelected = get(handles.includecompradio, 'Value');
     res = str2double(get(handles.probtheredit, 'String'));
-    if ~isnan(res) && get(handles.icbrainradio, 'Value')
+    if ~isempty(res) && get(handles.icbrainradio, 'Value')
         ICLabelParams.brainTher = res;
     else
         ICLabelParams.brainTher = [];
     end
     
     res = str2double(get(handles.icmuscleedit, 'String'));
-    if ~isnan(res) & get(handles.icmuscleradio, 'Value')
+    if ~isempty(res) && get(handles.icmuscleradio, 'Value')
         ICLabelParams.muscleTher = res;
     else
         ICLabelParams.muscleTher = [];
     end
     res = str2double(get(handles.iceyeedit, 'String'));
-    if ~isnan(res) & get(handles.iceyeradio, 'Value')
+    if ~isempty(res) && get(handles.iceyeradio, 'Value')
         ICLabelParams.eyeTher = res;
     else
         ICLabelParams.eyeTher = [];
     end
     res = str2double(get(handles.icheartedit, 'String'));
-    if ~isnan(res) & get(handles.icheartradio, 'Value')
+    if ~isempty(res) && get(handles.icheartradio, 'Value')
         ICLabelParams.heartTher = res;
     else
         ICLabelParams.heartTher = [];
     end
     res = str2double(get(handles.iclinenoiseedit, 'String'));
-    if ~isnan(res) & get(handles.iclinenoiseradio, 'Value')
+    if ~isempty(res) && get(handles.iclinenoiseradio, 'Value')
         ICLabelParams.lineNoiseTher = res;
     else
         ICLabelParams.lineNoiseTher = [];
     end
     res = str2double(get(handles.icchannelnoiseedit, 'String'));
-    if ~isnan(res) & get(handles.icchannelnoiseradio, 'Value')
+    if ~isempty(res) && get(handles.icchannelnoiseradio, 'Value')
         ICLabelParams.channelNoiseTher = res;
     else
         ICLabelParams.channelNoiseTher = [];
     end
     res = str2double(get(handles.icotheredit, 'String'));
-    if ~isnan(res) & get(handles.icotherradio, 'Value')
+    if ~isempty(res) && get(handles.icotherradio, 'Value')
         ICLabelParams.otherTher = res;
     else
         ICLabelParams.otherTher = [];
