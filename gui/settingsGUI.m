@@ -366,8 +366,8 @@ IndexC = strfind(handles.interpolationpopupmenu.String, ...
     params.InterpolationParams.method);
 index = find(not(cellfun('isempty', IndexC)));
 set(handles.interpolationpopupmenu, 'Value', index);
-
-set(handles.eogcheckbox, 'Value', ~isempty(params.EOGRegressionParams))
+% set(handles.eogcheckbox, 'Value', isempty(params.EOGRegressionParams))
+set(handles.eogcheckbox, 'Value', ~isempty(params.EEGSystem.eogChans))
 set(handles.eogedit, 'String', num2str(params.EEGSystem.eogChans));
 
 contents = cellstr(get(handles.dspopupmenu,'String'));
