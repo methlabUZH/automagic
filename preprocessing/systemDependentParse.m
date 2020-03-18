@@ -237,7 +237,6 @@ elseif(~isempty(EEGSystem.name) && ...
 
     switch EEG.nbchan
         case 128
-            EEG = [];
             eog_channels = []; %eog_channels = sort([1 32 8 14 17 21 25 125 126 127 128]);
             eeg_channels = setdiff(chan128, eog_channels);
             tobeExcludedChans = setdiff(1:129, union(chan128, eog_channels));
