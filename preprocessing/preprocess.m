@@ -309,6 +309,11 @@ if ~isempty(EEGSystem.refChan)
     EEG.data = [EEG.data(1:refChan-1,:); ...
                             zeros(1,size(EEG.data,2));...
                             EEG.data(refChan:end,:)];
+                        if isfield(EEG.automagic.mara,'performed')
+                            if strcmp(EEG.automagic.mara.performed,'yes')
+                                EEGRef.chanlocs(refChan).maraLabel = [];
+                            end
+                        end
     EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
                         EEG.chanlocs(refChan:end)];                   
     EEG.nbchan = size(EEG.data,1);

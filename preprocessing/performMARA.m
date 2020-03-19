@@ -74,17 +74,18 @@ addParameter(p,'high', defaults.high, @isstruct);
 parse(p, varargin{:});
 chanlocMap = p.Results.chanlocMap;
 high = p.Results.high;
-
 % Change channel labels to their corresponding ones as required by 
 % processMARA. This is done only for those labels that are given in the map.
 if( ~ isempty(chanlocMap))
     inverseChanlocMap = containers.Map(chanlocMap.values, ...
                                          chanlocMap.keys);
+    EEG.chanlocs(1).maraLabel = [];
     idx = find(ismember({EEG.chanlocs.labels}, chanlocMap.keys));
     for i = idx
-       EEG.chanlocs(1,i).labels = chanlocMap(EEG.chanlocs(1,i).labels);
+        EEG.chanlocs(1,i).maraLabel = chanlocMap(EEG.chanlocs(1,i).labels);
+        EEG.chanlocs(1,i).labels = chanlocMap(EEG.chanlocs(1,i).labels);
     end
-    
+
     % Temporarily change the name of all other labels to make sure they
     % don't create conflicts
     for i = 1:length(EEG.chanlocs)
