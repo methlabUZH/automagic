@@ -296,8 +296,13 @@ removedChans = find(EEG.automagic.preprocessing.removedMask);
 for chan_idx = 1:length(removedChans)
     chan_nb = removedChans(chan_idx);
     EEG.data = [EEG.data(1:chan_nb-1,:); ...
-                  NaN(1,size(EEG.data,2));...
-                  EEG.data(chan_nb:end,:)];
+        NaN(1,size(EEG.data,2));...
+        EEG.data(chan_nb:end,:)];
+    if isfield(EEG.automagic.mara,'performed')
+        if strcmp(EEG.automagic.mara.performed,'yes')
+            EEGOrig.chanlocs(chan_nb).maraLabel = [];
+        end
+    end
     EEG.chanlocs = [EEG.chanlocs(1:chan_nb-1), ...
                       EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
     EEG.nbchan = size(EEG.data,1);
