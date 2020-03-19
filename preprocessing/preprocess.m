@@ -229,6 +229,7 @@ EEG.automagic.iclabel.performed = 'no';
 if ( ~isempty(ICLabelParams) )
     try
         EEG = performICLabel(EEG, ICLabelParams);
+        EEG.icachansind = find(~EEG.automagic.preprocessing.removedMask);
     catch ME
         message = ['ICLabel is not done on this subject, continue with the next steps: ' ...
             ME.message];
@@ -239,6 +240,7 @@ if ( ~isempty(ICLabelParams) )
 elseif ( ~isempty(MARAParams) )
     try
         EEG = performMARA(EEG, MARAParams);
+        EEG.icachansind = find(~EEG.automagic.preprocessing.removedMask);
     catch ME
         message = ['MARA ICA is not done on this subject, continue with the next steps: ' ...
             ME.message];

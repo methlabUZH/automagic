@@ -215,8 +215,7 @@ addpath('../matlab_scripts');
     %% run ica
     if options(2) == 1
         disp('Run ICA');
-        
-        [EEG, LASTCOM] = pop_runica(EEG, 'icatype','runica');
+        [EEG, LASTCOM] = pop_runica(EEG, 'icatype','runica','chanind',EEG.icachansind);
         g.gui = 'off';
         [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, g);
         eegh(LASTCOM);

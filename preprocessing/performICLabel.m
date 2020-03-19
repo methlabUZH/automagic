@@ -97,7 +97,7 @@ else
     EEG.automagic.iclabel.highpass.performed = 'no';
 end
 
-[~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'')');
+[~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
 EEG = iclabel(EEG);
 
 brainComponents = [];
