@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 23-Feb-2019 10:23:26
+% Last Modified by GUIDE v2.5 23-Mar-2020 11:25:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -152,8 +152,10 @@ if ~isempty(params.FilterParams)
         set(handles.lowpassorderedit, 'String', '')
         set(handles.lowedit, 'String', '');
     end
-    
+    set(handles.zaplinecheckbox,'Enable','off')
     set(handles.notchcheckbox, 'Value', ~isempty(params.FilterParams.notch));
+    set(handles.zaplinecheckbox, 'Value', ~isempty(params.FilterParams.zapline));
+    
 else
     set(handles.highcheckbox, 'Value', 0);
     set(handles.lowcheckbox, 'Value', 0);
@@ -327,6 +329,8 @@ set(handles.rarcheckbox, 'Value', ~isempty(params.PrepParams));
 
 if ~isempty(params.FilterParams) && ~isempty(params.FilterParams.notch)
     setLineNoise(params.FilterParams.notch.freq, handles);
+elseif ~isempty(params.FilterParams) && ~isempty(params.FilterParams.zapline)
+    setLineNoise(params.FilterParams.zapline.freq, handles);
 elseif (~isempty(params.PrepParams))
     if isfield(params.PrepParams, 'lineFrequencies') && ~isempty(params.PrepParams.lineFrequencies)
         setLineNoise(params.PrepParams.lineFrequencies(1), handles);
@@ -572,7 +576,7 @@ if( get(handles.notchcheckbox, 'Value'))
     if isempty(notch)
         notch = struct(); end
     res = str2double(get(handles.notchedit, 'String'));
-    if ~isnan(res)
+    if ~isempty(res)
         notch.freq = res;
     else
         notch.freq = [];
@@ -582,6 +586,21 @@ else
     notch = struct([]);
 end
 
+zapline = params.FilterParams.zapline;
+if( get(handles.zaplinecheckbox, 'Value'))
+    if isempty(zapline)
+        zapline = struct();
+    end
+    res = str2double(get(handles.notchedit, 'String'));
+    if ~isempty(res)
+        zapline.freq = res;
+    else
+        zapline.freq = [];
+    end
+    clear res;
+else
+    zapline = struct([]);
+end
 
 % Get Quality Rating Parameters.
 CalcQualityParams = VisualisationParams.CalcQualityParams;
@@ -838,6 +857,7 @@ handles.VisualisationParams.CalcQualityParams = CalcQualityParams;
 handles.params.FilterParams.high = high;
 handles.params.FilterParams.low = low;
 handles.params.FilterParams.notch = notch;
+handles.params.FilterParams.zapline = zapline;
 handles.params.CRDParams = CRDParams;
 handles.params.EOGRegressionParams = EOGRegressionParams;
 handles.params.DetrendingParams = DetrendingParams;
@@ -1510,6 +1530,13 @@ if( get(handles.notchcheckbox, 'Value') && ...
             'about to do'], 'WARNING')
 end
 
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.rarcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filtering on your data. This is due to the PREP default ', ...
+            'notch filter. Please make sure you know what you are ',...
+            'about to do'], 'WARNING')
+end
 
 if get(hObject,'Value')
     handles.params.PrepParams = struct();
@@ -2255,7 +2282,13 @@ if( get(handles.notchcheckbox, 'Value') && ...
             'notch filter. Please make sure you know what you are ',...
             'about to do'], 'WARNING')
 end
-    
+
+if( get(handles.notchcheckbox, 'Value') && ...
+        get(handles.zaplinecheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filters to your data. It is recommended to select either ',...
+            'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
+end
 handles = switch_components(handles);
 
 % Update handles structure
@@ -2649,3 +2682,32 @@ function detrendcheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of detrendcheckbox
+
+
+
+% --- Executes on button press in zaplinecheckbox.
+function zaplinecheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to zaplinecheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.rarcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filtering on your data. This is due to the PREP default ', ...
+            'notch filter. Please make sure you know what you are ',...
+            'about to do'], 'WARNING')
+end
+
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.notchcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filters to your data. It is recommended to select either ',...
+            'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
+end
+    
+handles = switch_components(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+% Hint: get(hObject,'Value') returns toggle state of zaplinecheckbox

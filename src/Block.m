@@ -772,6 +772,12 @@ classdef Block < handle
                             pars.notch.freq, pars.notch.order, ...
                             pars.notch.transitionBandWidth));
                     end
+                    
+                    if (isfield(pars, 'zapline') && ...
+                            strcmp(pars.zapline.performed, 'yes'))
+                        fprintf(fileID, sprintf(text.filtering.zapline, ...
+                            pars.zapline.freq));
+                    end
                     fprintf(fileID, '\n');
                 end
             end

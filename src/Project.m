@@ -1190,6 +1190,13 @@ classdef Project < handle
                             bidsStruct.SoftwareFilters.Notch.FilterOrder = autStruct.filtering.notch.order;
                             bidsStruct.SoftwareFilters.Notch.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
                         end
+                        if ~isempty(autStruct.params.FilterParams.zapline)
+                            bidsStruct.SoftwareFilters.Zapline.FilterType = 'ZapLine fir using nt_zapline()';
+                            bidsStruct.SoftwareFilters.Zapline.NotchCutoff = autStruct.filtering.zapline.freq;
+%                             bidsStruct.SoftwareFilters.Zapline.NotchCutoffDefinition = 'half-amplitude (-6dB)';
+%                             bidsStruct.SoftwareFilters.Zapline.FilterOrder = autStruct.filtering.notch.order;
+%                             bidsStruct.SoftwareFilters.Zapline.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
+                        end
                     end
                     if ~isempty(autStruct.params.EOGRegressionParams)
                         bidsStruct.ArtifactCorrection.EOGRegression.Used = 'Yes';

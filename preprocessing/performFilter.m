@@ -59,10 +59,12 @@ p = inputParser;
 addParameter(p,'notch', defaults.notch, @isstruct);
 addParameter(p,'high', defaults.high, @isstruct);
 addParameter(p,'low', defaults.low, @isstruct);
+addParameter(p,'zapline', defaults.zapline, @isstruct);
 parse(p, varargin{:});
 notch = p.Results.notch;
 high = p.Results.high;
 low = p.Results.low;
+zapline = p.Results.zapline;
 
 if( ~isempty(high) )
     if ~isfield(high, 'freq')
@@ -90,9 +92,14 @@ if( ~isempty(notch) && ~isfield(notch, 'freq'))
     notch = defaults.notch;
 end
 
+if( ~isempty(zapline) && ~isfield(zapline, 'freq'))
+    warning(['Input argument to notch filter is not complete. notch.freq',...
+    'must be provided. The default will be used.'])
+    zapline = defaults.zapline;
+end
 %% Perform filtering
 EEG.automagic.filtering.performed = 'no';
-if( ~isempty(high) || ~isempty(low) || ~isempty(notch))
+if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
     EEG.automagic.filtering.performed = 'yes';
     if( ~isempty(high) )
         [FilterInfo, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
@@ -123,6 +130,16 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch))
         EEG.automagic.filtering.notch.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
     else
         EEG.automagic.filtering.notch.performed = 'no';
+    end
+    
+    if( ~isempty(zapline) )
+        x = EEG.data;
+        fline = zapline.freq / EEG.srate;
+        [EEG.data,~]=evalc('nt_zapline(x, fline)');
+        EEG.automagic.filtering.zapline.performed = 'yes';
+        EEG.automagic.filtering.zapline.freq = zapline.freq;
+    else
+        EEG.automagic.filtering.zapline.performed = 'no';
     end
 end
 
