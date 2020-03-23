@@ -249,6 +249,7 @@ elseif ( ~isempty(MARAParams) )
         if size(EEG.chanlocs,2) < 3 && contains(ME.identifier,'Automagic:MARA:notEnoughChannels')
             message = 'MARA ICA is not done on this subject: Most likely too few good channels remain';
             EEG.automagic.error_msg = message;
+            disp(message);
         else
             EEG.automagic.error_msg = message;
         end        
