@@ -161,7 +161,7 @@ rmpath(automagicPaths);
 [s, ~] = size(EEG.data);
 EEG.automagic.preprocessing.toRemove = [];
 EEG.automagic.preprocessing.removedMask = false(1, s); clear s;
-EEG.chanlocs(1).maraLabel = []; 
+EEG.chanlocs(1).maraLabel = [];
 
 % Running prep
 try
@@ -315,13 +315,9 @@ for chan_idx = 1:length(removedChans)
     EEG.data = [EEG.data(1:chan_nb-1,:); ...
         NaN(1,size(EEG.data,2));...
         EEG.data(chan_nb:end,:)];
-    if isfield(EEG.automagic.mara,'performed')
-        if strcmp(EEG.automagic.mara.performed,'yes')
-            EEGOrig.chanlocs(chan_nb).maraLabel = [];
-        end
-    end
+    EEGOrig.chanlocs(chan_nb).maraLabel = [];
     EEG.chanlocs = [EEG.chanlocs(1:chan_nb-1), ...
-                      EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
+        EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
     EEG.nbchan = size(EEG.data,1);
 end
 
@@ -329,15 +325,13 @@ end
 if ~isempty(EEGSystem.refChan)
     refChan = EEGSystem.refChan.idx;
     EEG.data = [EEG.data(1:refChan-1,:); ...
-                            zeros(1,size(EEG.data,2));...
-                            EEG.data(refChan:end,:)];
-                        if isfield(EEG.automagic.mara,'performed')
-                            if strcmp(EEG.automagic.mara.performed,'yes')
-                                EEGRef.chanlocs(refChan).maraLabel = [];
-                            end
-                        end
+        zeros(1,size(EEG.data,2));...
+        EEG.data(refChan:end,:)];
+    
+    EEGRef.chanlocs(refChan).maraLabel = [];
+    
     EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
-                        EEG.chanlocs(refChan:end)];                   
+        EEG.chanlocs(refChan:end)];
     EEG.nbchan = size(EEG.data,1);
     clear chan_nb re_chan;
 end
