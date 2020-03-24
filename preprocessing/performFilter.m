@@ -135,8 +135,9 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
     if( ~isempty(zapline) )
         x = EEG.data';
         fline = zapline.freq / EEG.srate; % line frequency normalised to srate
-        NREMOVE=3; % number of components to remove
-        [EEG.data,~]=evalc('nt_zapline(x, fline,NREMOVE)');
+        NREMOVE=zapline.ncomps; % number of components to remove
+        [clean,~]= nt_zapline(x, fline ,NREMOVE);
+        EEG.data = clean';
         EEG.automagic.filtering.zapline.performed = 'yes';
         EEG.automagic.filtering.zapline.freq = zapline.freq;
     else

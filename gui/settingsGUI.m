@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 24-Mar-2020 12:59:36
+% Last Modified by GUIDE v2.5 24-Mar-2020 15:11:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -152,7 +152,7 @@ if ~isempty(params.FilterParams)
         set(handles.lowpassorderedit, 'String', '')
         set(handles.lowedit, 'String', '');
     end
-    set(handles.zaplinecheckbox,'Enable','off')
+%     set(handles.zaplinecheckbox,'Enable','off')
     set(handles.notchcheckbox, 'Value', ~isempty(params.FilterParams.notch));
     set(handles.zaplinecheckbox, 'Value', ~isempty(params.FilterParams.zapline));
     
@@ -606,6 +606,13 @@ if( get(handles.zaplinecheckbox, 'Value'))
         zapline.freq = [];
     end
     clear res;
+    ncomps = str2double(get(handles.ncomponentsZL, 'String'));
+    if ~isempty(ncomps)
+        zapline.ncomps = ncomps;
+    else
+        zapline.ncomps = [];
+    end
+    clear ncomps;
 else
     zapline = struct([]);
 end
@@ -1064,7 +1071,11 @@ else
     set(handles.preppushbutton, 'enable', 'off')
 end
 
-
+if( get(handles.zaplinecheckbox, 'Value'))
+    set(handles.ncomponentsZL, 'Enable', 'on')
+else
+    set(handles.ncomponentsZL, 'Enable', 'off')
+end
 % if( get(handles.rarcheckbox, 'Value') || ...
 %         get(handles.notchcheckbox, 'Value'))
 %     set(handles.euradio, 'enable', 'on')
@@ -2731,7 +2742,11 @@ if( get(handles.zaplinecheckbox, 'Value') && ...
             'filters to your data. It is recommended to select either ',...
             'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
 end
-    
+if( get(handles.zaplinecheckbox, 'Value'))
+    set(handles.ncomponentsZL, 'Enable', 'on')
+else
+    set(handles.ncomponentsZL, 'Enable', 'off')
+end
 handles = switch_components(handles);
 
 % Update handles structure
@@ -2768,6 +2783,31 @@ function minvaredit_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function minvaredit_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to minvaredit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function ncomponentsZL_Callback(hObject, eventdata, handles)
+% hObject    handle to ncomponentsZL (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% nComponents = str2double(get(hObject,'String'));
+% handles = switch_components(handles);
+
+% Hint: get(hObject,'Value') returns toggle state of minvarcheckbox
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function ncomponentsZL_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ncomponentsZL (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
