@@ -161,6 +161,7 @@ rmpath(automagicPaths);
 [s, ~] = size(EEG.data);
 EEG.automagic.preprocessing.toRemove = [];
 EEG.automagic.preprocessing.removedMask = false(1, s); clear s;
+EEG.chanlocs(1).maraLabel = []; 
 
 % Running prep
 try
