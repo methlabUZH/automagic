@@ -215,6 +215,7 @@ classdef Project < handle
             addParameter(p,'CRDParams', defs.CRDParams, @isstruct);
             addParameter(p,'RPCAParams', defs.RPCAParams, @isstruct);
             addParameter(p,'HighvarParams', defs.HighvarParams, @isstruct);
+            addParameter(p,'MinvarParams', defs.MinvarParams, @isstruct);
             addParameter(p,'MARAParams', defs.MARAParams, @isstruct);
             addParameter(p,'ICLabelParams', defs.ICLabelParams, @isstruct);
             addParameter(p,'InterpolationParams', defs.InterpolationParams, @isstruct);
@@ -1164,6 +1165,14 @@ classdef Project < handle
                         bidsStruct.BadChannelIdentification.HighVar.ToolboxVersion = '';
                         bidsStruct.BadChannelIdentification.HighVar.BadChannels = autStruct.highVarianceRejection.badChans;
                         bidsStruct.BadChannelIdentification.HighVar.BadChannelCriteria.sd = autStruct.highVarianceRejection.sd;
+                    end
+                    
+                    if ~isempty(autStruct.params.MinvarParams)
+                        bidsStruct.BadChannelIdentification.MinVar.IdentifcationMethod= 'Minimum variance rejection';
+                        bidsStruct.BadChannelIdentification.MinVar.ToolboxReference = '';
+                        bidsStruct.BadChannelIdentification.MinVar.ToolboxVersion = '';
+                        bidsStruct.BadChannelIdentification.MinVar.BadChannels = autStruct.minVarianceRejection.badChans;
+                        bidsStruct.BadChannelIdentification.MinVar.BadChannelCriteria.sd = autStruct.minVarianceRejection.sd;
                     end
                     
                     if ~isempty(autStruct.params.FilterParams)

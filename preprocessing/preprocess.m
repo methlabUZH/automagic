@@ -25,7 +25,7 @@ function [EEG, varargout] = preprocess(data, varargin)
 %   params must be a structure with optional fields 
 %   'FilterParams', 'CRDParams', 'RPCAParams', 'MARAParams', 'PrepParams',
 %   'InterpolationParams', 'EOGRegressionParams', 'EEGSystem',
-%   'ChannelReductionParams', 'HighvarParams', 'Settings', 'DetrendingParams'
+%   'ChannelReductionParams', 'HighvarParams', 'MinvarParams', 'Settings', 'DetrendingParams'
 %   and 'ORIGINAL_FILE' to specify parameters for filtering, clean_rawdata(), 
 %   rpca, mara ica, prep robust average referencing, interpolation, 
 %   eog regression, channel locations, reducing channels, high variance 
@@ -94,6 +94,7 @@ addParameter(p,'PrepParams', Defaults.PrepParams, @isstruct);
 addParameter(p,'CRDParams', Defaults.CRDParams, @isstruct);
 addParameter(p,'RPCAParams', Defaults.RPCAParams, @isstruct);
 addParameter(p,'HighvarParams', Defaults.HighvarParams, @isstruct);
+addParameter(p,'MinvarParams', Defaults.MinvarParams, @isstruct);
 addParameter(p,'MARAParams', Defaults.MARAParams, @isstruct);
 addParameter(p,'ICLabelParams', Defaults.ICLabelParams, @isstruct);
 addParameter(p,'InterpolationParams', Defaults.InterpolationParams, @isstruct);
@@ -109,6 +110,7 @@ FilterParams = p.Results.FilterParams;
 CRDParams = p.Results.CRDParams;
 PrepParams = p.Results.PrepParams;
 HighvarParams = p.Results.HighvarParams;
+MinvarParams = p.Results.MinvarParams;
 RPCAParams = p.Results.RPCAParams;
 MARAParams = p.Results.MARAParams;
 ICLabelParams = p.Results.ICLabelParams;
@@ -292,6 +294,17 @@ end
 if Settings.trackAllSteps && ~isempty(HighvarParams)
    allSteps = matfile(Settings.pathToSteps, 'Writable', true);
    allSteps.EEGHighvarred = EEG;
+end
+
+% Reject channels based on minimum variance
+EEG.automagic.minVarianceRejection.performed = 'no';
+if ~isempty(MinvarParams)
+    [~, EEG] = evalc('performMinvarianceChannelRejection(EEG, MinvarParams)');
+end
+
+if Settings.trackAllSteps && ~isempty(MinvarParams)
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGMinvarred = EEG;
 end
 
 % Put back removed channels

@@ -42,6 +42,8 @@ classdef RecommendedParameters
         
         HighvarParams = struct('sd', 25);
         
+        MinvarParams = struct('sd', 1);
+        
         InterpolationParams = struct('method', 'spherical');
         
         RPCAParams = struct('lambda', [], ...  % Default lambda by alm_rpca

@@ -34,6 +34,8 @@ classdef DefaultParameters
         
         HighvarParams = struct([]);
         
+        MinvarParams = struct([]);
+        
         InterpolationParams = struct('method', 'spherical');
         
         RPCAParams = struct([]);
