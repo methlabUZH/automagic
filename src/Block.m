@@ -836,7 +836,7 @@ classdef Block < handle
             
             fprintf(fileID, sprintf(text.badchans.desc, ...
                 length(automagic.autoBadChans)));
-            if strcmp(automagic.prep.performed, 'yes')
+            if strcmp(automagic.PREP.performed, 'yes')
                 fprintf(fileID, sprintf(text.badchans.prep, ...
                     length(automagic.prep.badChans)));
             end
