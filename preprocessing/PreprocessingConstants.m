@@ -23,6 +23,8 @@ classdef PreprocessingConstants
                             'RUN_MESSAGE', 'Perform Filtering...')
         
         EEGLabCsts = struct('ZIP', 'eeglab14_1_2b.zip')
+        
+        NoiseToolCsts = struct('ZIP', 'NoiseTools.zip')
                      
         CRDCsts = struct('URL', 'http://sccn.ucsd.edu/eeglab/plugins/clean_rawdata0.32.zip', ...
                          'ZIP', 'clean_rawdata0.32.zip', ...
