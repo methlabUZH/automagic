@@ -65,6 +65,7 @@ end
 CSTS = PreprocessingConstants.ICLabelCsts;
 %% Parse and check parameters
 p = inputParser;
+addParameter(p,'keep_comps', []);
 addParameter(p,'brainTher', defaults.brainTher, @isnumeric);
 addParameter(p,'muscleTher', defaults.muscleTher, @isnumeric);
 addParameter(p,'eyeTher', defaults.eyeTher, @isnumeric);
@@ -84,6 +85,7 @@ channelNoiseTher = p.Results.channelNoiseTher;
 otherTher = p.Results.otherTher;
 includeSelected = p.Results.includeSelected;
 high = p.Results.high;
+EEG.etc.keep_comps = p.Results.keep_comps;
 
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
@@ -98,6 +100,12 @@ else
 end
 
 [~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
+if EEG.etc.keep_comps
+    EEG.etc.beforeICremove.icaact = EEG.icaact;
+    EEG.etc.beforeICremove.icawinv = EEG.icawinv;
+    EEG.etc.beforeICremove.icasphere = EEG.icasphere;
+    EEG.etc.beforeICremove.icaweights = EEG.icaweights;
+end
 EEG = iclabel(EEG);
 
 brainComponents = [];

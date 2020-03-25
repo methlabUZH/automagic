@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 24-Mar-2020 15:11:57
+% Last Modified by GUIDE v2.5 25-Mar-2020 13:48:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -113,7 +113,6 @@ function handles = set_gui(handles, params, VisualisationParams)
 DEFAULT_KEYWORD = handles.CGV.DEFAULT_KEYWORD;
 CalcQualityParams = VisualisationParams.CalcQualityParams;
 dsRate = VisualisationParams.dsRate;
-
 if ~isempty(params.FilterParams)
     if ~isempty(params.FilterParams.high)
         set(handles.highcheckbox, 'Value', 1);
@@ -152,7 +151,6 @@ if ~isempty(params.FilterParams)
         set(handles.lowpassorderedit, 'String', '')
         set(handles.lowedit, 'String', '');
     end
-%     set(handles.zaplinecheckbox,'Enable','off')
     set(handles.notchcheckbox, 'Value', ~isempty(params.FilterParams.notch));
     set(handles.zaplinecheckbox, 'Value', ~isempty(params.FilterParams.zapline));
     
@@ -174,6 +172,7 @@ set(handles.channelthresholdedit, 'String', mat2str(CalcQualityParams.chanThresh
 
 set(handles.icacheckbox, 'Value', ~isempty(params.MARAParams));
 if ~isempty(params.MARAParams)
+    set(handles.savecomponents, 'Value', params.MARAParams.keep_comps)
     set(handles.largemapcheckbox, 'Value', params.MARAParams.largeMap)
     if isfield(params.MARAParams, 'chanlocMap') && ...
             isempty(params.MARAParams.chanlocMap)
@@ -202,6 +201,7 @@ if ~isempty(params.MARAParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
+    set(handles.savecomponents, 'Value', 0);
     set(handles.largemapcheckbox, 'Value', 0)
     if isempty(params.ICLabelParams)
         set(handles.icahighpasscheckbox, 'Value', 0)
@@ -212,6 +212,7 @@ end
 
 set(handles.iclabelcheckbox, 'Value', ~isempty(params.ICLabelParams));
 if ~isempty(params.ICLabelParams)
+    set(handles.savecomponents, 'Value', params.ICLabelParams.keep_comps);
     set(handles.probtheredit, 'String', params.ICLabelParams.brainTher)
     set(handles.icmuscleedit, 'String', params.ICLabelParams.muscleTher);
     set(handles.iceyeedit, 'String', params.ICLabelParams.eyeTher);
@@ -247,6 +248,7 @@ if ~isempty(params.ICLabelParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
+    set(handles.savecomponents, 'Value', 0)
     set(handles.probtheredit, 'String', '')
     set(handles.icmuscleedit, 'String', '');
     set(handles.iceyeedit, 'String', '');
@@ -439,6 +441,11 @@ if get(handles.icacheckbox, 'Value')
     end
     MARAParams.high = high;
     clear res;
+    if get(handles.savecomponents, 'Value')
+        MARAParams.keep_comps = 1;
+    else
+        MARAParams.keep_comps = 0;
+    end
 else
     MARAParams = struct([]);
 end
@@ -528,8 +535,12 @@ if get(handles.iclabelcheckbox, 'Value')
     
         ICLabelParams = struct([]);
     end
-        
     clear res;
+    if get(handles.savecomponents, 'Value')
+        ICLabelParams.keep_comps = 1;
+    else
+        ICLabelParams.keep_comps = [];
+    end
 else
     ICLabelParams = struct([]);
 end
@@ -962,6 +973,13 @@ else
     set(handles.windowedit, 'String', '');
 end
 
+if(get(handles.icacheckbox, 'Value') || get(handles.iclabelcheckbox, 'Value'))
+    set(handles.savecomponents, 'enable', 'on');
+else
+    set(handles.savecomponents, 'enable', 'off');
+    set(handles.savecomponents, 'Value', 0);
+end
+
 if( get(handles.icacheckbox, 'Value'))
     set(handles.largemapcheckbox, 'enable', 'on');
     set(handles.maraegicheckbox, 'enable', 'on');
@@ -1191,7 +1209,6 @@ set(handles.icheartedit, 'String', '');
 set(handles.iclinenoiseedit, 'String', '');
 set(handles.icchannelnoiseedit, 'String', '');
 set(handles.icotheredit, 'String', '');
-
 set(handles.icbrainradio, 'Value', 0);
 set(handles.icmuscleradio, 'Value', 0);
 set(handles.iceyeradio, 'Value', 0);
@@ -2816,3 +2833,12 @@ function ncomponentsZL_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in savecomponents.
+function savecomponents_Callback(hObject, eventdata, handles)
+% hObject    handle to savecomponents (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of savecomponents

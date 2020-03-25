@@ -71,9 +71,11 @@ validate_param = @(x) isa(x, 'containers.Map');
 addParameter(p,'chanlocMap', defaults.chanlocMap, validate_param);
 addParameter(p,'largeMap', defaults.largeMap);
 addParameter(p,'high', defaults.high, @isstruct);
+addParameter(p,'keep_comps', defaults.keep_comps);
 parse(p, varargin{:});
 chanlocMap = p.Results.chanlocMap;
 high = p.Results.high;
+EEG.etc.keep_comps = p.Results.keep_comps;
 % Change channel labels to their corresponding ones as required by 
 % processMARA. This is done only for those labels that are given in the map.
 if( ~ isempty(chanlocMap))
@@ -216,6 +218,12 @@ addpath('../matlab_scripts');
     if options(2) == 1
         disp('Run ICA');
         [EEG, LASTCOM] = pop_runica(EEG, 'icatype','runica','chanind',EEG.icachansind);
+        if EEG.etc.keep_comps
+            EEG.etc.beforeICremove.icaact = EEG.icaact;
+            EEG.etc.beforeICremove.icawinv = EEG.icawinv;
+            EEG.etc.beforeICremove.icasphere = EEG.icasphere;
+            EEG.etc.beforeICremove.icaweights = EEG.icaweights;
+        end
         g.gui = 'off';
         [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, g);
         eegh(LASTCOM);
