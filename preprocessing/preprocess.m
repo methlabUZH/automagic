@@ -279,6 +279,9 @@ if Settings.trackAllSteps
     elseif ~isempty(MARAParams)
        allSteps = matfile(Settings.pathToSteps, 'Writable', true);
        allSteps.EEGMARA = EEG;
+    elseif ~isempty(ICLabelParams)
+        allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+        allSteps.EEGICLabel = EEG;
     end
 end
 
