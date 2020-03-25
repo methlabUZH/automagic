@@ -196,8 +196,18 @@ end
 % Filtering on the whole dataset
 display(PreprocessingConstants.FilterCsts.RUN_MESSAGE);
 EEG = performFilter(EEG, FilterParams);
+if isfield(EEG.automagic,'ZapFig')
+    fig3 = EEG.automagic.ZapFig;
+    EEG.automagic = rmfield(EEG.automagic,'ZapFig');
+else
+    fig3 = [];
+end
+
 if ~isempty(EOG.data)
     EOG = performFilter(EOG, FilterParams);
+    if isfield(EEG.automagic,'ZapFig')
+        EEG.automagic = rmfield(EEG.automagic,'ZapFig');
+    end
 end
 
 if Settings.trackAllSteps && ~isempty(FilterParams)
@@ -496,3 +506,4 @@ colorbar;
 
 varargout{1} = fig1;
 varargout{2} = fig2;
+varargout{3} = fig3;

@@ -454,7 +454,7 @@ classdef Block < handle
             end
 
             % Preprocess the file
-            [EEG, fig1, fig2] = preprocess(data, self.params);
+            [EEG, fig1, fig2, fig3] = preprocess(data, self.params);
 
             if(any(strcmp({self.CGV.EXTENSIONS.fif}, self.fileExtension))) 
                 self.params = rmfield(self.params, 'ORIGINAL_FILE');
@@ -509,7 +509,7 @@ classdef Block < handle
             else
                 automagic.ChannelLocationFile = [];
             end
-            self.saveFiles(EEG, automagic, fig1, fig2);
+            self.saveFiles(EEG, automagic, fig1, fig2, fig3);
             self.writeLog(automagic);
         end
         
@@ -836,7 +836,7 @@ classdef Block < handle
             
             fprintf(fileID, sprintf(text.badchans.desc, ...
                 length(automagic.autoBadChans)));
-            if strcmp(automagic.PREP.performed, 'yes')
+            if strcmp(automagic.prep.performed, 'yes')
                 fprintf(fileID, sprintf(text.badchans.prep, ...
                     length(automagic.prep.badChans)));
             end
@@ -1008,7 +1008,7 @@ classdef Block < handle
     %% Private Methods
     methods(Access=private)
 
-        function saveFiles(self, EEG, automagic, fig1, fig2) %#ok<INUSL>
+        function saveFiles(self, EEG, automagic, fig1, fig2, fig3) %#ok<INUSL>
             % Save results of preprocessing
             
             % Delete old results
@@ -1028,7 +1028,10 @@ classdef Block < handle
             close(fig1);
             print(fig2, strcat(self.imageAddress, '_orig'), '-djpeg', '-r100');
             close(fig2);
-
+            if ~isempty(fig3)
+                print(fig3, strcat(self.imageAddress, '_ZapLine'), '-djpeg', '-r100');
+                close(fig3);
+            end
             reduced.data = downsample(EEG.data',self.dsRate)'; %#ok<STRNU>
             fprintf('Saving results...\n');
             PrepCsts = self.CGV.PreprocessingCsts;
