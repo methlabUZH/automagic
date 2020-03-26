@@ -105,6 +105,7 @@ if EEG.etc.keep_comps
     EEG.etc.beforeICremove.icawinv = EEG.icawinv;
     EEG.etc.beforeICremove.icasphere = EEG.icasphere;
     EEG.etc.beforeICremove.icaweights = EEG.icaweights;
+    EEG.etc.beforeICremove.chanlocs = EEG.chanlocs;
 end
 EEG = iclabel(EEG);
 

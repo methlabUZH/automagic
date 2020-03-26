@@ -223,6 +223,7 @@ addpath('../matlab_scripts');
             EEG.etc.beforeICremove.icawinv = EEG.icawinv;
             EEG.etc.beforeICremove.icasphere = EEG.icasphere;
             EEG.etc.beforeICremove.icaweights = EEG.icaweights;
+            EEG.etc.beforeICremove.chanlocs = EEG.chanlocs;
         end
         g.gui = 'off';
         [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, g);
