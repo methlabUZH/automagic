@@ -153,7 +153,9 @@ if ~isempty(params.FilterParams)
     end
     set(handles.notchcheckbox, 'Value', ~isempty(params.FilterParams.notch));
     set(handles.zaplinecheckbox, 'Value', ~isempty(params.FilterParams.zapline));
-    
+    if ~isempty(params.FilterParams.zapline)
+        set(handles.ncomponentsZL, 'String', params.FilterParams.zapline.ncomps)
+    end
 else
     set(handles.highcheckbox, 'Value', 0);
     set(handles.lowcheckbox, 'Value', 0);
