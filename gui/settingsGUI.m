@@ -174,7 +174,7 @@ set(handles.channelthresholdedit, 'String', mat2str(CalcQualityParams.chanThresh
 
 set(handles.icacheckbox, 'Value', ~isempty(params.MARAParams));
 if ~isempty(params.MARAParams)
-    set(handles.savecomponents, 'Value', params.MARAParams.keep_comps)
+    set(handles.savecomponents, 'Value', ~isempty(params.MARAParams.keep_comps))
     set(handles.largemapcheckbox, 'Value', params.MARAParams.largeMap)
     if isfield(params.MARAParams, 'chanlocMap') && ...
             isempty(params.MARAParams.chanlocMap)
@@ -203,7 +203,7 @@ if ~isempty(params.MARAParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
-    set(handles.savecomponents, 'Value', 0);
+%     set(handles.savecomponents, 'Value', 0);
     set(handles.largemapcheckbox, 'Value', 0)
     if isempty(params.ICLabelParams)
         set(handles.icahighpasscheckbox, 'Value', 0)
@@ -214,7 +214,7 @@ end
 
 set(handles.iclabelcheckbox, 'Value', ~isempty(params.ICLabelParams));
 if ~isempty(params.ICLabelParams)
-    set(handles.savecomponents, 'Value', params.ICLabelParams.keep_comps);
+    set(handles.savecomponents, 'Value', ~isempty(params.ICLabelParams.keep_comps));
     set(handles.probtheredit, 'String', params.ICLabelParams.brainTher)
     set(handles.icmuscleedit, 'String', params.ICLabelParams.muscleTher);
     set(handles.iceyeedit, 'String', params.ICLabelParams.eyeTher);
@@ -250,7 +250,7 @@ if ~isempty(params.ICLabelParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
-    set(handles.savecomponents, 'Value', 0)
+%     set(handles.savecomponents, 'Value', 0)
     set(handles.probtheredit, 'String', '')
     set(handles.icmuscleedit, 'String', '');
     set(handles.iceyeedit, 'String', '');
@@ -446,7 +446,7 @@ if get(handles.icacheckbox, 'Value')
     if get(handles.savecomponents, 'Value')
         MARAParams.keep_comps = 1;
     else
-        MARAParams.keep_comps = 0;
+        MARAParams.keep_comps = [];
     end
 else
     MARAParams = struct([]);

@@ -86,6 +86,7 @@ otherTher = p.Results.otherTher;
 includeSelected = p.Results.includeSelected;
 high = p.Results.high;
 EEG.etc.keep_comps = p.Results.keep_comps;
+EEG.etc.keep_comps = ~isempty(EEG.etc.keep_comps);
 
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);

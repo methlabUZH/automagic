@@ -76,6 +76,7 @@ parse(p, varargin{:});
 chanlocMap = p.Results.chanlocMap;
 high = p.Results.high;
 EEG.etc.keep_comps = p.Results.keep_comps;
+EEG.etc.keep_comps = ~isempty(EEG.etc.keep_comps);
 % Change channel labels to their corresponding ones as required by 
 % processMARA. This is done only for those labels that are given in the map.
 if( ~ isempty(chanlocMap))
