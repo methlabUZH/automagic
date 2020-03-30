@@ -111,15 +111,6 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
         EEG.automagic.filtering.highpass.performed = 'no';
     end
     
-    if( ~isempty(low) )
-        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, 0, low.freq, low.order)');
-        EEG.automagic.filtering.lowpass.performed = 'yes';
-        EEG.automagic.filtering.lowpass.freq = low.freq;
-        EEG.automagic.filtering.lowpass.order = length(b)-1;
-        EEG.automagic.filtering.lowpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
-    else
-        EEG.automagic.filtering.lowpass.performed = 'no';
-    end
     
     if( ~isempty(notch) )
         [~, EEG, ~ , b] = evalc(['pop_eegfiltnew(EEG, notch.freq - 3,'...
@@ -183,6 +174,17 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
     else
         EEG.automagic.filtering.zapline.performed = 'no';
     end
+    
+    if( ~isempty(low) )
+        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, 0, low.freq, low.order)');
+        EEG.automagic.filtering.lowpass.performed = 'yes';
+        EEG.automagic.filtering.lowpass.freq = low.freq;
+        EEG.automagic.filtering.lowpass.order = length(b)-1;
+        EEG.automagic.filtering.lowpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
+    else
+        EEG.automagic.filtering.lowpass.performed = 'no';
+    end
+    
 end
 
 end

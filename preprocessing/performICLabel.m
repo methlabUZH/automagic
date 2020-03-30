@@ -89,8 +89,11 @@ EEG.etc.keep_comps = p.Results.keep_comps;
 
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
-if( ~isempty(high) )
-    [~, EEG, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+if( ~isempty(high) ) % temporary high-pass filter
+    EEG_temp = EEG;
+    [~, EEG_temp, ~, b] = evalc('pop_eegfiltnew(EEG_temp, high.freq, 0, high.order)');
+    
+    
     EEG.automagic.iclabel.highpass.performed = 'yes';
     EEG.automagic.iclabel.highpass.freq = high.freq;
     EEG.automagic.iclabel.highpass.order = length(b)-1;
@@ -99,7 +102,30 @@ else
     EEG.automagic.iclabel.highpass.performed = 'no';
 end
 
+if( ~isempty(high) ) % temporary high-pass filter
+[~, EEG_temp, ~] = evalc('pop_runica(EEG_temp, ''icatype'',''runica'',''chanind'',EEG_temp.icachansind)');
+
+% Remember ICA weights & sphering matrix 
+wts = EEG_temp.icaweights;
+sph = EEG_temp.icasphere;
+
+% Remove any existing ICA solutions from your original dataset
+EEG.icaact      = [];
+EEG.icasphere   = [];
+EEG.icaweights  = [];
+EEG.icachansind = [];
+EEG.icawinv     = [];
+
+EEG.icasphere   = sph;
+EEG.icaweights  = wts;
+EEG.icachansind = EEG_temp.icachansind;
+EEG = eeg_checkset(EEG); % let EEGLAB re-compute EEG.icaact & EEG.icawinv
+
+else
 [~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
+end
+
+
 if EEG.etc.keep_comps
     EEG.etc.beforeICremove.icaact = EEG.icaact;
     EEG.etc.beforeICremove.icawinv = EEG.icawinv;
