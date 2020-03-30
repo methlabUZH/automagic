@@ -234,13 +234,13 @@ for subj = 3 : size(subjFolders,1)
     for file = 3 : size(subjFiles,1)
         filename = subjFiles(file).name;
         exten = handles.params.extedit.String;
-        fileSize = subjFiles(file).bytes;
+        fileSize = subjFiles(file).bytes/1050000;
         if contains(filename,exten)
         fileSizeList = [fileSizeList; fileSize];
         end
     end
 end
-fileSizeList = fileSizeList/10e5;
+fileSizeList = round(fileSizeList,3,'significant');
 absThresh = get(handles.dataedit, 'String');
 absCase = get(handles.absCheckbox, 'Value');
 madCase = get(handles.MADcheckbox, 'Value');
@@ -298,12 +298,13 @@ for subj = 3 : size(subjFolders,1)
     filepath = [resultsFolder subjName];
     subjFiles = dir(filepath);
     for file = 3 : size(subjFiles,1)
-        fileSize = subjFiles(file).bytes;
+        fileSize = subjFiles(file).bytes/1050000;
         fileSizeList = [fileSizeList; fileSize];
     end
 end
+fileSizeList = round(fileSizeList,3,'significant');
 figure;
-histogram(fileSizeList/10e6);
+histogram(fileSizeList);
 ylabel('Frequency');
 xlabel('File Size (MBytes)');
 title('Histogram of whole dataset file sizes');

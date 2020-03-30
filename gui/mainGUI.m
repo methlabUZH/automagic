@@ -1604,13 +1604,13 @@ for subj = 3 : size(subjFolders,1)
     for file = 3 : size(subjFiles,1)
         filename = subjFiles(file).name;
         exten = handles.extedit.String;
-        fileSize = subjFiles(file).bytes;
+        fileSize = subjFiles(file).bytes/1050000;
         if contains(filename,exten)
         fileSizeList = [fileSizeList; fileSize];
         end
     end
 end
-fileSizeList = fileSizeList/10e5;
+fileSizeList = round(fileSizeList,3,'significant');
 absCase = absCheckbox;
 madCase = MADcheckbox;
 iqrCase = IQRcheckbox; 
