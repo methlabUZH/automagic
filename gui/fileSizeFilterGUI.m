@@ -268,8 +268,8 @@ else
     absList = zeros(numel(fileSizeList),1);
 end    
 if madCase
-    madThr = MADscalar*mad(fileSizeList,1); % median 
-    madList = fileSizeList<=madThr+median(fileSizeList);
+    MADfileSizeList = (abs(fileSizeList-median(fileSizeList)))/mad(fileSizeList,1,1); % median 
+    madList = MADfileSizeList<=MADscalar;
 else
     madList = zeros(numel(fileSizeList),1);    
 end
