@@ -276,10 +276,10 @@ end
 if iqrCase
     P = IQRquantile;
     M = 0.5;
-    m = quantile(fileSizeList,0.5);
     T = M + P/2; % John: my back-of-the-envelope equations. See diary entry date 30/3/2020
     t = quantile(fileSizeList,T);
-    q = t - m;
+    Q = M - P/2;
+    q = quantile(fileSizeList,Q);
     iqrThr = [q,t];
     iqrList = [fileSizeList<=iqrThr(1),fileSizeList>=iqrThr(2)];
     iqrList = iqrList(:,1)|iqrList(:,2);
