@@ -274,8 +274,14 @@ else
     madList = zeros(numel(fileSizeList),1);    
 end
 if iqrCase
-    iqrThr = [quantile(fileSizeList,IQRquantile),quantile(fileSizeList,(1-IQRquantile))];
-    iqrList = [fileSizeList<=iqrThr(:,1),fileSizeList>=iqrThr(:,2)];
+    P = IQRquantile;
+    M = 0.5;
+    m = quantile(fileSizeList,0.5);
+    T = M + P/2; % John: my back-of-the-envelope equations. See diary entry date 30/3/2020
+    t = quantile(fileSizeList,T);
+    q = t - m;
+    iqrThr = [q,t];
+    iqrList = [fileSizeList<=iqrThr(1),fileSizeList>=iqrThr(2)];
     iqrList = iqrList(:,1)|iqrList(:,2);
 else
     iqrList = zeros(numel(fileSizeList),1);    
