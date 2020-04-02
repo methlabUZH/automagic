@@ -88,12 +88,20 @@ if isfield(prepParams, 'lineFrequencies')
     end
 end
 
+if isfield(prepParams, 'discardNotch')
+    discardNotch = prepParams.discardNotch;
+else
+    discardNotch = 0;
+end
+
+
 % Combine both EEG and EOG for the analysis
 new_EEG = EEG_in;
-new_EEG.data = cat(1, EEG_in.data, EOG_in.data);
-new_EEG.chanlocs = [EEG_in.chanlocs, EOG_in.chanlocs];
-new_EEG.nbchan = EEG_in.nbchan + EOG_in.nbchan;
-
+if not(isempty(EOG_in.data))
+    new_EEG.data = cat(1, EEG_in.data, EOG_in.data);
+    new_EEG.chanlocs = [EEG_in.chanlocs; EOG_in.chanlocs];
+    new_EEG.nbchan = EEG_in.nbchan + EOG_in.nbchan;
+end
 [new_EEG, ~, ~] = prepPipeline(new_EEG, prepParams);
 
 
@@ -117,9 +125,15 @@ end
 [~, EEG_out] = evalc('pop_select( new_EEG , ''channel'', eeg_chans)');
 [~, EOG_out] = evalc('pop_select( new_EEG , ''channel'', eog_chans)');
 
+%get data back if no notch filter is wanted
+if discardNotch
+    EEG_out.data=EEG_in.data;
+end
+
 info = new_EEG.etc.noiseDetection;
-% Cancel the interpolation and referecing of prep
-if isfield(info.reference, 'referenceSignal')
+% Cancel the interpolation and referecing of prep (only if data isnt
+% restored above anyway)
+if isfield(info.reference, 'referenceSignal') & ~discardNotch
     EEG_out.data = bsxfun(@plus, EEG_out.data, info.reference.referenceSignal);
 end
 
