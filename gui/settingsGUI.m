@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 25-Mar-2020 13:48:00
+% Last Modified by GUIDE v2.5 02-Apr-2020 12:50:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -329,7 +329,13 @@ else
     set(handles.windowcheckbox, 'Value', 0);
     set(handles.windowedit, 'String', '');
 end
-set(handles.rarcheckbox, 'Value', ~isempty(params.PrepParams));
+if ~isempty(params.PrepParams)
+    if ~isfield(params.PrepParams, 'discardNotch')
+        set(handles.rarcheckbox, 'Value', ~isempty(params.PrepParams));
+    else
+        set(handles.PREPnoNotch, 'Value', 1);
+    end
+end
 
 if ~isempty(params.FilterParams) && ~isempty(params.FilterParams.notch)
     setLineNoise(params.FilterParams.notch.freq, handles);
@@ -755,19 +761,22 @@ end
 
 PrepParams = params.PrepParams;
 rar_check = get(handles.rarcheckbox, 'Value');
-if (rar_check && isempty(PrepParams))
+PrepNoNotch_check = get(handles.PREPnoNotch, 'Value');
+if ((rar_check && isempty(PrepParams)) || (PrepNoNotch_check && isempty(PrepParams)))
     PrepParams = struct();
-elseif ~rar_check
+elseif ~rar_check && ~PrepNoNotch_check
     PrepParams = struct([]);
 end
-
 if ~isempty(PrepParams)
     % PREP notch can be selected either from PREP options or from automagic
     % notch filter. If both PREP notch AND automagic notch checkbox are
     % selected then take the PREP param for PREP and the other one for
     % automagic notch. If automagic notch is not selected, then take the
     % frequency for the PREP (and even overwrtite it if it's already selected)
-   if( ~isfield(PrepParams, 'Fs') || ...
+    if PrepNoNotch_check
+        PrepParams.discardNotch = PrepNoNotch_check;
+    end
+    if( ~isfield(PrepParams, 'Fs') || ...
            (~isfield(PrepParams, 'lineFrequencies') || isempty(PrepParams.lineFrequencies)))
        
         res = str2double(get(handles.notchedit, 'String'));
@@ -1593,6 +1602,10 @@ if( get(handles.zaplinecheckbox, 'Value') && ...
             'filtering on your data. This is due to the PREP default ', ...
             'notch filter. Please make sure you know what you are ',...
             'about to do'], 'WARNING')
+end
+
+if get(handles.rarcheckbox, 'Value') && get(handles.PREPnoNotch, 'Value')
+    set(handles.PREPnoNotch, 'Value', 0);
 end
 
 if get(hObject,'Value')
@@ -2844,3 +2857,14 @@ function savecomponents_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of savecomponents
+
+
+% --- Executes on button press in PREPnoNotch.
+function PREPnoNotch_Callback(hObject, eventdata, handles)
+% hObject    handle to PREPnoNotch (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(handles.rarcheckbox, 'Value') && get(handles.PREPnoNotch, 'Value')
+    set(handles.rarcheckbox, 'Value', 0);
+end
+% Hint: get(hObject,'Value') returns toggle state of PREPnoNotch
