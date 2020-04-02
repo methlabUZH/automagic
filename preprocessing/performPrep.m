@@ -99,7 +99,7 @@ end
 new_EEG = EEG_in;
 if not(isempty(EOG_in.data))
     new_EEG.data = cat(1, EEG_in.data, EOG_in.data);
-    new_EEG.chanlocs = [EEG_in.chanlocs; EOG_in.chanlocs];
+    new_EEG.chanlocs = [EEG_in.chanlocs, EOG_in.chanlocs];
     new_EEG.nbchan = EEG_in.nbchan + EOG_in.nbchan;
 end
 [new_EEG, ~, ~] = prepPipeline(new_EEG, prepParams);
