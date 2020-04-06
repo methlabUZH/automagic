@@ -24,4 +24,4 @@ t1.FontSize = 20;
 message2 = 'First time takes longer';
 t2 = text(80, 520 ,message2);
 t2.FontSize = 13;
-set(hFig,'Name','Automagic v.2.3.8');
+set(hFig,'Name','Automagic v.2.4.0');
