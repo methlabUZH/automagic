@@ -25,6 +25,8 @@ classdef PreprocessingConstants
         EEGLabCsts = struct('ZIP', 'eeglab14_1_2b.zip')
         
         NoiseToolCsts = struct('ZIP', 'NoiseTools.zip')
+
+        cbrewerCsts = struct('ZIP', 'cbrewer.zip')
                      
         CRDCsts = struct('URL', 'http://sccn.ucsd.edu/eeglab/plugins/clean_rawdata0.32.zip', ...
                          'ZIP', 'clean_rawdata0.32.zip', ...

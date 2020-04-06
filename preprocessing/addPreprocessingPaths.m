@@ -75,5 +75,6 @@ if ~isempty(ICLabelParams)
 end
 
 addNoiseTools();
-    
+
+addCbrewer();
 end

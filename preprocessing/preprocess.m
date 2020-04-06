@@ -365,6 +365,7 @@ if Settings.trackAllSteps
 end
 
 %% Creating the final figure to save
+[~,CT]=evalc('cbrewer(''div'',''RdYlBu'',64)');
 if ~isempty(FilterParams.high)
     plot_FilterParams = FilterParams;
     plot_FilterParams.zapline.finalPlot = true;
