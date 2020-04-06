@@ -367,14 +367,13 @@ end
 %% Creating the final figure to save
 if ~isempty(FilterParams.high)
     plot_FilterParams = FilterParams;
+    plot_FilterParams.zapline.finalPlot = true;
 else
     disp('No high-pass filter selected. Plotting with 1Hz by default');
 
     plot_FilterParams.high.freq = 1;
     plot_FilterParams.high.order = [];
 end
-% plot_FilterParams.high.freq = 1;
-% plot_FilterParams.high.order = [];
 EEG_filtered_toplot = performFilter(EEGOrig, plot_FilterParams);
 fig1 = figure('visible', 'off');
 set(gcf, 'Color', [1,1,1])

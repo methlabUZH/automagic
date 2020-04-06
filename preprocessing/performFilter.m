@@ -131,46 +131,47 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
         EEG.data = clean';
         EEG.automagic.filtering.zapline.performed = 'yes';
         EEG.automagic.filtering.zapline.freq = zapline.freq;
-        
-        disp('Generating ZapLine figure');
-        fig1 = figure('visible', 'off');
-        set(gcf, 'Color', [1,1,1])
-        hold on
-        y=clean;
-        % disp('proportion of non-DC power removed:');
-        % disp(nt_wpwr(x-y)/nt_wpwr(nt_demean(x)));
-        fig2 = 101; 
-        nfft = 1024;
-%         figure(fig2); clf;
-        subplot 121
-        [pxx,f]=nt_spect_plot(x/sqrt(mean(x(:).^2)),nfft,[],[],1/fline);
-        divisor=sum(pxx);
-        semilogy(f,abs(pxx)/divisor);
-        legend('original'); legend boxoff
-        set(gca,'ygrid','on','xgrid','on');
-        xlabel('frequency (relative to line)');
-        ylabel('relative power');
-        yl1=get(gca,'ylim');
-        hh=get(gca,'children');
-        set(hh(1),'color','k')
-        subplot 122
-        [pxx,f]=nt_spect_plot(y/sqrt(mean(x(:).^2)),nfft,[],[],1/fline);
-        semilogy(f,abs(pxx)/divisor);
-        hold on
-        [pxx,f]=nt_spect_plot((x-y)/sqrt(mean(x(:).^2)),nfft,[],[],1/fline);
-        semilogy(f,abs(pxx)/divisor);
-        legend('clean', 'removed'); legend boxoff
-        set(gca,'ygrid','on','xgrid','on');
-        set(gca,'yticklabel',[]); ylabel([]);
-        xlabel('frequency (relative to line)');
-        yl2=get(gca,'ylim');
-        hh=get(gca,'children');
-        set(hh(1),'color',[1 .5 .5]); set(hh(2), 'color', [ 0 .7 0]);
-        set(hh(2),'linewidth', 2);
-        yl(1)=min(yl1(1),yl2(1)); yl(2)=max(yl1(2),yl2(2));
-        subplot 121; ylim(yl); subplot 122; ylim(yl);
-        EEG.automagic.ZapFig = fig1;
-        disp('Finished generating ZapLine figure');
+        if ~isfield(zapline,'finalPlot')
+            disp('Generating ZapLine figure');
+            fig1 = figure('visible', 'off');
+            set(gcf, 'Color', [1,1,1])
+            hold on
+            y=clean;
+            % disp('proportion of non-DC power removed:');
+            % disp(nt_wpwr(x-y)/nt_wpwr(nt_demean(x)));
+            fig2 = 101;
+            nfft = 1024;
+            %         figure(fig2); clf;
+            subplot 121
+            [pxx,f]=nt_spect_plot(x/sqrt(mean(x(:).^2)),nfft,[],[],1/fline);
+            divisor=sum(pxx);
+            semilogy(f,abs(pxx)/divisor);
+            legend('original'); legend boxoff
+            set(gca,'ygrid','on','xgrid','on');
+            xlabel('frequency (relative to line)');
+            ylabel('relative power');
+            yl1=get(gca,'ylim');
+            hh=get(gca,'children');
+            set(hh(1),'color','k')
+            subplot 122
+            [pxx,f]=nt_spect_plot(y/sqrt(mean(x(:).^2)),nfft,[],[],1/fline);
+            semilogy(f,abs(pxx)/divisor);
+            hold on
+            [pxx,f]=nt_spect_plot((x-y)/sqrt(mean(x(:).^2)),nfft,[],[],1/fline);
+            semilogy(f,abs(pxx)/divisor);
+            legend('clean', 'removed'); legend boxoff
+            set(gca,'ygrid','on','xgrid','on');
+            set(gca,'yticklabel',[]); ylabel([]);
+            xlabel('frequency (relative to line)');
+            yl2=get(gca,'ylim');
+            hh=get(gca,'children');
+            set(hh(1),'color',[1 .5 .5]); set(hh(2), 'color', [ 0 .7 0]);
+            set(hh(2),'linewidth', 2);
+            yl(1)=min(yl1(1),yl2(1)); yl(2)=max(yl1(2),yl2(2));
+            subplot 121; ylim(yl); subplot 122; ylim(yl);
+            disp('Finished generating ZapLine figure');
+            EEG.automagic.ZapFig = fig1;
+        end
     else
         EEG.automagic.filtering.zapline.performed = 'no';
     end
