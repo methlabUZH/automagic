@@ -71,7 +71,7 @@ end
 
 % Check and unzip if cleanrawdata() does not exist
 if ~isempty(ICLabelParams)
-    addICLabel();
+%     addICLabel();
 end
 
 addNoiseTools();
