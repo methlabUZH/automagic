@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 02-Apr-2020 12:50:33
+% Last Modified by GUIDE v2.5 13-Apr-2020 14:09:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -395,11 +395,11 @@ set(handles.eogedit, 'String', num2str(params.EEGSystem.eogChans));
 contents = cellstr(get(handles.dspopupmenu,'String'));
 index = find(contains(contents, int2str(dsRate)));
 set(handles.dspopupmenu, 'Value', index);
-
 set(handles.detrendcheckbox, 'Value', ~isempty(params.DetrendingParams))
 
 if ~isempty(params.Settings)
     set(handles.savestepscheckbox, 'Value', params.Settings.trackAllSteps);
+    set(handles.colormapPref, 'Value', find(true==strcmp(params.Settings.colormap,handles.colormapPref.String)));
 else
     set(handles.savestepscheckbox, 'Value', 0);
 end
@@ -847,6 +847,10 @@ idx = get(handles.interpolationpopupmenu, 'Value');
 methods = get(handles.interpolationpopupmenu, 'String');
 method = methods{idx};
 
+idx = get(handles.colormapPref,'Value');
+colorMap = get(handles.colormapPref,'String');
+colorMap = colorMap(idx);
+
 h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
 mainGUI_handle = guidata(h);
 
@@ -901,6 +905,8 @@ end
 
 Settings = params.Settings;
 Settings.trackAllSteps = get(handles.savestepscheckbox, 'Value');
+colormap = handles.colormapPref.String{handles.colormapPref.Value};
+Settings.colormap = colormap;
 
 handles.VisualisationParams.dsRate = ds;
 handles.VisualisationParams.CalcQualityParams = CalcQualityParams;
@@ -920,6 +926,7 @@ handles.params.RPCAParams = RPCAParams;
 handles.params.MARAParams = MARAParams;
 handles.params.ICLabelParams = ICLabelParams;
 handles.params.InterpolationParams.method = method;
+
 
 function handles = switch_components(handles)
 
@@ -2868,3 +2875,26 @@ if get(handles.rarcheckbox, 'Value') && get(handles.PREPnoNotch, 'Value')
     set(handles.rarcheckbox, 'Value', 0);
 end
 % Hint: get(hObject,'Value') returns toggle state of PREPnoNotch
+
+
+% --- Executes on selection change in colormapPref.
+function colormapPref_Callback(hObject, eventdata, handles)
+% hObject    handle to colormapPref (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns colormapPref contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from colormapPref
+
+
+% --- Executes during object creation, after setting all properties.
+function colormapPref_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to colormapPref (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

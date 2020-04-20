@@ -63,7 +63,8 @@ classdef DefaultParameters
                            'powerLineFreq', []);
                        
         % Additonal parameters of the preprocessing
-        Settings = struct('trackAllSteps', 0); 
+        Settings = struct('trackAllSteps', 0,...
+                          'colormap','Default'); 
                         
     end
 end

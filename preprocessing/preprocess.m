@@ -365,7 +365,16 @@ if Settings.trackAllSteps
 end
 
 %% Creating the final figure to save
-[~,CT]=evalc('cbrewer(''div'',''RdYlBu'',64)');
+
+%%% Find the colormap selected
+if strcmp(Settings.colormap,'Default')
+    CT = 'jet';
+else
+    cm = Settings.colormap;
+    [~,CT]=evalc('cbrewer(''div'', cm, 64)');
+end
+%%% 
+
 if ~isempty(FilterParams.high)
     plot_FilterParams = FilterParams;
     if isempty(plot_FilterParams.zapline)
@@ -388,7 +397,7 @@ if ~isempty(EOG.data)
     visEOG = zscore(EOG.data');
     visEOG = visEOG';
     imagesc(visEOG);
-    colormap jet
+    colormap(CT);
     scale_min = round(min(min(visEOG)));
     scale_max = round(max(max(visEOG)));
     caxis(1*[scale_min scale_max])
@@ -406,7 +415,7 @@ end
 %eeg figure
 subplot(11,1,2:3)
 imagesc(EEG_filtered_toplot.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 XTicks = [] ;
 XTicketLabels = [];
@@ -431,7 +440,7 @@ for i = 1:length(bads)
     plot(axe, p1, p2, 'b' ,'LineWidth', 0.5);
 end
 hold off;
-colormap jet;
+colormap(CT);
 caxis([-100 100])
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
@@ -440,7 +449,7 @@ colorbar;
 % figure;
 eogRegress_subplot=subplot(11,1,6:7);
 imagesc(EEG_regressed.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
@@ -455,7 +464,7 @@ colorbar;
 %figure;
 ica_subplot = subplot(11,1,8:9);
 imagesc(EEG_cleared.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
@@ -477,7 +486,7 @@ colorbar;
 if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParams.lambda ~= -1))
     subplot(11,1,10:11)
     imagesc(pca_noise);
-    colormap jet
+    colormap(CT);
     caxis([-100 100])
     XTicks = 0:length(EEG.data)/5:length(EEG.data) ;
     XTicketLabels = round(0:length(EEG.data)/EEG.srate/5:length(EEG.data)/EEG.srate);
@@ -503,7 +512,7 @@ ax_height = outerpos(4) - ti(2) * 0.5 - ti(4);
 ax.Position = [left bottom ax_width ax_height];
 set(gcf, 'Color', [1,1,1])
 imagesc(EEG_filtered_toplot.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 set(ax,'XTick', XTicks)
 set(ax,'XTickLabel', XTicketLabels)
