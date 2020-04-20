@@ -368,6 +368,9 @@ end
 [~,CT]=evalc('cbrewer(''div'',''RdYlBu'',64)');
 if ~isempty(FilterParams.high)
     plot_FilterParams = FilterParams;
+    if isempty(plot_FilterParams.zapline)
+        plot_FilterParams.zapline=[];
+    end
     plot_FilterParams.zapline.finalPlot = true;
 else
     disp('No high-pass filter selected. Plotting with 1Hz by default');
