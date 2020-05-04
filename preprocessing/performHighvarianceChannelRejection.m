@@ -24,7 +24,7 @@ function EEG_out = performHighvarianceChannelRejection(EEG_in, varargin)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-save 'EEG_in.mat' 'EEG_in';
+
 defaults = DefaultParameters.HighvarParams;
 recs = RecommendedParameters.HighvarParams;
 if isempty(defaults)
