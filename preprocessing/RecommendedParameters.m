@@ -41,7 +41,9 @@ classdef RecommendedParameters
         
         PrepParams = struct();                           % Default by prep
         
-        HighvarParams = struct('sd', 25);
+        HighvarParams = struct('sd', 25, ...
+                               'cutoff', 100, ...
+                               'rejRatio', 0.5);
         
         MinvarParams = struct('sd', 1);
         

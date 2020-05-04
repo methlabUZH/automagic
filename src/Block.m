@@ -830,7 +830,9 @@ classdef Block < handle
             
             if strcmp(automagic.highVarianceRejection.performed, 'yes')
                 fprintf(fileID, sprintf(text.highvar.desc, ...
-                    automagic.highVarianceRejection.sd));
+                    automagic.highVarianceRejection.sd, ...
+                    automagic.highVarianceRejection.cutoff, ...
+                    automagic.highVarianceRejection.rejRatio));
                 fprintf(fileID, '\n');
             end
             

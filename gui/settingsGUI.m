@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 13-Apr-2020 14:09:29
+% Last Modified by GUIDE v2.5 04-May-2020 11:14:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -355,9 +355,13 @@ end
 if( ~isempty(params.HighvarParams))
     set(handles.highvarcheckbox, 'Value', 1);
     set(handles.highvaredit, 'String', mat2str(params.HighvarParams.sd));
+    set(handles.HVCutoffEdit, 'String', mat2str(params.HighvarParams.cutoff));
+    set(handles.RejectRatioEdit, 'String', mat2str(params.HighvarParams.rejRatio));
 else
     set(handles.highvarcheckbox, 'Value', 0);
     set(handles.highvaredit, 'String', '');
+    set(handles.HVCutoffEdit, 'String', '');
+    set(handles.RejectRatioEdit, 'String', '');
 end
 
 if( ~isempty(params.MinvarParams))
@@ -794,11 +798,15 @@ end
 HighvarParams = params.HighvarParams;
 if (get(handles.highvarcheckbox, 'Value'))
      sd = str2double(get(handles.highvaredit, 'String'));
+     cutoff = str2double(get(handles.HVCutoffEdit, 'String'));
+     rejRatio = str2double(get(handles.RejectRatioEdit, 'String'));
      if ~isnan(sd)
         if isempty(HighvarParams)
             HighvarParams = struct();
         end
         HighvarParams.sd = sd; 
+        HighvarParams.cutoff = cutoff; 
+        HighvarParams.rejRatio = rejRatio; 
      end
 else
     HighvarParams = struct([]);
@@ -1091,8 +1099,12 @@ end
 
 if( get(handles.highvarcheckbox, 'Value'))
     set(handles.highvaredit, 'enable', 'on')
+    set(handles.HVCutoffEdit, 'enable', 'on')
+    set(handles.RejectRatioEdit, 'enable', 'on')
 else
     set(handles.highvaredit, 'enable', 'off')
+    set(handles.HVCutoffEdit, 'enable', 'off')
+    set(handles.RejectRatioEdit, 'enable', 'off')    
 end
 
 if( get(handles.minvarcheckbox, 'Value'))
@@ -2168,6 +2180,8 @@ function highvarcheckbox_Callback(hObject, eventdata, handles)
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
     set(handles.highvaredit, 'String', mat2str(recs.HighvarParams.sd))
+    set(handles.HVCutoffEdit, 'String', mat2str(recs.HighvarParams.cutoff))
+    set(handles.RejectRatioEdit, 'String', mat2str(recs.HighvarParams.rejRatio))
 end
 handles = switch_components(handles);
 
@@ -2894,6 +2908,52 @@ function colormapPref_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function HVCutoffEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to HVCutoffEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of HVCutoffEdit as text
+%        str2double(get(hObject,'String')) returns contents of HVCutoffEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function HVCutoffEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to HVCutoffEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function RejectRatioEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to RejectRatioEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of RejectRatioEdit as text
+%        str2double(get(hObject,'String')) returns contents of RejectRatioEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function RejectRatioEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to RejectRatioEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
