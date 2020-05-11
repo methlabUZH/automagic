@@ -96,6 +96,29 @@ handles.CGV = CGV;
 
 % Set the gui components according to params
 handles = set_gui(handles, params, VisualisationParams);
+h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
+mainGUI_handle = guidata(h);
+if( get(mainGUI_handle.egiradio, 'Value'))
+    set(handles.rarcheckbox, 'Value', 1);
+    set(handles.highvarcheckbox, 'Value', 1);
+    set(handles.minvarcheckbox, 'Value', 1);
+    set(handles.zaplinecheckbox, 'Value', 1);
+    set(handles.ncomponentsZL, 'String', 5);
+    set(handles.highcheckbox, 'Value', 1);
+    set(handles.highedit, 'String', 2);
+    set(handles.lowcheckbox, 'Value', 1);
+    set(handles.lowedit, 'String', 49);
+    set(handles.eogcheckbox, 'Value', 0);
+    set(handles.eogedit, 'enable', 'off');
+    set(handles.euradio, 'Value', 1);   
+    set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
+    set(handles.highvaredit, 'String',handles.CGV.RecParams.HighvarParams.sd);
+    set(handles.HVCutoffEdit, 'String',handles.CGV.RecParams.HighvarParams.cutoff);
+    set(handles.RejectRatioEdit, 'String',handles.CGV.RecParams.HighvarParams.rejRatio);
+    set(handles.highpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+    set(handles.lowpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+    set(handles.minvaredit, 'String',handles.CGV.RecParams.MinvarParams.sd);  
+end
 handles = switch_components(handles);
 
 
