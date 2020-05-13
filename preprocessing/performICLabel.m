@@ -90,12 +90,12 @@ EEG.etc.keep_comps = ~isempty(EEG.etc.keep_comps);
 
 %% Check (and add) ICLabel to EEGLAB plugins
 performICpath = mfilename('fullpath');
-[~,endIndex] = regexp(performICpath,'automagic');
-mainPath = struct2cell(dir(strcat(performICpath(1:endIndex+1),'matlab_scripts')));
+ind=regexp(performICpath,filesep);
+mainPath = struct2cell(dir(strcat(performICpath(1:ind(end-1)),'matlab_scripts')));
 mainPaths = mainPath(1,:)';
 eeglabIndex = find(true==contains(mainPaths,'eeglab')&~contains(mainPaths,'.zip'));
 eeglabName = mainPaths{eeglabIndex};
-ICLabelpath = strcat(performICpath(1:endIndex),filesep,'matlab_scripts',filesep,eeglabName,filesep,'plugins',filesep);
+ICLabelpath = strcat(performICpath(1:ind(end-1)),'matlab_scripts',filesep,eeglabName,filesep,'plugins',filesep);
 plugins = struct2cell(dir(ICLabelpath));
 plugins = plugins(1,:)';
 found = 0;
