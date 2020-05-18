@@ -109,6 +109,8 @@ classdef Project < handle
         qualityCutoffs
         
         qualityScoreIdx
+        
+        email
     end
     
     properties(SetAccess=private)
@@ -825,19 +827,25 @@ classdef Project < handle
                 waitbar(1)
                 close(h)
             end
-            
             % Inform user if result folder has been modified
             if( nPreprocessedFile > self.nProcessedFiles || ...
                     nPreprocessedSubject > self.nProcessedSubjects)
                 if( nPreprocessedSubject > self.nProcessedSubjects)
-                    popup_msg(['New preprocessed results have been added'...
-                        ' to the project folder.'], 'More results');
+                    if isempty(self.email)
+                        popup_msg(['New preprocessed results have been added'...
+                            ' to the project folder.'], 'More results');
+                    else
+                        disp('New preprocessed results have been added to the project folder.')
+                    end
                 else
-                    popup_msg(['New preprocessed results have been added'...
-                        'to the project folder.'], 'More results');
+                    if isempty(self.email)
+                        popup_msg(['New preprocessed results have been added'...
+                            'to the project folder.'], 'More results');
+                    else
+                        disp('New preprocessed results have been added to the project folder.')
+                    end
                 end
             end
-            
             if( nPreprocessedFile < self.nProcessedFiles || ...
                     nPreprocessedSubject < self.nProcessedSubjects)
                 if( nPreprocessedSubject < self.nProcessedSubjects)

@@ -717,35 +717,37 @@ idx = get(handles.existingpopupmenu, 'Value');
 projects = get(handles.existingpopupmenu, 'String');
 name = projects{idx};
 project = handles.projectList(name);
-
 if(~ isempty(project))
     clc;
     commandwindow;
+    emailInterpAction = ~strcmp(handles.interpolatenumber.String,'0 files to interpolate');
     project.interpolateSelected();
-end
-    if isfield(handles,'emailOptions')
-        if handles.emailOptions.agree == 1
-            recipientAddress = handles.emailOptions.emailAddress;
-            processing_step = 'Interpolation';
-            if handles.emailOptions.errorlog == 1
-                try
-                    attachment = [handles.projectfoldershow.String 'preprocessing.log'];
-                catch ME
-                    problem = ME.message;
-                    warning(['Could attach error-log file because ' ME.message])
+    if emailInterpAction
+        if isfield(handles,'emailOptions')
+            if handles.emailOptions.agree == 1
+                recipientAddress = handles.emailOptions.emailAddress;
+                processing_step = 'Interpolation';
+                if handles.emailOptions.errorlog == 1
+                    try
+                        attachment = [handles.projectfoldershow.String 'preprocessing.log'];
+                    catch ME
+                        problem = ME.message;
+                        warning(['Could attach error-log file because ' ME.message])
+                    end
+                else
+                    attachment = [];
                 end
-            else
-                attachment = [];
+                disp('Sending E-mail notification...');
+                sent_status = autoEmail(recipientAddress, processing_step, attachment);
+                if sent_status == 1
+                    disp('E-mail sent');
+                else
+                    disp('Gmail user? Check your settings: https://myaccount.google.com/lesssecureapps');
+                end
             end
-            disp('Sending E-mail notification...');
-            sent_status = autoEmail(recipientAddress, processing_step, attachment);
-            if sent_status == 1
-            disp('E-mail sent');
-            else
-                disp('Gmail user? Check your settings: https://myaccount.google.com/lesssecureapps');
-            end
-        end 
+        end
     end
+end
 
 % --- Run preprocessing on all subjects
 function runpreprocessbutton_Callback(hObject, eventdata, handles)
@@ -776,6 +778,11 @@ if( ~ isempty(project))
     set(handles.mainGUI, 'pointer', 'watch')
     drawnow;
     finishup = onCleanup(@() myCleanupFun(handles));
+    if isfield(handles,'emailOptions')
+        if handles.emailOptions.agree == 1
+            project.email = 1;
+        end
+    end    
     project.preprocessAll();
     if isfield(handles,'emailOptions')
         if handles.emailOptions.agree == 1
