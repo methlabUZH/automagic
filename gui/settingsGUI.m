@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 23-Feb-2019 10:23:26
+% Last Modified by GUIDE v2.5 04-May-2020 11:14:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -113,7 +113,6 @@ function handles = set_gui(handles, params, VisualisationParams)
 DEFAULT_KEYWORD = handles.CGV.DEFAULT_KEYWORD;
 CalcQualityParams = VisualisationParams.CalcQualityParams;
 dsRate = VisualisationParams.dsRate;
-
 if ~isempty(params.FilterParams)
     if ~isempty(params.FilterParams.high)
         set(handles.highcheckbox, 'Value', 1);
@@ -152,8 +151,11 @@ if ~isempty(params.FilterParams)
         set(handles.lowpassorderedit, 'String', '')
         set(handles.lowedit, 'String', '');
     end
-    
     set(handles.notchcheckbox, 'Value', ~isempty(params.FilterParams.notch));
+    set(handles.zaplinecheckbox, 'Value', ~isempty(params.FilterParams.zapline));
+    if ~isempty(params.FilterParams.zapline)
+        set(handles.ncomponentsZL, 'String', params.FilterParams.zapline.ncomps)
+    end
 else
     set(handles.highcheckbox, 'Value', 0);
     set(handles.lowcheckbox, 'Value', 0);
@@ -172,6 +174,7 @@ set(handles.channelthresholdedit, 'String', mat2str(CalcQualityParams.chanThresh
 
 set(handles.icacheckbox, 'Value', ~isempty(params.MARAParams));
 if ~isempty(params.MARAParams)
+    set(handles.savecomponents, 'Value', ~isempty(params.MARAParams.keep_comps))
     set(handles.largemapcheckbox, 'Value', params.MARAParams.largeMap)
     if isfield(params.MARAParams, 'chanlocMap') && ...
             isempty(params.MARAParams.chanlocMap)
@@ -200,6 +203,7 @@ if ~isempty(params.MARAParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
+%     set(handles.savecomponents, 'Value', 0);
     set(handles.largemapcheckbox, 'Value', 0)
     if isempty(params.ICLabelParams)
         set(handles.icahighpasscheckbox, 'Value', 0)
@@ -210,6 +214,7 @@ end
 
 set(handles.iclabelcheckbox, 'Value', ~isempty(params.ICLabelParams));
 if ~isempty(params.ICLabelParams)
+    set(handles.savecomponents, 'Value', ~isempty(params.ICLabelParams.keep_comps));
     set(handles.probtheredit, 'String', params.ICLabelParams.brainTher)
     set(handles.icmuscleedit, 'String', params.ICLabelParams.muscleTher);
     set(handles.iceyeedit, 'String', params.ICLabelParams.eyeTher);
@@ -245,6 +250,7 @@ if ~isempty(params.ICLabelParams)
         set(handles.icahighpassedit, 'String', '');
     end
 else
+%     set(handles.savecomponents, 'Value', 0)
     set(handles.probtheredit, 'String', '')
     set(handles.icmuscleedit, 'String', '');
     set(handles.iceyeedit, 'String', '');
@@ -323,10 +329,18 @@ else
     set(handles.windowcheckbox, 'Value', 0);
     set(handles.windowedit, 'String', '');
 end
-set(handles.rarcheckbox, 'Value', ~isempty(params.PrepParams));
+if ~isempty(params.PrepParams)
+    if ~isfield(params.PrepParams, 'discardNotch')
+        set(handles.rarcheckbox, 'Value', ~isempty(params.PrepParams));
+    else
+        set(handles.PREPnoNotch, 'Value', 1);
+    end
+end
 
 if ~isempty(params.FilterParams) && ~isempty(params.FilterParams.notch)
     setLineNoise(params.FilterParams.notch.freq, handles);
+elseif ~isempty(params.FilterParams) && ~isempty(params.FilterParams.zapline)
+    setLineNoise(params.FilterParams.zapline.freq, handles);
 elseif (~isempty(params.PrepParams))
     if isfield(params.PrepParams, 'lineFrequencies') && ~isempty(params.PrepParams.lineFrequencies)
         setLineNoise(params.PrepParams.lineFrequencies(1), handles);
@@ -341,9 +355,21 @@ end
 if( ~isempty(params.HighvarParams))
     set(handles.highvarcheckbox, 'Value', 1);
     set(handles.highvaredit, 'String', mat2str(params.HighvarParams.sd));
+    set(handles.HVCutoffEdit, 'String', mat2str(params.HighvarParams.cutoff));
+    set(handles.RejectRatioEdit, 'String', mat2str(params.HighvarParams.rejRatio));
 else
     set(handles.highvarcheckbox, 'Value', 0);
     set(handles.highvaredit, 'String', '');
+    set(handles.HVCutoffEdit, 'String', '');
+    set(handles.RejectRatioEdit, 'String', '');
+end
+
+if( ~isempty(params.MinvarParams))
+    set(handles.minvarcheckbox, 'Value', 1);
+    set(handles.minvaredit, 'String', mat2str(params.MinvarParams.sd));
+else
+    set(handles.minvarcheckbox, 'Value', 0);
+    set(handles.minvaredit, 'String', '');
 end
 
 
@@ -366,18 +392,18 @@ IndexC = strfind(handles.interpolationpopupmenu.String, ...
     params.InterpolationParams.method);
 index = find(not(cellfun('isempty', IndexC)));
 set(handles.interpolationpopupmenu, 'Value', index);
-
-set(handles.eogcheckbox, 'Value', ~isempty(params.EOGRegressionParams))
+% set(handles.eogcheckbox, 'Value', isempty(params.EOGRegressionParams))
+set(handles.eogcheckbox, 'Value', ~isempty(params.EEGSystem.eogChans))
 set(handles.eogedit, 'String', num2str(params.EEGSystem.eogChans));
 
 contents = cellstr(get(handles.dspopupmenu,'String'));
 index = find(contains(contents, int2str(dsRate)));
 set(handles.dspopupmenu, 'Value', index);
-
 set(handles.detrendcheckbox, 'Value', ~isempty(params.DetrendingParams))
 
 if ~isempty(params.Settings)
     set(handles.savestepscheckbox, 'Value', params.Settings.trackAllSteps);
+    set(handles.colormapPref, 'Value', find(true==strcmp(params.Settings.colormap,handles.colormapPref.String)));
 else
     set(handles.savestepscheckbox, 'Value', 0);
 end
@@ -427,6 +453,11 @@ if get(handles.icacheckbox, 'Value')
     end
     MARAParams.high = high;
     clear res;
+    if get(handles.savecomponents, 'Value')
+        MARAParams.keep_comps = 1;
+    else
+        MARAParams.keep_comps = [];
+    end
 else
     MARAParams = struct([]);
 end
@@ -440,44 +471,44 @@ if get(handles.iclabelcheckbox, 'Value')
     
     ICLabelParams.includeSelected = get(handles.includecompradio, 'Value');
     res = str2double(get(handles.probtheredit, 'String'));
-    if ~isnan(res) && get(handles.icbrainradio, 'Value')
+    if ~isempty(res) && get(handles.icbrainradio, 'Value')
         ICLabelParams.brainTher = res;
     else
         ICLabelParams.brainTher = [];
     end
     
     res = str2double(get(handles.icmuscleedit, 'String'));
-    if ~isnan(res) & get(handles.icmuscleradio, 'Value')
+    if ~isempty(res) && get(handles.icmuscleradio, 'Value')
         ICLabelParams.muscleTher = res;
     else
         ICLabelParams.muscleTher = [];
     end
     res = str2double(get(handles.iceyeedit, 'String'));
-    if ~isnan(res) & get(handles.iceyeradio, 'Value')
+    if ~isempty(res) && get(handles.iceyeradio, 'Value')
         ICLabelParams.eyeTher = res;
     else
         ICLabelParams.eyeTher = [];
     end
     res = str2double(get(handles.icheartedit, 'String'));
-    if ~isnan(res) & get(handles.icheartradio, 'Value')
+    if ~isempty(res) && get(handles.icheartradio, 'Value')
         ICLabelParams.heartTher = res;
     else
         ICLabelParams.heartTher = [];
     end
     res = str2double(get(handles.iclinenoiseedit, 'String'));
-    if ~isnan(res) & get(handles.iclinenoiseradio, 'Value')
+    if ~isempty(res) && get(handles.iclinenoiseradio, 'Value')
         ICLabelParams.lineNoiseTher = res;
     else
         ICLabelParams.lineNoiseTher = [];
     end
     res = str2double(get(handles.icchannelnoiseedit, 'String'));
-    if ~isnan(res) & get(handles.icchannelnoiseradio, 'Value')
+    if ~isempty(res) && get(handles.icchannelnoiseradio, 'Value')
         ICLabelParams.channelNoiseTher = res;
     else
         ICLabelParams.channelNoiseTher = [];
     end
     res = str2double(get(handles.icotheredit, 'String'));
-    if ~isnan(res) & get(handles.icotherradio, 'Value')
+    if ~isempty(res) && get(handles.icotherradio, 'Value')
         ICLabelParams.otherTher = res;
     else
         ICLabelParams.otherTher = [];
@@ -516,8 +547,12 @@ if get(handles.iclabelcheckbox, 'Value')
     
         ICLabelParams = struct([]);
     end
-        
     clear res;
+    if get(handles.savecomponents, 'Value')
+        ICLabelParams.keep_comps = 1;
+    else
+        ICLabelParams.keep_comps = [];
+    end
 else
     ICLabelParams = struct([]);
 end
@@ -572,7 +607,7 @@ if( get(handles.notchcheckbox, 'Value'))
     if isempty(notch)
         notch = struct(); end
     res = str2double(get(handles.notchedit, 'String'));
-    if ~isnan(res)
+    if ~isempty(res)
         notch.freq = res;
     else
         notch.freq = [];
@@ -582,6 +617,28 @@ else
     notch = struct([]);
 end
 
+zapline = params.FilterParams.zapline;
+if( get(handles.zaplinecheckbox, 'Value'))
+    if isempty(zapline)
+        zapline = struct();
+    end
+    res = str2double(get(handles.notchedit, 'String'));
+    if ~isempty(res)
+        zapline.freq = res;
+    else
+        zapline.freq = [];
+    end
+    clear res;
+    ncomps = str2double(get(handles.ncomponentsZL, 'String'));
+    if ~isempty(ncomps)
+        zapline.ncomps = ncomps;
+    else
+        zapline.ncomps = [];
+    end
+    clear ncomps;
+else
+    zapline = struct([]);
+end
 
 % Get Quality Rating Parameters.
 CalcQualityParams = VisualisationParams.CalcQualityParams;
@@ -708,19 +765,22 @@ end
 
 PrepParams = params.PrepParams;
 rar_check = get(handles.rarcheckbox, 'Value');
-if (rar_check && isempty(PrepParams))
+PrepNoNotch_check = get(handles.PREPnoNotch, 'Value');
+if ((rar_check && isempty(PrepParams)) || (PrepNoNotch_check && isempty(PrepParams)))
     PrepParams = struct();
-elseif ~rar_check
+elseif ~rar_check && ~PrepNoNotch_check
     PrepParams = struct([]);
 end
-
 if ~isempty(PrepParams)
     % PREP notch can be selected either from PREP options or from automagic
     % notch filter. If both PREP notch AND automagic notch checkbox are
     % selected then take the PREP param for PREP and the other one for
     % automagic notch. If automagic notch is not selected, then take the
     % frequency for the PREP (and even overwrtite it if it's already selected)
-   if( ~isfield(PrepParams, 'Fs') || ...
+    if PrepNoNotch_check
+        PrepParams.discardNotch = PrepNoNotch_check;
+    end
+    if( ~isfield(PrepParams, 'Fs') || ...
            (~isfield(PrepParams, 'lineFrequencies') || isempty(PrepParams.lineFrequencies)))
        
         res = str2double(get(handles.notchedit, 'String'));
@@ -738,14 +798,31 @@ end
 HighvarParams = params.HighvarParams;
 if (get(handles.highvarcheckbox, 'Value'))
      sd = str2double(get(handles.highvaredit, 'String'));
+     cutoff = str2double(get(handles.HVCutoffEdit, 'String'));
+     rejRatio = str2double(get(handles.RejectRatioEdit, 'String'));
      if ~isnan(sd)
         if isempty(HighvarParams)
             HighvarParams = struct();
         end
         HighvarParams.sd = sd; 
+        HighvarParams.cutoff = cutoff; 
+        HighvarParams.rejRatio = rejRatio; 
      end
 else
     HighvarParams = struct([]);
+end
+
+MinvarParams = params.MinvarParams;
+if (get(handles.minvarcheckbox, 'Value'))
+     sd = str2double(get(handles.minvaredit, 'String'));
+     if ~isempty(sd)
+        if isempty(MinvarParams)
+            MinvarParams = struct();
+        end
+        MinvarParams.sd = sd; 
+     end
+else
+    MinvarParams = struct([]);
 end
 
 RPCAParams = params.RPCAParams;
@@ -777,6 +854,10 @@ end
 idx = get(handles.interpolationpopupmenu, 'Value');
 methods = get(handles.interpolationpopupmenu, 'String');
 method = methods{idx};
+
+idx = get(handles.colormapPref,'Value');
+colorMap = get(handles.colormapPref,'String');
+colorMap = colorMap(idx);
 
 h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
 mainGUI_handle = guidata(h);
@@ -832,12 +913,15 @@ end
 
 Settings = params.Settings;
 Settings.trackAllSteps = get(handles.savestepscheckbox, 'Value');
+colormap = handles.colormapPref.String{handles.colormapPref.Value};
+Settings.colormap = colormap;
 
 handles.VisualisationParams.dsRate = ds;
 handles.VisualisationParams.CalcQualityParams = CalcQualityParams;
 handles.params.FilterParams.high = high;
 handles.params.FilterParams.low = low;
 handles.params.FilterParams.notch = notch;
+handles.params.FilterParams.zapline = zapline;
 handles.params.CRDParams = CRDParams;
 handles.params.EOGRegressionParams = EOGRegressionParams;
 handles.params.DetrendingParams = DetrendingParams;
@@ -845,10 +929,12 @@ handles.params.EEGSystem = EEGSystem;
 handles.params.Settings = Settings;
 handles.params.PrepParams = PrepParams;
 handles.params.HighvarParams = HighvarParams;
+handles.params.MinvarParams = MinvarParams;
 handles.params.RPCAParams = RPCAParams;
 handles.params.MARAParams = MARAParams;
 handles.params.ICLabelParams = ICLabelParams;
 handles.params.InterpolationParams.method = method;
+
 
 function handles = switch_components(handles)
 
@@ -860,6 +946,7 @@ if(~ get(mainGUI_handle.egiradio, 'Value') && ...
 else
     set(handles.eogedit, 'enable', 'off');
 end
+
 if( get(handles.highcheckbox, 'Value') )
     set(handles.highpassorderedit, 'enable', 'on');
     set(handles.highedit, 'enable', 'on');
@@ -911,6 +998,13 @@ if( get(handles.windowcheckbox, 'Value') )
 else
     set(handles.windowedit, 'enable', 'off');
     set(handles.windowedit, 'String', '');
+end
+
+if(get(handles.icacheckbox, 'Value') || get(handles.iclabelcheckbox, 'Value'))
+    set(handles.savecomponents, 'enable', 'on');
+else
+    set(handles.savecomponents, 'enable', 'off');
+    set(handles.savecomponents, 'Value', 0);
 end
 
 if( get(handles.icacheckbox, 'Value'))
@@ -1006,10 +1100,19 @@ end
 
 if( get(handles.highvarcheckbox, 'Value'))
     set(handles.highvaredit, 'enable', 'on')
+    set(handles.HVCutoffEdit, 'enable', 'on')
+    set(handles.RejectRatioEdit, 'enable', 'on')
 else
     set(handles.highvaredit, 'enable', 'off')
+    set(handles.HVCutoffEdit, 'enable', 'off')
+    set(handles.RejectRatioEdit, 'enable', 'off')    
 end
 
+if( get(handles.minvarcheckbox, 'Value'))
+    set(handles.minvaredit, 'enable', 'on')
+else
+    set(handles.minvaredit, 'enable', 'off')
+end
 
 if( get(handles.rarcheckbox, 'Value'))
     set(handles.preppushbutton, 'enable', 'on')
@@ -1017,6 +1120,55 @@ else
     set(handles.preppushbutton, 'enable', 'off')
 end
 
+if( get(handles.zaplinecheckbox, 'Value'))
+    set(handles.ncomponentsZL, 'Enable', 'on')
+else
+    set(handles.ncomponentsZL, 'Enable', 'off')
+end
+
+if( get(mainGUI_handle.egiradio, 'Value'))
+    set(handles.rarcheckbox, 'Value', 1);
+    if (get(handles.PREPnoNotch, 'Value'))
+        set(handles.rarcheckbox, 'Value', 0);
+    end
+    set(handles.PREPnoNotch, 'Value', 0);
+    set(handles.PREPnoNotch, 'enable', 'off');
+    set(handles.rarcheckbox, 'enable', 'off');
+    set(handles.highvarcheckbox, 'Value', 1);
+    set(handles.highvarcheckbox, 'enable', 'off');
+    set(handles.minvarcheckbox, 'Value', 1);
+    set(handles.minvarcheckbox, 'enable', 'off');
+    set(handles.zaplinecheckbox, 'Value', 1);
+    set(handles.zaplinecheckbox, 'enable', 'off');
+    set(handles.ncomponentsZL, 'String', 5);
+    set(handles.ncomponentsZL, 'enable', 'off');
+    set(handles.highcheckbox, 'Value', 1);
+    set(handles.highcheckbox, 'enable', 'off');
+    set(handles.highedit, 'String', 2);
+    set(handles.highedit, 'enable', 'off');
+    set(handles.lowcheckbox, 'Value', 1);
+    set(handles.lowcheckbox, 'enable', 'off');
+    set(handles.lowedit, 'String', 49);
+    set(handles.lowedit, 'enable', 'off');
+    set(handles.eogcheckbox, 'Value', 0);
+    set(handles.eogcheckbox, 'enable', 'off');
+    set(handles.euradio, 'Value', 1);   
+    set(handles.euradio, 'enable', 'off');
+    set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
+    set(handles.notchedit, 'enable', 'off');
+    set(handles.highvaredit, 'String',handles.CGV.RecParams.HighvarParams.sd);
+    set(handles.highvaredit, 'enable', 'off');
+    set(handles.HVCutoffEdit, 'String',handles.CGV.RecParams.HighvarParams.cutoff);
+    set(handles.HVCutoffEdit, 'enable', 'off');
+    set(handles.RejectRatioEdit, 'String',handles.CGV.RecParams.HighvarParams.rejRatio);
+    set(handles.RejectRatioEdit, 'enable', 'off');
+    set(handles.highpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+    set(handles.highpassorderedit, 'enable', 'off');
+    set(handles.lowpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+    set(handles.lowpassorderedit, 'enable', 'off');
+    set(handles.minvaredit, 'String',handles.CGV.RecParams.MinvarParams.sd);  
+    set(handles.minvaredit, 'enable', 'off');
+end
 
 % if( get(handles.rarcheckbox, 'Value') || ...
 %         get(handles.notchcheckbox, 'Value'))
@@ -1133,7 +1285,6 @@ set(handles.icheartedit, 'String', '');
 set(handles.iclinenoiseedit, 'String', '');
 set(handles.icchannelnoiseedit, 'String', '');
 set(handles.icotheredit, 'String', '');
-
 set(handles.icbrainradio, 'Value', 0);
 set(handles.icmuscleradio, 'Value', 0);
 set(handles.iceyeradio, 'Value', 0);
@@ -1510,6 +1661,17 @@ if( get(handles.notchcheckbox, 'Value') && ...
             'about to do'], 'WARNING')
 end
 
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.rarcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filtering on your data. This is due to the PREP default ', ...
+            'notch filter. Please make sure you know what you are ',...
+            'about to do'], 'WARNING')
+end
+
+if get(handles.rarcheckbox, 'Value') && get(handles.PREPnoNotch, 'Value')
+    set(handles.PREPnoNotch, 'Value', 0);
+end
 
 if get(hObject,'Value')
     handles.params.PrepParams = struct();
@@ -2064,6 +2226,8 @@ function highvarcheckbox_Callback(hObject, eventdata, handles)
 if get(hObject,'Value')
     recs = handles.CGV.RecParams;
     set(handles.highvaredit, 'String', mat2str(recs.HighvarParams.sd))
+    set(handles.HVCutoffEdit, 'String', mat2str(recs.HighvarParams.cutoff))
+    set(handles.RejectRatioEdit, 'String', mat2str(recs.HighvarParams.rejRatio))
 end
 handles = switch_components(handles);
 
@@ -2255,7 +2419,13 @@ if( get(handles.notchcheckbox, 'Value') && ...
             'notch filter. Please make sure you know what you are ',...
             'about to do'], 'WARNING')
 end
-    
+
+if( get(handles.notchcheckbox, 'Value') && ...
+        get(handles.zaplinecheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filters to your data. It is recommended to select either ',...
+            'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
+end
 handles = switch_components(handles);
 
 % Update handles structure
@@ -2649,3 +2819,188 @@ function detrendcheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of detrendcheckbox
+
+
+
+% --- Executes on button press in zaplinecheckbox.
+function zaplinecheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to zaplinecheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.rarcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filtering on your data. This is due to the PREP default ', ...
+            'notch filter. Please make sure you know what you are ',...
+            'about to do'], 'WARNING')
+end
+
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.notchcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filters to your data. It is recommended to select either ',...
+            'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
+end
+if( get(handles.zaplinecheckbox, 'Value'))
+    set(handles.ncomponentsZL, 'Enable', 'on')
+else
+    set(handles.ncomponentsZL, 'Enable', 'off')
+end
+handles = switch_components(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+% Hint: get(hObject,'Value') returns toggle state of zaplinecheckbox
+
+
+% --- Executes on button press in minvarcheckbox.
+function minvarcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to minvarcheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value')
+    recs = handles.CGV.RecParams;
+    set(handles.minvaredit, 'String', mat2str(recs.MinvarParams.sd))
+end
+handles = switch_components(handles);
+
+% Hint: get(hObject,'Value') returns toggle state of minvarcheckbox
+guidata(hObject, handles);
+
+
+
+function minvaredit_Callback(hObject, eventdata, handles)
+% hObject    handle to minvaredit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of minvaredit as text
+%        str2double(get(hObject,'String')) returns contents of minvaredit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function minvaredit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to minvaredit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function ncomponentsZL_Callback(hObject, eventdata, handles)
+% hObject    handle to ncomponentsZL (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% nComponents = str2double(get(hObject,'String'));
+% handles = switch_components(handles);
+
+% Hint: get(hObject,'Value') returns toggle state of minvarcheckbox
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function ncomponentsZL_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ncomponentsZL (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in savecomponents.
+function savecomponents_Callback(hObject, eventdata, handles)
+% hObject    handle to savecomponents (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of savecomponents
+
+
+% --- Executes on button press in PREPnoNotch.
+function PREPnoNotch_Callback(hObject, eventdata, handles)
+% hObject    handle to PREPnoNotch (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(handles.rarcheckbox, 'Value') && get(handles.PREPnoNotch, 'Value')
+    set(handles.rarcheckbox, 'Value', 0);
+end
+% Hint: get(hObject,'Value') returns toggle state of PREPnoNotch
+
+
+% --- Executes on selection change in colormapPref.
+function colormapPref_Callback(hObject, eventdata, handles)
+% hObject    handle to colormapPref (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns colormapPref contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from colormapPref
+
+
+% --- Executes during object creation, after setting all properties.
+function colormapPref_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to colormapPref (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function HVCutoffEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to HVCutoffEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of HVCutoffEdit as text
+%        str2double(get(hObject,'String')) returns contents of HVCutoffEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function HVCutoffEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to HVCutoffEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function RejectRatioEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to RejectRatioEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of RejectRatioEdit as text
+%        str2double(get(hObject,'String')) returns contents of RejectRatioEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function RejectRatioEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to RejectRatioEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

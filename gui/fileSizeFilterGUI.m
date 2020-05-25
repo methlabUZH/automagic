@@ -55,6 +55,7 @@ function fileSizeFilterGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 movegui(handles.figure1,'center')
 handles.resultsfolder = varargin{1};
 params = varargin{2};
+handles.params = params;
 set(handles.dataedit,'enable','off');
 set(handles.MADedit,'enable','off');
 set(handles.IQRedit,'enable','off');
@@ -231,11 +232,15 @@ for subj = 3 : size(subjFolders,1)
     filepath = [resultsFolder subjName];
     subjFiles = dir(filepath);
     for file = 3 : size(subjFiles,1)
-        fileSize = subjFiles(file).bytes;
+        filename = subjFiles(file).name;
+        exten = handles.params.extedit.String;
+        fileSize = subjFiles(file).bytes/1050000;
+        if contains(filename,exten)
         fileSizeList = [fileSizeList; fileSize];
+        end
     end
 end
-fileSizeList = fileSizeList/10e6;
+fileSizeList = round(fileSizeList,3,'significant');
 absThresh = get(handles.dataedit, 'String');
 absCase = get(handles.absCheckbox, 'Value');
 madCase = get(handles.MADcheckbox, 'Value');
@@ -258,19 +263,25 @@ if isempty(IQRquantile)
     set(handles.IQRedit,'String', '0');
 end
 if absCase
-    absList = fileSizeList<=absThresh;
+    absList = fileSizeList>=absThresh;
 else
     absList = zeros(numel(fileSizeList),1);
 end    
 if madCase
-    madThr = MADscalar*mad(fileSizeList,1); % median 
-    madList = fileSizeList<=madThr+median(fileSizeList);
+    MADfileSizeList = (abs(fileSizeList-median(fileSizeList)))/mad(fileSizeList,1,1); % median 
+    madList = MADfileSizeList>=MADscalar;
 else
     madList = zeros(numel(fileSizeList),1);    
 end
 if iqrCase
-    iqrThr = [quantile(fileSizeList,IQRquantile),quantile(fileSizeList,(1-IQRquantile))];
-    iqrList = [fileSizeList<=iqrThr(:,1),fileSizeList>=iqrThr(:,2)];
+    P = IQRquantile;
+    M = 0.5;
+    T = M + P/2; % John: my back-of-the-envelope equations. See diary entry date 30/3/2020
+    t = quantile(fileSizeList,T);
+    Q = M - P/2;
+    q = quantile(fileSizeList,Q);
+    iqrThr = [q,t];
+    iqrList = [fileSizeList<=iqrThr(1),fileSizeList>=iqrThr(2)];
     iqrList = iqrList(:,1)|iqrList(:,2);
 else
     iqrList = zeros(numel(fileSizeList),1);    
@@ -293,12 +304,13 @@ for subj = 3 : size(subjFolders,1)
     filepath = [resultsFolder subjName];
     subjFiles = dir(filepath);
     for file = 3 : size(subjFiles,1)
-        fileSize = subjFiles(file).bytes;
+        fileSize = subjFiles(file).bytes/1050000;
         fileSizeList = [fileSizeList; fileSize];
     end
 end
+fileSizeList = round(fileSizeList,3,'significant');
 figure;
-histogram(fileSizeList/10e6);
+histogram(fileSizeList);
 ylabel('Frequency');
 xlabel('File Size (MBytes)');
 title('Histogram of whole dataset file sizes');

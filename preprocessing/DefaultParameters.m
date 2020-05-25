@@ -24,6 +24,7 @@ classdef DefaultParameters
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     properties(Constant)          
        FilterParams = struct('notch',    struct([]),...
+                             'zapline',  struct([]),...
                              'high',     struct([]),...
                              'low',      struct([]))
                             
@@ -33,14 +34,18 @@ classdef DefaultParameters
         
         HighvarParams = struct([]);
         
+        MinvarParams = struct([]);
+        
         InterpolationParams = struct('method', 'spherical');
         
         RPCAParams = struct([]);
         
         MARAParams = struct('largeMap',   0, ...
                             'high',       struct('freq', 1.0,...
-                                                 'order', []))
-                                             
+                                                 'order', []), ...
+                                                 'keep_comps', 0);
+        AMICAParams = struct('numprocs', 1, 'max_threads', 1, 'num_models',1, 'max_iter', 2000);
+        
         ICLabelParams = struct([]);
                     
         EOGRegressionParams = struct();
@@ -58,7 +63,8 @@ classdef DefaultParameters
                            'powerLineFreq', []);
                        
         % Additonal parameters of the preprocessing
-        Settings = struct('trackAllSteps', 0); 
+        Settings = struct('trackAllSteps', 0,...
+                          'colormap','Default'); 
                         
     end
 end

@@ -247,7 +247,9 @@ if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     set(handles.fpreprocessednumber, 'String', '')
     set(handles.ratednumber, 'String', '')
     set(handles.interpolatenumber, 'String', '')
-    set(handles.excludecheckbox, 'Value', ~isempty(handles.params.ChannelReductionParams));
+%     set(handles.excludecheckbox, 'Value', ~isempty(handles.params.ChannelReductionParams));
+    set(handles.excludecheckbox, 'Value', 0);
+    set(handles.excludeedit, 'enable', 'off');
     set(handles.extedit, 'String', '')
     set(handles.srateedit, 'String', '')
     set(handles.checkbox1020, 'Value', 0)
@@ -717,35 +719,37 @@ idx = get(handles.existingpopupmenu, 'Value');
 projects = get(handles.existingpopupmenu, 'String');
 name = projects{idx};
 project = handles.projectList(name);
-
 if(~ isempty(project))
     clc;
     commandwindow;
+    emailInterpAction = ~strcmp(handles.interpolatenumber.String,'0 files to interpolate');
     project.interpolateSelected();
-end
-    if isfield(handles,'emailOptions')
-        if handles.emailOptions.agree == 1
-            recipientAddress = handles.emailOptions.emailAddress;
-            processing_step = 'Interpolation';
-            if handles.emailOptions.errorlog == 1
-                try
-                    attachment = [handles.projectfoldershow.String 'preprocessing.log'];
-                catch ME
-                    problem = ME.message;
-                    warning(['Could attach error-log file because ' ME.message])
+    if emailInterpAction
+        if isfield(handles,'emailOptions')
+            if handles.emailOptions.agree == 1
+                recipientAddress = handles.emailOptions.emailAddress;
+                processing_step = 'Interpolation';
+                if handles.emailOptions.errorlog == 1
+                    try
+                        attachment = [handles.projectfoldershow.String 'preprocessing.log'];
+                    catch ME
+                        problem = ME.message;
+                        warning(['Could attach error-log file because ' ME.message])
+                    end
+                else
+                    attachment = [];
                 end
-            else
-                attachment = [];
+                disp('Sending E-mail notification...');
+                sent_status = autoEmail(recipientAddress, processing_step, attachment);
+                if sent_status == 1
+                    disp('E-mail sent');
+                else
+                    disp('Gmail user? Check your settings: https://myaccount.google.com/lesssecureapps');
+                end
             end
-            disp('Sending E-mail notification...');
-            sent_status = autoEmail(recipientAddress, processing_step, attachment);
-            if sent_status == 1
-            disp('E-mail sent');
-            else
-                disp('Gmail user? Check your settings: https://myaccount.google.com/lesssecureapps');
-            end
-        end 
+        end
     end
+end
 
 % --- Run preprocessing on all subjects
 function runpreprocessbutton_Callback(hObject, eventdata, handles)
@@ -776,6 +780,11 @@ if( ~ isempty(project))
     set(handles.mainGUI, 'pointer', 'watch')
     drawnow;
     finishup = onCleanup(@() myCleanupFun(handles));
+    if isfield(handles,'emailOptions')
+        if handles.emailOptions.agree == 1
+            project.email = 1;
+        end
+    end    
     project.preprocessAll();
     if isfield(handles,'emailOptions')
         if handles.emailOptions.agree == 1
@@ -826,7 +835,6 @@ function createbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to createbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles
 CGV = handles.CGV;
 name = get(handles.projectname, 'String');
 projectFolder = get(handles.projectfoldershow, 'String');
@@ -1279,7 +1287,7 @@ switch EEGSystem.name
         set(handles.hasreferenceedit, 'enable', 'off')
         set(handles.nonscalpradio, 'enable', 'off')
         set(handles.srateedit, 'enable', 'off')
-%         set(handles.excludecheckbox, 'Value',0)
+        set(handles.excludecheckbox, 'Value',0)
         handles.params.ChannelReductionParams = struct();
     case 'Others'
         set(handles.egiradio, 'Value', 0);
@@ -1345,6 +1353,7 @@ params.InterpolationParams = DefaultParams.InterpolationParams;
 params.EEGSystem = DefaultParams.EEGSystem;
 params.Settings = DefaultParams.Settings;
 params.HighvarParams = DefaultParams.HighvarParams;
+params.MinvarParams = DefaultParams.MinvarParams;
 params.DetrendingParams = DefaultParams.DetrendingParams;
 
 % --- Executes on button press in egiradio.
@@ -1602,11 +1611,15 @@ for subj = 3 : size(subjFolders,1)
     filepath = [resultsFolder subjName];
     subjFiles = dir(filepath);
     for file = 3 : size(subjFiles,1)
-        fileSize = subjFiles(file).bytes;
+        filename = subjFiles(file).name;
+        exten = handles.extedit.String;
+        fileSize = subjFiles(file).bytes/1050000;
+        if contains(filename,exten)
         fileSizeList = [fileSizeList; fileSize];
+        end
     end
 end
-fileSizeList = fileSizeList/10e6;
+fileSizeList = round(fileSizeList,3,'significant');
 absCase = absCheckbox;
 madCase = MADcheckbox;
 iqrCase = IQRcheckbox; 
@@ -1617,19 +1630,25 @@ if isempty(absThresh)
     absCase = 0;
 end
 if absCase
-    absList = fileSizeList<=absThresh;
+    absList = fileSizeList>=absThresh;
 else
     absList = zeros(numel(fileSizeList),1);
 end    
 if madCase
-    madThr = MADscalar*mad(fileSizeList,1); % median 
-    madList = fileSizeList<=madThr+median(fileSizeList);
+    MADfileSizeList = (abs(fileSizeList-median(fileSizeList)))/mad(fileSizeList,1,1); % median 
+    madList = MADfileSizeList>=MADscalar;
 else
     madList = zeros(numel(fileSizeList),1);    
 end
 if iqrCase
-    iqrThr = [quantile(fileSizeList,IQRquantile),quantile(fileSizeList,(1-IQRquantile))];
-    iqrList = [fileSizeList<=iqrThr(:,1),fileSizeList>=iqrThr(:,2)];
+    P = IQRquantile;
+    M = 0.5;
+    T = M + P/2; % John: my back-of-the-envelope equations. See diary entry date 30/3/2020
+    t = quantile(fileSizeList,T);
+    Q = M - P/2;
+    q = quantile(fileSizeList,Q);
+    iqrThr = [q,t];
+    iqrList = [fileSizeList<=iqrThr(1),fileSizeList>=iqrThr(2)];
     iqrList = iqrList(:,1)|iqrList(:,2);
 else
     iqrList = zeros(numel(fileSizeList),1);    

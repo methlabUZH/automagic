@@ -25,7 +25,7 @@ function [EEG, varargout] = preprocess(data, varargin)
 %   params must be a structure with optional fields 
 %   'FilterParams', 'CRDParams', 'RPCAParams', 'MARAParams', 'PrepParams',
 %   'InterpolationParams', 'EOGRegressionParams', 'EEGSystem',
-%   'ChannelReductionParams', 'HighvarParams', 'Settings', 'DetrendingParams'
+%   'ChannelReductionParams', 'HighvarParams', 'MinvarParams', 'Settings', 'DetrendingParams'
 %   and 'ORIGINAL_FILE' to specify parameters for filtering, clean_rawdata(), 
 %   rpca, mara ica, prep robust average referencing, interpolation, 
 %   eog regression, channel locations, reducing channels, high variance 
@@ -94,6 +94,7 @@ addParameter(p,'PrepParams', Defaults.PrepParams, @isstruct);
 addParameter(p,'CRDParams', Defaults.CRDParams, @isstruct);
 addParameter(p,'RPCAParams', Defaults.RPCAParams, @isstruct);
 addParameter(p,'HighvarParams', Defaults.HighvarParams, @isstruct);
+addParameter(p,'MinvarParams', Defaults.MinvarParams, @isstruct);
 addParameter(p,'MARAParams', Defaults.MARAParams, @isstruct);
 addParameter(p,'ICLabelParams', Defaults.ICLabelParams, @isstruct);
 addParameter(p,'InterpolationParams', Defaults.InterpolationParams, @isstruct);
@@ -109,6 +110,7 @@ FilterParams = p.Results.FilterParams;
 CRDParams = p.Results.CRDParams;
 PrepParams = p.Results.PrepParams;
 HighvarParams = p.Results.HighvarParams;
+MinvarParams = p.Results.MinvarParams;
 RPCAParams = p.Results.RPCAParams;
 MARAParams = p.Results.MARAParams;
 ICLabelParams = p.Results.ICLabelParams;
@@ -159,9 +161,19 @@ rmpath(automagicPaths);
 [s, ~] = size(EEG.data);
 EEG.automagic.preprocessing.toRemove = [];
 EEG.automagic.preprocessing.removedMask = false(1, s); clear s;
+EEG.chanlocs(1).maraLabel = [];
+EOG.chanlocs(1).maraLabel = [];
 
 % Running prep
+try
 [EEG, EOG] = performPrep(EEG, EOG, PrepParams, EEGSystem.refChan);
+catch ME
+    message = ['PREP is not done on this subject, continue with the next steps: ' ...
+        ME.message];
+        warning(message)
+        EEG.automagic.PREP.performed = 'FAILED';
+        EEG.automagic.error_msg = message;
+end
 if Settings.trackAllSteps && ~isempty(PrepParams)
    allSteps = matfile(Settings.pathToSteps, 'Writable', true);
    allSteps.EEGprep = EEG;
@@ -185,8 +197,18 @@ end
 % Filtering on the whole dataset
 display(PreprocessingConstants.FilterCsts.RUN_MESSAGE);
 EEG = performFilter(EEG, FilterParams);
+if isfield(EEG.automagic,'ZapFig')
+    fig3 = EEG.automagic.ZapFig;
+    EEG.automagic = rmfield(EEG.automagic,'ZapFig');
+else
+    fig3 = [];
+end
+
 if ~isempty(EOG.data)
     EOG = performFilter(EOG, FilterParams);
+    if isfield(EEG.automagic,'ZapFig')
+        EEG.automagic = rmfield(EEG.automagic,'ZapFig');
+    end
 end
 
 if Settings.trackAllSteps && ~isempty(FilterParams)
@@ -221,6 +243,7 @@ EEG.automagic.iclabel.performed = 'no';
 if ( ~isempty(ICLabelParams) )
     try
         EEG = performICLabel(EEG, ICLabelParams);
+        EEG.icachansind = find(~EEG.automagic.preprocessing.removedMask);
     catch ME
         message = ['ICLabel is not done on this subject, continue with the next steps: ' ...
             ME.message];
@@ -231,12 +254,19 @@ if ( ~isempty(ICLabelParams) )
 elseif ( ~isempty(MARAParams) )
     try
         EEG = performMARA(EEG, MARAParams);
+        EEG.icachansind = find(~EEG.automagic.preprocessing.removedMask);
     catch ME
         message = ['MARA ICA is not done on this subject, continue with the next steps: ' ...
             ME.message];
         warning(message)
         EEG.automagic.mara.performed = 'FAILED';
-        EEG.automagic.error_msg = message;
+        if size(EEG.chanlocs,2) < 3 && contains(ME.identifier,'Automagic:MARA:notEnoughChannels')
+            message = 'MARA ICA is not done on this subject: Most likely too few good channels remain';
+            EEG.automagic.error_msg = message;
+            disp(message);
+        else
+            EEG.automagic.error_msg = message;
+        end        
     end
 elseif ( ~isempty(RPCAParams))
     [EEG, pca_noise] = performRPCA(EEG, RPCAParams);
@@ -250,6 +280,9 @@ if Settings.trackAllSteps
     elseif ~isempty(MARAParams)
        allSteps = matfile(Settings.pathToSteps, 'Writable', true);
        allSteps.EEGMARA = EEG;
+    elseif ~isempty(ICLabelParams)
+        allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+        allSteps.EEGICLabel = EEG;
     end
 end
 
@@ -278,15 +311,27 @@ if Settings.trackAllSteps && ~isempty(HighvarParams)
    allSteps.EEGHighvarred = EEG;
 end
 
+% Reject channels based on minimum variance
+EEG.automagic.minVarianceRejection.performed = 'no';
+if ~isempty(MinvarParams)
+    [~, EEG] = evalc('performMinvarianceChannelRejection(EEG, MinvarParams)');
+end
+
+if Settings.trackAllSteps && ~isempty(MinvarParams)
+   allSteps = matfile(Settings.pathToSteps, 'Writable', true);
+   allSteps.EEGMinvarred = EEG;
+end
+
 % Put back removed channels
 removedChans = find(EEG.automagic.preprocessing.removedMask);
 for chan_idx = 1:length(removedChans)
     chan_nb = removedChans(chan_idx);
     EEG.data = [EEG.data(1:chan_nb-1,:); ...
-                  NaN(1,size(EEG.data,2));...
-                  EEG.data(chan_nb:end,:)];
+        NaN(1,size(EEG.data,2));...
+        EEG.data(chan_nb:end,:)];
+    EEGOrig.chanlocs(chan_nb).maraLabel = [];
     EEG.chanlocs = [EEG.chanlocs(1:chan_nb-1), ...
-                      EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
+        EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
     EEG.nbchan = size(EEG.data,1);
 end
 
@@ -294,10 +339,13 @@ end
 if ~isempty(EEGSystem.refChan)
     refChan = EEGSystem.refChan.idx;
     EEG.data = [EEG.data(1:refChan-1,:); ...
-                            zeros(1,size(EEG.data,2));...
-                            EEG.data(refChan:end,:)];
+        zeros(1,size(EEG.data,2));...
+        EEG.data(refChan:end,:)];
+    
+    EEGRef.chanlocs(refChan).maraLabel = [];
+    
     EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
-                        EEG.chanlocs(refChan:end)];                   
+        EEG.chanlocs(refChan:end)];
     EEG.nbchan = size(EEG.data,1);
     clear chan_nb re_chan;
 end
@@ -317,16 +365,28 @@ if Settings.trackAllSteps
 end
 
 %% Creating the final figure to save
+
+%%% Find the colormap selected
+if strcmp(Settings.colormap,'Default')
+    CT = 'jet';
+else
+    cm = Settings.colormap;
+    [~,CT]=evalc('cbrewer(''div'', cm, 64)');
+end
+%%% 
+
 if ~isempty(FilterParams.high)
     plot_FilterParams = FilterParams;
+    if isempty(plot_FilterParams.zapline)
+        plot_FilterParams.zapline=[];
+    end
+    plot_FilterParams.zapline.finalPlot = true;
 else
     disp('No high-pass filter selected. Plotting with 1Hz by default');
 
     plot_FilterParams.high.freq = 1;
     plot_FilterParams.high.order = [];
 end
-% plot_FilterParams.high.freq = 1;
-% plot_FilterParams.high.order = [];
 EEG_filtered_toplot = performFilter(EEGOrig, plot_FilterParams);
 fig1 = figure('visible', 'off');
 set(gcf, 'Color', [1,1,1])
@@ -337,7 +397,7 @@ if ~isempty(EOG.data)
     visEOG = zscore(EOG.data');
     visEOG = visEOG';
     imagesc(visEOG);
-    colormap jet
+    colormap(CT);
     scale_min = round(min(min(visEOG)));
     scale_max = round(max(max(visEOG)));
     caxis(1*[scale_min scale_max])
@@ -355,7 +415,7 @@ end
 %eeg figure
 subplot(11,1,2:3)
 imagesc(EEG_filtered_toplot.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 XTicks = [] ;
 XTicketLabels = [];
@@ -380,7 +440,7 @@ for i = 1:length(bads)
     plot(axe, p1, p2, 'b' ,'LineWidth', 0.5);
 end
 hold off;
-colormap jet;
+colormap(CT);
 caxis([-100 100])
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
@@ -389,7 +449,7 @@ colorbar;
 % figure;
 eogRegress_subplot=subplot(11,1,6:7);
 imagesc(EEG_regressed.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
@@ -404,7 +464,7 @@ colorbar;
 %figure;
 ica_subplot = subplot(11,1,8:9);
 imagesc(EEG_cleared.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
@@ -426,7 +486,7 @@ colorbar;
 if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParams.lambda ~= -1))
     subplot(11,1,10:11)
     imagesc(pca_noise);
-    colormap jet
+    colormap(CT);
     caxis([-100 100])
     XTicks = 0:length(EEG.data)/5:length(EEG.data) ;
     XTicketLabels = round(0:length(EEG.data)/EEG.srate/5:length(EEG.data)/EEG.srate);
@@ -452,7 +512,7 @@ ax_height = outerpos(4) - ti(2) * 0.5 - ti(4);
 ax.Position = [left bottom ax_width ax_height];
 set(gcf, 'Color', [1,1,1])
 imagesc(EEG_filtered_toplot.data);
-colormap jet
+colormap(CT);
 caxis([-100 100])
 set(ax,'XTick', XTicks)
 set(ax,'XTickLabel', XTicketLabels)
@@ -462,3 +522,4 @@ colorbar;
 
 varargout{1} = fig1;
 varargout{2} = fig2;
+varargout{3} = fig3;

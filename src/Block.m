@@ -454,7 +454,7 @@ classdef Block < handle
             end
 
             % Preprocess the file
-            [EEG, fig1, fig2] = preprocess(data, self.params);
+            [EEG, fig1, fig2, fig3] = preprocess(data, self.params);
 
             if(any(strcmp({self.CGV.EXTENSIONS.fif}, self.fileExtension))) 
                 self.params = rmfield(self.params, 'ORIGINAL_FILE');
@@ -509,7 +509,7 @@ classdef Block < handle
             else
                 automagic.ChannelLocationFile = [];
             end
-            self.saveFiles(EEG, automagic, fig1, fig2);
+            self.saveFiles(EEG, automagic, fig1, fig2, fig3);
             self.writeLog(automagic);
         end
         
@@ -545,9 +545,14 @@ classdef Block < handle
             orig_icachansind=EEG.icachansind;
             orig_icaweights=EEG.icaweights;
             orig_icawinv=EEG.icawinv;
-            
-            EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
-            
+            if size(EEG.data,1)==length(interpolate_chans)
+                disp('All channels are bad. Skipping interpolation...');
+                filenamE = strsplit(EEG.comments,filesep);
+                filenamE = filenamE{end};
+                automagic.error_msg = ['Interpolation skipped because all channels are bad: ',filenamE];
+            else
+                EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
+            end
 			%put the original icadata back into the structure
             EEG.icasphere=orig_icasphere;
             EEG.icachansind=orig_icachansind;
@@ -767,6 +772,12 @@ classdef Block < handle
                             pars.notch.freq, pars.notch.order, ...
                             pars.notch.transitionBandWidth));
                     end
+                    
+                    if (isfield(pars, 'zapline') && ...
+                            strcmp(pars.zapline.performed, 'yes'))
+                        fprintf(fileID, sprintf(text.filtering.ZapLine, ...
+                            pars.zapline.freq));
+                    end
                     fprintf(fileID, '\n');
                 end
             end
@@ -819,7 +830,9 @@ classdef Block < handle
             
             if strcmp(automagic.highVarianceRejection.performed, 'yes')
                 fprintf(fileID, sprintf(text.highvar.desc, ...
-                    automagic.highVarianceRejection.sd));
+                    automagic.highVarianceRejection.sd, ...
+                    automagic.highVarianceRejection.cutoff, ...
+                    automagic.highVarianceRejection.rejRatio));
                 fprintf(fileID, '\n');
             end
             
@@ -997,7 +1010,7 @@ classdef Block < handle
     %% Private Methods
     methods(Access=private)
 
-        function saveFiles(self, EEG, automagic, fig1, fig2) %#ok<INUSL>
+        function saveFiles(self, EEG, automagic, fig1, fig2, fig3) %#ok<INUSL>
             % Save results of preprocessing
             
             % Delete old results
@@ -1017,7 +1030,10 @@ classdef Block < handle
             close(fig1);
             print(fig2, strcat(self.imageAddress, '_orig'), '-djpeg', '-r100');
             close(fig2);
-
+            if ~isempty(fig3)
+                print(fig3, strcat(self.imageAddress, '_ZapLine'), '-djpeg', '-r100');
+                close(fig3);
+            end
             reduced.data = downsample(EEG.data',self.dsRate)'; %#ok<STRNU>
             fprintf('Saving results...\n');
             PrepCsts = self.CGV.PreprocessingCsts;

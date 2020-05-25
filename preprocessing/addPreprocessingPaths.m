@@ -29,7 +29,6 @@ function parts = addPreprocessingPaths(varargin)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 CSTS = PreprocessingConstants;
 defaults = DefaultParameters;
 p = inputParser;
@@ -72,7 +71,10 @@ end
 
 % Check and unzip if cleanrawdata() does not exist
 if ~isempty(ICLabelParams)
-    addICLabel();
+%     addICLabel();
 end
-    
+
+addNoiseTools();
+
+addCbrewer();
 end

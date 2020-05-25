@@ -71,20 +71,24 @@ validate_param = @(x) isa(x, 'containers.Map');
 addParameter(p,'chanlocMap', defaults.chanlocMap, validate_param);
 addParameter(p,'largeMap', defaults.largeMap);
 addParameter(p,'high', defaults.high, @isstruct);
+addParameter(p,'keep_comps', defaults.keep_comps);
 parse(p, varargin{:});
 chanlocMap = p.Results.chanlocMap;
 high = p.Results.high;
-
+EEG.etc.keep_comps = p.Results.keep_comps;
+EEG.etc.keep_comps = ~isempty(EEG.etc.keep_comps);
 % Change channel labels to their corresponding ones as required by 
 % processMARA. This is done only for those labels that are given in the map.
 if( ~ isempty(chanlocMap))
     inverseChanlocMap = containers.Map(chanlocMap.values, ...
                                          chanlocMap.keys);
+    EEG.chanlocs(1).maraLabel = [];
     idx = find(ismember({EEG.chanlocs.labels}, chanlocMap.keys));
     for i = idx
-       EEG.chanlocs(1,i).labels = chanlocMap(EEG.chanlocs(1,i).labels);
+        EEG.chanlocs(1,i).maraLabel = chanlocMap(EEG.chanlocs(1,i).labels);
+        EEG.chanlocs(1,i).labels = chanlocMap(EEG.chanlocs(1,i).labels);
     end
-    
+
     % Temporarily change the name of all other labels to make sure they
     % don't create conflicts
     for i = 1:length(EEG.chanlocs)
@@ -124,19 +128,19 @@ end
 
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
-dataFiltered = EEG;
-if( ~isempty(high) )
-    [~, dataFiltered, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
-    dataFiltered.automagic.mara.highpass.performed = 'yes';
-    dataFiltered.automagic.mara.highpass.freq = high.freq;
-    dataFiltered.automagic.mara.highpass.order = length(b)-1;
-    dataFiltered.automagic.mara.highpass.transitionBandWidth = 3.3 / (length(b)-1) * dataFiltered.srate;
-else
-    dataFiltered.automagic.mara.highpass.performed = 'no';
-end
+%dataFiltered = EEG;
+% % if( ~isempty(high) )
+% %     [~, dataFiltered, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+% %     dataFiltered.automagic.mara.highpass.performed = 'yes';
+% %     dataFiltered.automagic.mara.highpass.freq = high.freq;
+% %     dataFiltered.automagic.mara.highpass.order = length(b)-1;
+% %     dataFiltered.automagic.mara.highpass.transitionBandWidth = 3.3 / (length(b)-1) * dataFiltered.srate;
+% % else
+% %     dataFiltered.automagic.mara.highpass.performed = 'no';
+% % end
         
 options = [0 1 0 0 0]; %#ok<NASGU>
-[~, ALLEEG, EEGMara, ~] = evalc('processMARA_with_no_popup(dataFiltered, dataFiltered, 1, options)');
+[~, ALLEEG, EEGMara, ~] = evalc('processMARA_with_no_popup(EEG, EEG, 1, high, options)');
 
 % Get back info before ica components were rejected
 [~, artcomps, MARAinfo] = evalc('MARA(EEGMara)');
@@ -181,7 +185,7 @@ end
 
 end
 
-function [ALLEEG,EEG,CURRENTSET] = processMARA_with_no_popup(ALLEEG,EEG,CURRENTSET,varargin) %#ok<DEFNU>
+function [ALLEEG,EEG,CURRENTSET] = processMARA_with_no_popup(ALLEEG,EEG,CURRENTSET,high,varargin) %#ok<DEFNU>
 % This is only an (almost) exact copy of the function processMARA where few
 % of the paramters are changed for our need. (Mainly to supress outputs)
 
@@ -203,19 +207,58 @@ addpath('../matlab_scripts');
     
 
     %% filter the data
-    if options(1) == 1
-        disp('Filtering data');
-        [EEG, LASTCOM] = pop_eegfilt(EEG);
-        eegh(LASTCOM);
-        [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET);
-        eegh(LASTCOM);
-    end
+%     if options(1) == 1
+%         disp('Filtering data');
+%         [EEG, LASTCOM] = pop_eegfilt(EEG);
+%         eegh(LASTCOM);
+%         [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET);
+%         eegh(LASTCOM);
+%     end
+%     
+if ( ~isempty(high) )
+        
+    EEG_temp=EEG;
+    [~, EEG_temp, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+    EEG.automagic.mara.highpass.performed = 'yes';
+    EEG.automagic.mara.highpass.freq = high.freq;
+    EEG.automagic.mara.highpass.order = length(b)-1;
+    EEG.automagic.mara.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG_temp.srate;
+else
+    EEG.automagic.mara.highpass.performed = 'no';
+end
 
     %% run ica
     if options(2) == 1
         disp('Run ICA');
         
-        [EEG, LASTCOM] = pop_runica(EEG, 'icatype','runica');
+        if( ~isempty(high) ) % temporary high-pass filter
+            [~, EEG_temp, ~] = evalc('pop_runica(EEG_temp, ''icatype'',''runica'',''chanind'',EEG_temp.icachansind)');
+            
+            % Remember ICA weights & sphering matrix
+            wts = EEG_temp.icaweights;
+            sph = EEG_temp.icasphere;
+            
+            % Remove any existing ICA solutions from your original dataset
+            EEG.icaact      = [];
+            EEG.icasphere   = [];
+            EEG.icaweights  = [];
+            EEG.icachansind = [];
+            EEG.icawinv     = [];
+            
+            EEG.icasphere   = sph;
+            EEG.icaweights  = wts;
+            EEG.icachansind = EEG_temp.icachansind;
+            EEG = eeg_checkset(EEG); % let EEGLAB re-compute EEG.icaact & EEG.icawinv
+        else
+            [EEG, LASTCOM] = pop_runica(EEG, 'icatype','runica','chanind',EEG.icachansind);
+        end
+        if EEG.etc.keep_comps
+            EEG.etc.beforeICremove.icaact = EEG.icaact;
+            EEG.etc.beforeICremove.icawinv = EEG.icawinv;
+            EEG.etc.beforeICremove.icasphere = EEG.icasphere;
+            EEG.etc.beforeICremove.icaweights = EEG.icaweights;
+            EEG.etc.beforeICremove.chanlocs = EEG.chanlocs;
+        end
         g.gui = 'off';
         [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, g);
         eegh(LASTCOM);

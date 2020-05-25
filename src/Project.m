@@ -109,6 +109,8 @@ classdef Project < handle
         qualityCutoffs
         
         qualityScoreIdx
+        
+        email
     end
     
     properties(SetAccess=private)
@@ -215,6 +217,7 @@ classdef Project < handle
             addParameter(p,'CRDParams', defs.CRDParams, @isstruct);
             addParameter(p,'RPCAParams', defs.RPCAParams, @isstruct);
             addParameter(p,'HighvarParams', defs.HighvarParams, @isstruct);
+            addParameter(p,'MinvarParams', defs.MinvarParams, @isstruct);
             addParameter(p,'MARAParams', defs.MARAParams, @isstruct);
             addParameter(p,'ICLabelParams', defs.ICLabelParams, @isstruct);
             addParameter(p,'InterpolationParams', defs.InterpolationParams, @isstruct);
@@ -824,19 +827,25 @@ classdef Project < handle
                 waitbar(1)
                 close(h)
             end
-            
             % Inform user if result folder has been modified
             if( nPreprocessedFile > self.nProcessedFiles || ...
                     nPreprocessedSubject > self.nProcessedSubjects)
                 if( nPreprocessedSubject > self.nProcessedSubjects)
-                    popup_msg(['New preprocessed results have been added'...
-                        ' to the project folder.'], 'More results');
+                    if isempty(self.email)
+                        popup_msg(['New preprocessed results have been added'...
+                            ' to the project folder.'], 'More results');
+                    else
+                        disp('New preprocessed results have been added to the project folder.')
+                    end
                 else
-                    popup_msg(['New preprocessed results have been added'...
-                        'to the project folder.'], 'More results');
+                    if isempty(self.email)
+                        popup_msg(['New preprocessed results have been added'...
+                            'to the project folder.'], 'More results');
+                    else
+                        disp('New preprocessed results have been added to the project folder.')
+                    end
                 end
             end
-            
             if( nPreprocessedFile < self.nProcessedFiles || ...
                     nPreprocessedSubject < self.nProcessedSubjects)
                 if( nPreprocessedSubject < self.nProcessedSubjects)
@@ -1166,6 +1175,14 @@ classdef Project < handle
                         bidsStruct.BadChannelIdentification.HighVar.BadChannelCriteria.sd = autStruct.highVarianceRejection.sd;
                     end
                     
+                    if ~isempty(autStruct.params.MinvarParams)
+                        bidsStruct.BadChannelIdentification.MinVar.IdentifcationMethod= 'Minimum variance rejection';
+                        bidsStruct.BadChannelIdentification.MinVar.ToolboxReference = '';
+                        bidsStruct.BadChannelIdentification.MinVar.ToolboxVersion = '';
+                        bidsStruct.BadChannelIdentification.MinVar.BadChannels = autStruct.minVarianceRejection.badChans;
+                        bidsStruct.BadChannelIdentification.MinVar.BadChannelCriteria.sd = autStruct.minVarianceRejection.sd;
+                    end
+                    
                     if ~isempty(autStruct.params.FilterParams)
                         if ~isempty(autStruct.params.FilterParams.high)
                             bidsStruct.SoftwareFilters.Highpass.FilterType = 'highpass fir using pop_eegfiltnew()';
@@ -1189,6 +1206,13 @@ classdef Project < handle
                             bidsStruct.SoftwareFilters.Notch.NotchCutoffDefinition = 'half-amplitude (-6dB)';
                             bidsStruct.SoftwareFilters.Notch.FilterOrder = autStruct.filtering.notch.order;
                             bidsStruct.SoftwareFilters.Notch.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
+                        end
+                        if ~isempty(autStruct.params.FilterParams.zapline)
+                            bidsStruct.SoftwareFilters.Zapline.FilterType = 'ZapLine fir using nt_zapline()';
+                            bidsStruct.SoftwareFilters.Zapline.NotchCutoff = autStruct.filtering.zapline.freq;
+%                             bidsStruct.SoftwareFilters.Zapline.NotchCutoffDefinition = 'half-amplitude (-6dB)';
+%                             bidsStruct.SoftwareFilters.Zapline.FilterOrder = autStruct.filtering.notch.order;
+%                             bidsStruct.SoftwareFilters.Zapline.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
                         end
                     end
                     if ~isempty(autStruct.params.EOGRegressionParams)

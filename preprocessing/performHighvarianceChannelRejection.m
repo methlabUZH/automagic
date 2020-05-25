@@ -33,15 +33,39 @@ end
 
 p = inputParser;
 addParameter(p,'sd', defaults.sd, @isnumeric);
+addParameter(p,'cutoff', defaults.cutoff, @isnumeric);
+addParameter(p,'rejRatio', defaults.rejRatio, @isnumeric);
 parse(p, varargin{:});
 sd_threshold = p.Results.sd;
+ignoreCutOff = p.Results.cutoff;
+rejectCutOff = p.Results.rejRatio;
 
 removedMask = EEG_in.automagic.preprocessing.removedMask;
 
 [s, ~] = size(EEG_in.data);
 badChansMask = false(1, s); clear s;
+% --------------------------------------------------------------
+%modificaton 1 here : remove timepoints of very high variance from channel
+% ignoreCutOff=100; %this has to be added as argument of the function and removed from here!
+tmpData=EEG_in.data;
+tmpData = tmpData - sum(sum(tmpData))/numel(tmpData); % Re-reference to the average temporarily
+ignoreMask=tmpData>ignoreCutOff|tmpData<-ignoreCutOff;
+tmpData(ignoreMask)=NaN;
+rejected = nanstd(tmpData,[],2) > sd_threshold;
+%----------------
 
-rejected = nanstd(EEG_in.data,[],2) > sd_threshold;
+%modification 2: get rid of channels with too many values above cut off
+% rejectCutOff=0.5; % ratio of bad timepoints per channel before channel gets rejected- also needs to be argument of the function and set by suer
+NaNsPerChan=sum(ignoreMask');
+NaNsPerChan=NaNsPerChan/size(tmpData,2);
+rejected_NaNs=NaNsPerChan>rejectCutOff;
+rejected_full=[rejected | rejected_NaNs'];
+
+%now write it back to variable "rejected"
+rejected=rejected_full;
+% -------------------------------------
+% end of modifications
+
 [~, EEG_out] = evalc('pop_select(EEG_in, ''nochannel'', find(rejected))');
 
 badChansMask(rejected) = true;
@@ -54,6 +78,8 @@ removedMask = newMask;
 EEG_out.automagic.highVarianceRejection.performed = 'yes';
 EEG_out.automagic.highVarianceRejection.badChans = badChans;
 EEG_out.automagic.highVarianceRejection.sd = sd_threshold;
+EEG_out.automagic.highVarianceRejection.cutoff = ignoreCutOff;
+EEG_out.automagic.highVarianceRejection.rejRatio = rejectCutOff;
 
 % .preprocessing field is used for internal purposes and will be removed at
 % the end of the preprocessing
