@@ -1128,6 +1128,11 @@ end
 
 if( get(mainGUI_handle.egiradio, 'Value'))
     set(handles.rarcheckbox, 'Value', 1);
+    if (get(handles.PREPnoNotch, 'Value'))
+        set(handles.rarcheckbox, 'Value', 0);
+    end
+    set(handles.PREPnoNotch, 'Value', 0);
+    set(handles.PREPnoNotch, 'enable', 'off');
     set(handles.rarcheckbox, 'enable', 'off');
     set(handles.highvarcheckbox, 'Value', 1);
     set(handles.highvarcheckbox, 'enable', 'off');
