@@ -247,7 +247,8 @@ if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     set(handles.fpreprocessednumber, 'String', '')
     set(handles.ratednumber, 'String', '')
     set(handles.interpolatenumber, 'String', '')
-    set(handles.excludecheckbox, 'Value', ~isempty(handles.params.ChannelReductionParams));
+    set(handles.excludecheckbox, 'Value', 0);
+    set(handles.excludeedit, 'enable', 'off');
     set(handles.extedit, 'String', '')
     set(handles.srateedit, 'String', '')
     set(handles.checkbox1020, 'Value', 0)
