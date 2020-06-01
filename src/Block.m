@@ -424,12 +424,11 @@ classdef Block < handle
          
         function [EEG, automagic] = preprocess(self)
             % Preprocess the block and update the structures
-          
             % Load the file
             data = self.loadEEGFromFile();
             if isfield(self.params.ChannelReductionParams,'tobeExcludedChans')
                 if ~isempty(self.params.ChannelReductionParams.tobeExcludedChans)
-                    if max(self.params.ChannelReductionParams.tobeExcludedChans) < size(data.data,1)
+                    if max(self.params.ChannelReductionParams.tobeExcludedChans) > size(data.data,1) || min(self.params.ChannelReductionParams.tobeExcludedChans) < 1
                         popup_msg(['An excluded channel does not exist.',...
                             'You must create a new project, specifying the correct channels to exclude.'], 'Error');
                         error('An excluded channel does not exist. You must create a new project, specifying the correct channels to exclude.');
