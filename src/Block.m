@@ -789,7 +789,10 @@ classdef Block < handle
             
             if(isfield(automagic, 'EOGRegression'))
                 if strcmp(automagic.EOGRegression.performed, 'yes')
-                    fprintf(fileID, sprintf(text.eog.desc));
+                    fprintf(fileID, sprintf(text.eog.EOGreg_done));
+                    fprintf(fileID, '\n');
+                else
+                    fprintf(fileID, sprintf(text.eog.EOGreg_none));
                     fprintf(fileID, '\n');
                 end
             end
