@@ -781,11 +781,13 @@ classdef Block < handle
                 end
             end
             
-            if strcmp(automagic.highVarianceRejection.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.flatline, ...
-                    length(automagic.highVarianceRejection.badChans)));
-            end
+            if (isfield(automagic,'crd'))
+                if (strcmp(automagic.crd.performed, 'yes'))
+                    fprintf(fileID, sprintf(text.badchans.outlier,...
+                        length(automagic.crd.badChans)));
+                end
             fprintf(fileID, '\n');
+            end
             
             if(isfield(automagic, 'EOGRegression'))
                 if strcmp(automagic.EOGRegression.performed, 'yes')
@@ -838,6 +840,12 @@ classdef Block < handle
                 fprintf(fileID, '\n');
             end
             
+            if strcmp(automagic.minVarianceRejection.performed, 'yes')
+                fprintf(fileID, sprintf(text.minvar.desc, ...
+                    automagic.minVarianceRejection.sd));
+                fprintf(fileID, '\n');
+            end
+            
             fprintf(fileID, sprintf(text.badchans.desc, ...
                 length(automagic.autoBadChans)));
             if strcmp(automagic.prep.performed, 'yes')
@@ -850,6 +858,15 @@ classdef Block < handle
                     length(automagic.crd.badChans)));
             end
             
+            if strcmp(automagic.highVarianceRejection.performed, 'yes')
+                fprintf(fileID, sprintf(text.highvar.badChans, ...
+                    length(automagic.highVarianceRejection.badChans)));
+            end
+                
+            if strcmp(automagic.minVarianceRejection.performed, 'yes')
+                fprintf(fileID, sprintf(text.minvar.badChans, ...
+                    length(automagic.minVarianceRejection.badChans)));
+            end
             fprintf(fileID, '\n');
             
             if isfield(automagic, 'interpolation')
