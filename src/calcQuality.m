@@ -76,8 +76,7 @@ OHA = nansum(abs(X(:)) > settings.overallThresh)./(t.*c);
 THV = nansum(bsxfun(@gt, std(X,[],1)', settings.timeThresh), 1) ./t;
 
 % ratio of channels that have been interpolated
-RBC = numel(bad_chans)./c;
-
+RBC = calcRBC(bad_chans, c);
 % get the number of channels above threshold...
 CHV = sum(nanstd(X,[],2) > settings.chanThresh, 1)./c;
 % unthresholded mean absolute voltage

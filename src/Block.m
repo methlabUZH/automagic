@@ -116,6 +116,9 @@ classdef Block < handle
         
         sRate 
         
+        % Number of EEG channels of this block
+        numChans
+        
         % Parameters of the preprocessing. To learn more please see
         % preprocessing/preprocess.m
         params
@@ -162,6 +165,12 @@ classdef Block < handle
         % List of the channels that have been selected as bad channels during
         % the preprocessing. Note that they are not necessarily interpolated.
         autoBadChans
+        
+        % List of bad channels used to calculate RBC. This is a set and has
+        % no repetitions. Note that this may be different from
+        % finalBadChans as the user can exclude some channels manually
+        % through the GUI from the RBC calculation.
+        ratingBadChans
         
         % is true if the block has been already interpolated at least once.
         isInterpolated
@@ -248,6 +257,8 @@ classdef Block < handle
                 self.qualityScores = automagic.qualityScores;
                 self.isManuallyRated = automagic.isManuallyRated;
                 self.commitedNb = automagic.commitedNb;
+                self.numChans = automagic.EEGChannelCount;
+                self.ratingBadChans = automagic.ratingBadChans;
                 
                 if isempty(self.project.qualityScoreIdx)
                     qScore = self.qualityScores;
@@ -271,6 +282,8 @@ classdef Block < handle
                 self.qualityScores = nan;
                 self.isManuallyRated = 0;
                 self.commitedNb = -1;
+                self.ratingBadChans = [];
+                self.numChans = -1;
             end
             
             % Build prefix and adress based on ratings
@@ -361,6 +374,19 @@ classdef Block < handle
             % isInterpolated. If a field is not given, the previous value
             % is kept. 
             
+            if isfield(updates, 'ratingBadChans')
+                self.ratingBadChans = updates.ratingBadChans;
+                
+                % If qualityScores is not given to update, update it
+                % Otherwise assume ratingBadChans conforms to qualityScores
+                if ~ isfield(updates, 'qualityScores')
+                    RBC = calcRBC(self.ratingBadChans, self.numChans);
+                    newQScore = self.qualityScores;
+                    newQScore.RBC = RBC;
+                    self.qualityScores  = newQScore;
+                end
+            end
+            
             if isfield(updates, 'qualityScores')
                 self.qualityScores  = updates.qualityScores;
             end
@@ -418,10 +444,19 @@ classdef Block < handle
                self = self.updateResultAddress();
             end
             
+            if isfield(updates, 'EEGChannelCount')
+               self.numChans = updates.EEGChannelCount;
+            end
+            
             % Update the rating list structure of the project
             self.project.updateRatingLists(self);
         end
          
+        function excludeChannelsFromRBC(self, exclude_chans)
+            rbc_chans = unique(setdiff(self.finalBadChans, exclude_chans));
+            self.setRatingInfoAndUpdate(struct('ratingBadChans', rbc_chans));
+        end
+        
         function [EEG, automagic] = preprocess(self)
             % Preprocess the block and update the structures
             % Load the file
@@ -463,7 +498,8 @@ classdef Block < handle
             if(isempty(EEG))
                 return;
             end
-            qScore  = calcQuality(EEG, unique(self.finalBadChans), ...
+            rating_badchans = unique(self.finalBadChans);
+            qScore  = calcQuality(EEG, rating_badchans, ...
                 self.project.qualityThresholds); 
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
             qScoreIdx.THV = arrayfun(@(x) ceil(length(x.THV)/2), qScore);
@@ -472,12 +508,16 @@ classdef Block < handle
             qScoreIdx.RBC = arrayfun(@(x) ceil(length(x.RBC)/2), qScore);
             self.project.qualityScoreIdx = qScoreIdx;
             self.commitedNb = -1;
-            self.setRatingInfoAndUpdate(struct('rate', self.CGV.RATINGS.NotRated, ...
+            self.setRatingInfoAndUpdate(struct(...
+                'rate', self.CGV.RATINGS.NotRated, ...
                 'isManuallyRated', 0, ...
                 'tobeInterpolated', EEG.automagic.autoBadChans, ...
-                'finalBadChans', [], 'isInterpolated', false, ...
+                'finalBadChans', [], ...
+                'ratingBadChans', rating_badchans,...
+                'isInterpolated', false, ...
                 'qualityScores', qScore, ...
-                'commit', 1));
+                'commit', 1, ...
+                'EEGChannelCount', size(EEG.data,1)));
             
             
             automagic = EEG.automagic;
@@ -485,6 +525,7 @@ classdef Block < handle
             
             automagic.tobeInterpolated = automagic.autoBadChans;
             automagic.finalBadChans = self.finalBadChans;
+            automagic.ratingBadChans = rating_badchans;
             automagic.isInterpolated = self.isInterpolated;
             automagic.version = self.CGV.VERSION;
             automagic.qualityScores = self.qualityScores;
@@ -558,8 +599,8 @@ classdef Block < handle
             EEG.icaweights= orig_icaweights;
             EEG.icawinv=orig_icawinv;
 
-            qScore  = calcQuality(EEG, ...
-                unique([self.finalBadChans interpolate_chans]), ...
+            rating_badchans = unique([self.finalBadChans interpolate_chans]);
+            qScore  = calcQuality(EEG, rating_badchans, ...
                 self.project.qualityThresholds);
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
             qScoreIdx.THV = arrayfun(@(x) ceil(length(x.THV)/2), qScore);
@@ -581,18 +622,21 @@ classdef Block < handle
                 .GeneralCsts.REDUCED_NAME, '-v6');
 
             % Setting the new information
-            self.setRatingInfoAndUpdate(struct('rate', self.CGV.RATINGS.NotRated, ...
+            self.setRatingInfoAndUpdate(struct(...
+                'rate', self.CGV.RATINGS.NotRated, ...
                 'isManuallyRated', 0, ...
                 'tobeInterpolated', [], ...
                 'finalBadChans', interpolate_chans, ...
                 'isInterpolated', true, ...
-                'qualityScores', qScore));
+                'qualityScores', qScore,...
+                'ratingBadChans', rating_badchans));
             
             automagic.interpolation.channels = interpolate_chans;
             automagic.interpolation.params = InterpolationParams;
             automagic.qualityScores = self.qualityScores;
             automagic.selectedQualityScore = self.getCurrentQualityScore();
             automagic.rate = self.rate;
+            automagic.ratingBadChans = rating_badchans;
             
             preprocessed = matfile(self.resultAddress,'Writable',true);
             preprocessed.EEG = EEG;
@@ -906,7 +950,8 @@ classdef Block < handle
             fprintf(fileID, sprintf(text.quality.RBC,...
                 sprintf('%0.7f ', automagic.qualityScores.RBC),...
                 sprintf('%0.2f ', self.vParams.RateQualityParams.BadChannelGoodCutoff),...
-                sprintf('%0.2f ', self.vParams.RateQualityParams.BadChannelBadCutoff)));
+                sprintf('%0.2f ', self.vParams.RateQualityParams.BadChannelBadCutoff),...
+                sprintf('%d ', automagic.ratingBadChans)));
             fprintf(fileID, '\n');
             else
                 fprintf(fileID, sprintf(text.quality.OHA,...
@@ -936,7 +981,8 @@ classdef Block < handle
             fprintf(fileID, sprintf(text.quality.RBC,...
                 sprintf('%0.7f ', automagic.qualityScores.RBC),...
                 sprintf('%0.2f ', []),...
-                sprintf('%0.2f ', [])));
+                sprintf('%0.2f ', []),...
+                sprintf('%d ', automagic.ratingBadChans)));
             fprintf(fileID, '\n');
             end
             
