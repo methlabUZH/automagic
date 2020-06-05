@@ -5,8 +5,8 @@ function EEG = performFilter(EEG, varargin)
 %   where EEG is the EEGLAB data structure. filtered is the resulting
 %   EEGLAB data structured after filtering. params is an optional
 %   parameter which must be a structure with optional parameters
-%   'notch', 'high' and 'low', each of which a struct. An example of this
-%   parameter is given below:
+%   'notch', 'high', 'low' or 'firws', each of which a struct. 
+%   An example of this parameter is given below:
 %   params = struct('notch', struct('freq', 50),...
 %                   'high',  struct('freq', 0.5, 'order', []),...
 %                   'low',   struct('freq', 30,  'order', []))
@@ -23,6 +23,18 @@ function EEG = performFilter(EEG, varargin)
 %   In the case of filtering ordering, if it is left to be high.order = []
 %   (or low.order = []), then the default value of pop_eegfiltnew.m is
 %   used.
+%
+%   The above filters are performed using pop_eegfiltnew.m. However, if 
+%   'firsw' is provided, then 'pop_firws' is used. In this case, high and
+%   low pass filters even if given as parameters are ignored.
+%   The 'firws' strcut must have a single memeber called 'firws.com' which 
+%   is a string similar to the following line to be evaluated:
+%
+%   firws.com = 'EEG = pop_firws(EEG, 'fcutoff', [12 1], 'ftype', ...
+%          'bandpass', 'wtype', 'blackman', 'forder', 2, 'minphase', 0);'
+%
+%   Note that this string can be obtained by calling once the 'pop_firws'
+%   on an example EEG structure and filling in the input GUI.
 %
 %   If params is ommited default values are used. If any field of params
 %   are ommited, corresponding default values are used. If
@@ -57,6 +69,7 @@ end
 %% Parse parameters
 p = inputParser;
 addParameter(p,'notch', defaults.notch, @isstruct);
+addParameter(p,'firws', defaults.firws, @isstruct);
 addParameter(p,'high', defaults.high, @isstruct);
 addParameter(p,'low', defaults.low, @isstruct);
 addParameter(p,'zapline', defaults.zapline, @isstruct);
@@ -64,6 +77,7 @@ parse(p, varargin{:});
 notch = p.Results.notch;
 high = p.Results.high;
 low = p.Results.low;
+firws = p.Results.firws;
 zapline = p.Results.zapline;
 
 if( ~isempty(high) )
@@ -101,8 +115,21 @@ end
 EEG.automagic.filtering.performed = 'no';
 if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
     EEG.automagic.filtering.performed = 'yes';
-    if( ~isempty(high) )
-        [FilterInfo, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+    
+    if ~isempty(firws)
+        EEG.automagic.filtering.firws.performed = 'yes';
+
+        [~, EEG, com, ~] = evalc(firws.com(7:end));
+        args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
+        for i = 2:2:(length(args)-1)
+            EEG.automagic.filtering.firws.(strtrim(args{i})) = strtrim(args{i+1});
+        end
+    else
+        EEG.automagic.filtering.firws.performed = 'no';
+    end
+
+    if( ~isempty(high) &&  isempty(firws))
+        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
         EEG.automagic.filtering.highpass.performed = 'yes';
         EEG.automagic.filtering.highpass.freq = high.freq;
         EEG.automagic.filtering.highpass.order = length(b)-1;
@@ -176,7 +203,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
         EEG.automagic.filtering.zapline.performed = 'no';
     end
     
-    if( ~isempty(low) )
+    if( ~isempty(low) &&  isempty(firws))
         [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, 0, low.freq, low.order)');
         EEG.automagic.filtering.lowpass.performed = 'yes';
         EEG.automagic.filtering.lowpass.freq = low.freq;
