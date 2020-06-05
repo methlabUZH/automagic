@@ -22,7 +22,7 @@ function varargout = qualityratingGUI(varargin)
 
 % Edit the above text to modify the response to help qualityratingGUI
 
-% Last Modified by GUIDE v2.5 08-Jan-2019 09:52:06
+% Last Modified by GUIDE v2.5 05-Jun-2020 13:57:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -95,6 +95,8 @@ renderAxes(handles, cutoffs);
 change_ratingGUI(false, cutoffs);
 
 function handles = render_project(handles, cutoffs)
+
+set(handles.exclude_edit, 'String', num2str(handles.project.manuallyExcludedRBCChans));
 
 set(handles.ohapopupmenu,...
     'String',handles.project.qualityThresholds.overallThresh, ...
@@ -704,3 +706,34 @@ function helpqualitypushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 web('https://github.com/methlabUZH/automagic/wiki/Quality-Assessment-and-Rating#quality-rating', '-browser');
+
+
+
+function exclude_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to exclude_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of exclude_edit as text
+%        str2double(get(hObject,'String')) returns contents of exclude_edit as a double
+
+to_be_excluded = str2double(get(hObject,'String'));
+handles.project.excludeChannelsFromRBC(to_be_excluded);
+cutoffs = get_gui_values(handles);
+renderChanges(handles, cutoffs);
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function exclude_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to exclude_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
