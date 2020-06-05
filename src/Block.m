@@ -424,12 +424,11 @@ classdef Block < handle
          
         function [EEG, automagic] = preprocess(self)
             % Preprocess the block and update the structures
-          
             % Load the file
             data = self.loadEEGFromFile();
             if isfield(self.params.ChannelReductionParams,'tobeExcludedChans')
                 if ~isempty(self.params.ChannelReductionParams.tobeExcludedChans)
-                    if max(self.params.ChannelReductionParams.tobeExcludedChans) < size(data.data,1)
+                    if max(self.params.ChannelReductionParams.tobeExcludedChans) > size(data.data,1) || min(self.params.ChannelReductionParams.tobeExcludedChans) < 1
                         popup_msg(['An excluded channel does not exist.',...
                             'You must create a new project, specifying the correct channels to exclude.'], 'Error');
                         error('An excluded channel does not exist. You must create a new project, specifying the correct channels to exclude.');
@@ -782,15 +781,20 @@ classdef Block < handle
                 end
             end
             
-            if strcmp(automagic.highVarianceRejection.performed, 'yes')
-                fprintf(fileID, sprintf(text.badchans.flatline, ...
-                    length(automagic.highVarianceRejection.badChans)));
-            end
+            if (isfield(automagic,'crd'))
+                if (strcmp(automagic.crd.performed, 'yes'))
+                    fprintf(fileID, sprintf(text.badchans.outlier,...
+                        length(automagic.crd.badChans)));
+                end
             fprintf(fileID, '\n');
+            end
             
             if(isfield(automagic, 'EOGRegression'))
                 if strcmp(automagic.EOGRegression.performed, 'yes')
-                    fprintf(fileID, sprintf(text.eog.desc));
+                    fprintf(fileID, sprintf(text.eog.EOGreg_done));
+                    fprintf(fileID, '\n');
+                else
+                    fprintf(fileID, sprintf(text.eog.EOGreg_none));
                     fprintf(fileID, '\n');
                 end
             end
@@ -836,6 +840,12 @@ classdef Block < handle
                 fprintf(fileID, '\n');
             end
             
+            if strcmp(automagic.minVarianceRejection.performed, 'yes')
+                fprintf(fileID, sprintf(text.minvar.desc, ...
+                    automagic.minVarianceRejection.sd));
+                fprintf(fileID, '\n');
+            end
+            
             fprintf(fileID, sprintf(text.badchans.desc, ...
                 length(automagic.autoBadChans)));
             if strcmp(automagic.prep.performed, 'yes')
@@ -848,6 +858,15 @@ classdef Block < handle
                     length(automagic.crd.badChans)));
             end
             
+            if strcmp(automagic.highVarianceRejection.performed, 'yes')
+                fprintf(fileID, sprintf(text.highvar.badChans, ...
+                    length(automagic.highVarianceRejection.badChans)));
+            end
+                
+            if strcmp(automagic.minVarianceRejection.performed, 'yes')
+                fprintf(fileID, sprintf(text.minvar.badChans, ...
+                    length(automagic.minVarianceRejection.badChans)));
+            end
             fprintf(fileID, '\n');
             
             if isfield(automagic, 'interpolation')

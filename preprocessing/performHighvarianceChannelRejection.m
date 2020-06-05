@@ -48,7 +48,7 @@ badChansMask = false(1, s); clear s;
 %modificaton 1 here : remove timepoints of very high variance from channel
 % ignoreCutOff=100; %this has to be added as argument of the function and removed from here!
 tmpData=EEG_in.data;
-tmpData = tmpData - sum(sum(tmpData))/numel(tmpData); % Re-reference to the average temporarily
+tmpData = tmpData - mean(tmpData,1); % Re-reference to the average temporarily
 ignoreMask=tmpData>ignoreCutOff|tmpData<-ignoreCutOff;
 tmpData(ignoreMask)=NaN;
 rejected = nanstd(tmpData,[],2) > sd_threshold;
