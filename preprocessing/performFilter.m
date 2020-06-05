@@ -113,7 +113,7 @@ if( ~isempty(zapline) && ~isfield(zapline, 'freq'))
 end
 %% Perform filtering
 EEG.automagic.filtering.performed = 'no';
-if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline))
+if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~isempty(firws))
     EEG.automagic.filtering.performed = 'yes';
     
     if ~isempty(firws)

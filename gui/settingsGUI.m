@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 04-May-2020 11:14:19
+% Last Modified by GUIDE v2.5 05-Jun-2020 20:07:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -114,6 +114,9 @@ DEFAULT_KEYWORD = handles.CGV.DEFAULT_KEYWORD;
 CalcQualityParams = VisualisationParams.CalcQualityParams;
 dsRate = VisualisationParams.dsRate;
 if ~isempty(params.FilterParams)
+    if ~isempty(params.FilterParams.firws)
+        set(handles.firws_checkbox, 'Value', 1);
+    end
     if ~isempty(params.FilterParams.high)
         set(handles.highcheckbox, 'Value', 1);
         if isempty(params.FilterParams.high.order)
@@ -157,6 +160,7 @@ if ~isempty(params.FilterParams)
         set(handles.ncomponentsZL, 'String', params.FilterParams.zapline.ncomps)
     end
 else
+    set(handles.firws_checkbox, 'Value', 0);
     set(handles.highcheckbox, 'Value', 0);
     set(handles.lowcheckbox, 'Value', 0);
     set(handles.highpassorderedit, 'String', '')
@@ -557,6 +561,12 @@ else
     ICLabelParams = struct([]);
 end
 
+if( get(handles.firws_checkbox, 'Value'))
+    firws = params.FilterParams.firws;
+else
+    firws = struct([]);
+end
+
 high = params.FilterParams.high;
 if( get(handles.highcheckbox, 'Value'))
     if isempty(high)
@@ -919,6 +929,7 @@ Settings.colormap = colormap;
 
 handles.VisualisationParams.dsRate = ds;
 handles.VisualisationParams.CalcQualityParams = CalcQualityParams;
+handles.params.FilterParams.firws = firws;
 handles.params.FilterParams.high = high;
 handles.params.FilterParams.low = low;
 handles.params.FilterParams.notch = notch;
@@ -946,6 +957,18 @@ if(~ get(mainGUI_handle.egiradio, 'Value') && ...
     set(handles.eogedit, 'enable', 'on');
 else
     set(handles.eogedit, 'enable', 'off');
+end
+
+if( get(handles.firws_checkbox, 'Value') )
+    set(handles.highcheckbox, 'enable', 'off');
+    set(handles.highcheckbox, 'Value', 0)
+    
+    set(handles.lowcheckbox, 'enable', 'off');
+    set(handles.lowcheckbox, 'Value', 0)
+else
+    set(handles.highcheckbox, 'enable', 'on');
+    
+    set(handles.lowcheckbox, 'enable', 'on');
 end
 
 if( get(handles.highcheckbox, 'Value') )
@@ -3005,3 +3028,64 @@ function RejectRatioEdit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in firws_checkbox.
+function firws_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to firws_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+if get(hObject,'Value')
+    [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
+    if ~isequal(file, 0)
+        EEG = load_eeg(fullfile(path, file), handles.CGV);
+        com = '';
+        [~, ~, com, ~] = evalc('pop_firws(EEG)');
+        if ~isempty(com)
+            firsw.com = com;
+            handles.params.FilterParams.firws = firsw;
+        else
+            handles.params.FilterParams.firws = struct([]);
+            set(hObject,'Value', 0)
+        end
+    else
+         handles.params.FilterParams.firws = struct([]);
+         set(hObject,'Value', 0)
+    end
+else
+    handles.params.FilterParams.firws = struct([]);
+end
+handles = switch_components(handles);
+% Update handles structure
+guidata(hObject, handles);
+
+
+function data = load_eeg(path, CGV)
+
+addEEGLab();
+
+splits = strsplit(path, '.');
+extension = strcat('.', splits{end});
+
+% Case of .mat file
+if( any(strcmp(extension(end-3:end), ...
+        {CGV.EXTENSIONS.mat})))
+    data = load(path);
+    data = data.EEG;
+
+
+% case of .set file 
+elseif(any(strcmp(extension, ...
+        {CGV.EXTENSIONS.set})))
+    [~ , data] = evalc('pop_loadset(path)');
+
+% case of .edf file
+elseif(any(strcmp(extension, ...
+        {CGV.EXTENSIONS.edf})))
+    [~, data] = evalc('pop_biosig(path)');
+
+else
+    [~ , data] = evalc('pop_fileio(path)');
+end 
+
