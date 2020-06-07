@@ -501,7 +501,7 @@ classdef Block < handle
             if(isempty(EEG))
                 return;
             end
-            rating_badchans = unique(self.finalBadChans);
+            rating_badchans = [];
             qScore  = calcQuality(EEG, rating_badchans, ...
                 self.project.qualityThresholds); 
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
