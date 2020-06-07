@@ -382,6 +382,9 @@ classdef Block < handle
                 if ~ isfield(updates, 'qualityScores')
                     RBC = calcRBC(self.ratingBadChans, self.numChans);
                     newQScore = self.qualityScores;
+                    if ~ isstruct(newQScore)
+                        newQScore = struct();
+                    end
                     newQScore.RBC = RBC;
                     self.qualityScores  = newQScore;
                 end
@@ -600,6 +603,8 @@ classdef Block < handle
             EEG.icawinv=orig_icawinv;
 
             rating_badchans = unique([self.finalBadChans interpolate_chans]);
+            rating_badchans = setdiff(rating_badchans, ...
+                                self.project.manuallyExcludedRBCChans);
             qScore  = calcQuality(EEG, rating_badchans, ...
                 self.project.qualityThresholds);
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
