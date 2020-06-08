@@ -96,11 +96,11 @@ if found == 0
     disp('Installing ICLabel');
     evalc('plugin_askinstall(''ICLabel'',[],true)');
     close();
+    str = which('vl_nnconv.mexw64');
+    mexFolder = strfind(str,filesep);
+    mexFolder = str(1:mexFolder(end));
+    addpath(mexFolder);
 end
-str = which('vl_nnconv.mexw64');
-mexFolder = strfind(str,filesep);
-mexFolder = str(1:mexFolder(end));
-addpath(mexFolder);
 
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
