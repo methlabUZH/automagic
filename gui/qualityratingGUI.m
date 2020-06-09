@@ -22,7 +22,7 @@ function varargout = qualityratingGUI(varargin)
 
 % Edit the above text to modify the response to help qualityratingGUI
 
-% Last Modified by GUIDE v2.5 05-Jun-2020 13:57:07
+% Last Modified by GUIDE v2.5 09-Jun-2020 18:35:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -213,6 +213,28 @@ function ret_val = apply_to_all(handles, cutoffs)
 ret_val = [];
 project = handles.project;
 
+keep_old = false;
+if project.committed && isequaln(project.committedQualityCutoffs, cutoffs)
+    question = 'Would you like to recommit already commited files as well or keep them as before ?';
+    handle = findobj(allchild(0), 'flat', 'Tag', 'qualityrating');
+    set(handle, 'units', 'pixels')
+    main_pos = get(handle,'position');
+    set(handle, 'units', 'normalized')
+    screen_size = get( groot, 'Screensize' );
+    choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
+        'Commit already commited files',...
+        'Commit quality rating again for old files as well', 'Commit quality ratings only for recently added files','Commit quality ratings only for recently added files');
+
+    switch choice
+        case 'Commit quality rating again for old files as well'
+            keep_old = false;
+        case 'Commit quality ratings only for recently added files'
+            keep_old = true;
+        otherwise
+            return;
+    end
+end
+
 question = 'Would you like to apply changes on also manually rated files';
 handle = findobj(allchild(0), 'flat', 'Tag', 'qualityrating');
 set(handle, 'units', 'pixels')
@@ -232,9 +254,10 @@ switch choice
         return;
 end
 
+
 set(handles.qualityrating, 'pointer', 'watch')
 drawnow;
-project.applyQualityRatings(cutoffs, apply_to_manually_rated);
+project.applyQualityRatings(cutoffs, apply_to_manually_rated, keep_old);
 change_ratingGUI(true, cutoffs);
 set(handles.qualityrating, 'pointer', 'arrow');
 ret_val = handles;
@@ -247,9 +270,10 @@ function commitbutton_Callback(hObject, eventdata, handles)
 
 
 project = handles.project;
+cutoffs = get_gui_values(handles);
 
-if project.committed
-    question = 'There are already commited files in this project. Are you sure you want to commit again? This is not a good research practice.';
+if project.committed && ~ isequaln(project.committedQualityCutoffs, cutoffs)
+    question = 'This project has been already committed with different cutoff values. Are you sure you want overwrite your commits?';
     handle = findobj(allchild(0), 'flat', 'Tag', 'qualityrating');
     set(handle, 'units', 'pixels')
     main_pos = get(handle,'position');
@@ -268,7 +292,6 @@ if project.committed
     end
 end
 
-cutoffs = get_gui_values(handles);
 ret_val = apply_to_all(handles, cutoffs);
 if ~ isempty(ret_val)
     close(handles.title_name);
@@ -736,4 +759,17 @@ function exclude_edit_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in resettocommitbutton.
+function resettocommitbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to resettocommitbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+project = handles.project;
+if ~isempty(project.committedQualityCutoffs)
+    renderChanges(handles, project.committedQualityCutoffs);
+else
+    popup_msg('You have not any old commits', 'Error');
 end

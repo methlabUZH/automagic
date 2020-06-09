@@ -176,6 +176,9 @@ classdef Project < handle
         % 1. Otherwise it is initialised to 0.
         committed
         
+        % The cutoffs with which the project has been committed previously
+        committedQualityCutoffs
+        
     end
     
     properties(SetAccess=private, GetAccess=private)
@@ -255,6 +258,7 @@ classdef Project < handle
             self.manuallyExcludedRBCChans = [];
             
             self.committed = false;
+            self.committedQualityCutoffs = struct([]);
             if ~ isempty(varargin{:})
                 self.sRate = varargin{1};
             else
@@ -927,7 +931,7 @@ classdef Project < handle
             cellfun( @(block) block.excludeChannelsFromRBC(exclude_chans), blocks, 'uniform', 0);
         end
         
-        function applyQualityRatings(self, cutoffs, applyToManuallyRated)
+        function applyQualityRatings(self, cutoffs, applyToManuallyRated, keep_old)
             % Modify all the blocks to have the new ratings given by this
             % cutoffs. If applyToManuallyRated, then apply to every single
             % block. Otherwise, don't apply on the blocks for which the
@@ -936,22 +940,33 @@ classdef Project < handle
             % returned
             % applyToManuallyRated - boolean indicating whether to apply on
             % all blocks or only those that are not manually rated.
+            % keep_old - boolean indicating whether to recommit the old
+            % files that are already commited, or only commit the newly
+            % added files to the project
+            assert (~ keep_old || isequaln(self.committedQualityCutoffs, cutoffs))
             
-            self.committed = true;
             files = self.processedList;
             blocks = self.blockMap;
             for i = 1:length(files)
                 file = files{i};
                 block = blocks(file);
                 newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
-                if (applyToManuallyRated || ~ block.isManuallyRated)
-                    block.setRatingInfoAndUpdate(struct('rate', newRate{:}, 'isManuallyRated', 0, 'commit', 1));
-                    block.saveRatingsToFile();
+                if (keep_old && block.commitedNb > 0)
+                    % Do nothing. This block has been already commited and
+                    % is not required to be commited again
                 else
-                    block.setRatingInfoAndUpdate(struct('rate', block.rate, 'isManuallyRated', 1, 'commit', 1));
-                    block.saveRatingsToFile();
+                    if (applyToManuallyRated || ~ block.isManuallyRated)
+                        block.setRatingInfoAndUpdate(struct('rate', newRate{:}, 'isManuallyRated', 0, 'commit', 1));
+                        block.saveRatingsToFile();
+                    else
+                        block.setRatingInfoAndUpdate(struct('rate', block.rate, 'isManuallyRated', 1, 'commit', 1));
+                        block.saveRatingsToFile();
+                    end
                 end
             end
+            
+            self.committed = true;
+            self.committedQualityCutoffs = cutoffs;
             self.qualityCutoffs = cutoffs;
         end
         
