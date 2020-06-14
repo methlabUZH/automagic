@@ -412,6 +412,34 @@ else
     set(handles.savestepscheckbox, 'Value', 0);
 end
 
+h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
+mainGUI_handle = guidata(h);
+rec = handles.CGV.RecParams;
+if( get(mainGUI_handle.egiradio, 'Value'))
+    set(handles.rarcheckbox, 'Value', 1);
+    if (get(handles.PREPnoNotch, 'Value'))
+        set(handles.rarcheckbox, 'Value', 0);
+    end
+    set(handles.PREPnoNotch, 'Value', 0);
+    set(handles.highvarcheckbox, 'Value', 1);
+    set(handles.minvarcheckbox, 'Value', 1);
+    set(handles.zaplinecheckbox, 'Value', 1);
+    set(handles.ncomponentsZL, 'String', 5);
+    set(handles.highcheckbox, 'Value', 1);
+    set(handles.highedit, 'String', rec.FilterParams.high.freq);
+    set(handles.lowcheckbox, 'Value', 1);
+    set(handles.lowedit, 'String', 49);
+    set(handles.eogcheckbox, 'Value', 0);
+    set(handles.euradio, 'Value', 1);   
+    set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
+    set(handles.highvaredit, 'String', rec.HighvarParams.sd);
+    set(handles.HVCutoffEdit, 'String', rec.HighvarParams.cutoff);
+    set(handles.RejectRatioEdit, 'String', rec.HighvarParams.rejRatio);
+    set(handles.highpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+    set(handles.lowpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+    set(handles.minvaredit, 'String', rec.MinvarParams.sd);  
+end
+
 handles = switch_components(handles);
 
 function handles = get_inputs(handles)
@@ -1148,51 +1176,6 @@ if( get(handles.zaplinecheckbox, 'Value'))
     set(handles.ncomponentsZL, 'Enable', 'on')
 else
     set(handles.ncomponentsZL, 'Enable', 'off')
-end
-
-rec = handles.CGV.RecParams;
-if( get(mainGUI_handle.egiradio, 'Value'))
-    set(handles.rarcheckbox, 'Value', 1);
-    if (get(handles.PREPnoNotch, 'Value'))
-        set(handles.rarcheckbox, 'Value', 0);
-    end
-    set(handles.PREPnoNotch, 'Value', 0);
-    set(handles.PREPnoNotch, 'enable', 'off');
-    set(handles.rarcheckbox, 'enable', 'off');
-    set(handles.highvarcheckbox, 'Value', 1);
-    set(handles.highvarcheckbox, 'enable', 'off');
-    set(handles.minvarcheckbox, 'Value', 1);
-    set(handles.minvarcheckbox, 'enable', 'off');
-    set(handles.zaplinecheckbox, 'Value', 1);
-    set(handles.zaplinecheckbox, 'enable', 'off');
-    set(handles.ncomponentsZL, 'String', 5);
-    set(handles.ncomponentsZL, 'enable', 'off');
-    set(handles.highcheckbox, 'Value', 1);
-    set(handles.highcheckbox, 'enable', 'off');
-    set(handles.highedit, 'String', rec.FilterParams.high.freq);
-    set(handles.highedit, 'enable', 'off');
-    set(handles.lowcheckbox, 'Value', 1);
-    set(handles.lowcheckbox, 'enable', 'off');
-    set(handles.lowedit, 'String', 49);
-    set(handles.lowedit, 'enable', 'off');
-    set(handles.eogcheckbox, 'Value', 0);
-    set(handles.eogcheckbox, 'enable', 'off');
-    set(handles.euradio, 'Value', 1);   
-    set(handles.euradio, 'enable', 'off');
-    set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
-    set(handles.notchedit, 'enable', 'off');
-    set(handles.highvaredit, 'String', rec.HighvarParams.sd);
-    set(handles.highvaredit, 'enable', 'off');
-    set(handles.HVCutoffEdit, 'String', rec.HighvarParams.cutoff);
-    set(handles.HVCutoffEdit, 'enable', 'off');
-    set(handles.RejectRatioEdit, 'String', rec.HighvarParams.rejRatio);
-    set(handles.RejectRatioEdit, 'enable', 'off');
-    set(handles.highpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
-    set(handles.highpassorderedit, 'enable', 'off');
-    set(handles.lowpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
-    set(handles.lowpassorderedit, 'enable', 'off');
-    set(handles.minvaredit, 'String', rec.MinvarParams.sd);  
-    set(handles.minvaredit, 'enable', 'off');
 end
 
 % if( get(handles.rarcheckbox, 'Value') || ...
