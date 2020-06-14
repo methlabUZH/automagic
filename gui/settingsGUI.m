@@ -1150,6 +1150,7 @@ else
     set(handles.ncomponentsZL, 'Enable', 'off')
 end
 
+rec = handles.CGV.RecParams;
 if( get(mainGUI_handle.egiradio, 'Value'))
     set(handles.rarcheckbox, 'Value', 1);
     if (get(handles.PREPnoNotch, 'Value'))
@@ -1168,7 +1169,7 @@ if( get(mainGUI_handle.egiradio, 'Value'))
     set(handles.ncomponentsZL, 'enable', 'off');
     set(handles.highcheckbox, 'Value', 1);
     set(handles.highcheckbox, 'enable', 'off');
-    set(handles.highedit, 'String', 2);
+    set(handles.highedit, 'String', rec.FilterParams.high.freq);
     set(handles.highedit, 'enable', 'off');
     set(handles.lowcheckbox, 'Value', 1);
     set(handles.lowcheckbox, 'enable', 'off');
@@ -1180,17 +1181,17 @@ if( get(mainGUI_handle.egiradio, 'Value'))
     set(handles.euradio, 'enable', 'off');
     set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
     set(handles.notchedit, 'enable', 'off');
-    set(handles.highvaredit, 'String',handles.CGV.RecParams.HighvarParams.sd);
+    set(handles.highvaredit, 'String', rec.HighvarParams.sd);
     set(handles.highvaredit, 'enable', 'off');
-    set(handles.HVCutoffEdit, 'String',handles.CGV.RecParams.HighvarParams.cutoff);
+    set(handles.HVCutoffEdit, 'String', rec.HighvarParams.cutoff);
     set(handles.HVCutoffEdit, 'enable', 'off');
-    set(handles.RejectRatioEdit, 'String',handles.CGV.RecParams.HighvarParams.rejRatio);
+    set(handles.RejectRatioEdit, 'String', rec.HighvarParams.rejRatio);
     set(handles.RejectRatioEdit, 'enable', 'off');
     set(handles.highpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
     set(handles.highpassorderedit, 'enable', 'off');
     set(handles.lowpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
     set(handles.lowpassorderedit, 'enable', 'off');
-    set(handles.minvaredit, 'String',handles.CGV.RecParams.MinvarParams.sd);  
+    set(handles.minvaredit, 'String', rec.MinvarParams.sd);  
     set(handles.minvaredit, 'enable', 'off');
 end
 
