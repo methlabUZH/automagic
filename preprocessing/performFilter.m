@@ -141,11 +141,16 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
     end    
 
     if( ~isempty(high) && (isempty(firws) || isempty(firws.high)))
-        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+        [out, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+        splits = strsplit(out, '\n');
+        curoff_line = strsplit(splits{4}, ' ');
+        cuttoff_freq = curoff_line{end-1};
+        
         EEG.automagic.filtering.highpass.performed = 'yes';
         EEG.automagic.filtering.highpass.freq = high.freq;
         EEG.automagic.filtering.highpass.order = length(b)-1;
         EEG.automagic.filtering.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
+        EEG.automagic.filtering.highpass.cutoff_freq = cuttoff_freq;
     else
         EEG.automagic.filtering.highpass.performed = 'no';
     end
@@ -216,11 +221,16 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
     end
     
     if( ~isempty(low) && (isempty(firws) || isempty(firws.low)))
-        [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, 0, low.freq, low.order)');
+        [out, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, 0, low.freq, low.order)');
+        splits = strsplit(out, '\n');
+        curoff_line = strsplit(splits{4}, ' ');
+        cuttoff_freq = curoff_line{end-1};
+        
         EEG.automagic.filtering.lowpass.performed = 'yes';
         EEG.automagic.filtering.lowpass.freq = low.freq;
         EEG.automagic.filtering.lowpass.order = length(b)-1;
         EEG.automagic.filtering.lowpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
+        EEG.automagic.filtering.lowpass.cutoff_freq = cuttoff_freq;
     else
         EEG.automagic.filtering.lowpass.performed = 'no';
     end
