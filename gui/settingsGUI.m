@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 05-Jun-2020 20:07:41
+% Last Modified by GUIDE v2.5 14-Jun-2020 16:14:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -589,9 +589,30 @@ else
     ICLabelParams = struct([]);
 end
 
+firws = struct();
 if( get(handles.firws_checkbox, 'Value'))
-    firws = params.FilterParams.firws;
+    if isfield(params.FilterParams.firws, 'high')
+        firws.high = params.FilterParams.firws.high;
+    else
+        set(handles.firws_checkbox, 'Value', 0)
+        firws.high = struct([]);
+    end
 else
+    firws.high = struct([]);
+end
+
+if( get(handles.firwslow_checkbox, 'Value'))
+    if isfield(params.FilterParams.firws, 'low')
+        firws.low = params.FilterParams.firws.low;
+    else
+        set(handles.firwslow_checkbox, 'Value', 0)
+        firws.low = struct([]);
+    end
+else
+    firws.low = struct([]);
+end
+
+if ~isempty(firws) && isempty(firws.low) && isempty(firws.high)
     firws = struct([]);
 end
 
@@ -990,12 +1011,14 @@ end
 if( get(handles.firws_checkbox, 'Value') )
     set(handles.highcheckbox, 'enable', 'off');
     set(handles.highcheckbox, 'Value', 0)
-    
+else
+    set(handles.highcheckbox, 'enable', 'on');
+end
+
+if( get(handles.firwslow_checkbox, 'Value') )
     set(handles.lowcheckbox, 'enable', 'off');
     set(handles.lowcheckbox, 'Value', 0)
 else
-    set(handles.highcheckbox, 'enable', 'on');
-    
     set(handles.lowcheckbox, 'enable', 'on');
 end
 
@@ -3021,24 +3044,44 @@ function firws_checkbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 if get(hObject,'Value')
-    [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
-    if ~isequal(file, 0)
-        EEG = load_eeg(fullfile(path, file), handles.CGV);
+    EEG = [];
+    if ~isfield(handles, 'eeg_example')
+    
+        [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
+        if ~isequal(file, 0)
+            EEG = load_eeg(fullfile(path, file), handles.CGV);
+            handles.eeg_example = EEG;
+        end
+    else
+        EEG = handles.eeg_example;
+    end
+    if ~isempty(EEG)
         com = '';
         [~, ~, com, ~] = evalc('pop_firws(EEG)');
-        if ~isempty(com)
-            firsw.com = com;
+        args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
+        if ~isempty(com) && strcmp(strtrim(args{5}), 'highpass')
+            firsw.high.com = com;
             handles.params.FilterParams.firws = firsw;
         else
-            handles.params.FilterParams.firws = struct([]);
+            if ~ strcmp(strtrim(args{5}), 'highpass')
+                   popup_msg('This filter must be a high pass filter',...
+                    'Error'); 
+            end
+            if isfield(handles.params.FilterParams.firws, 'high')
+                handles.params.FilterParams.firws.high = struct([]);
+            end
             set(hObject,'Value', 0)
         end
     else
-         handles.params.FilterParams.firws = struct([]);
+        if isfield(handles.params.FilterParams.firws, 'high')
+                handles.params.FilterParams.firws.high = struct([]);
+         end
          set(hObject,'Value', 0)
     end
 else
-    handles.params.FilterParams.firws = struct([]);
+    if isfield(handles.params.FilterParams.firws, 'high')
+        handles.params.FilterParams.firws.high = struct([]);
+    end
 end
 handles = switch_components(handles);
 % Update handles structure
@@ -3073,3 +3116,55 @@ else
     [~ , data] = evalc('pop_fileio(path)');
 end 
 
+
+% --- Executes on button press in firwslow_checkbox.
+function firwslow_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to firwslow_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of firwslow_checkbox
+if get(hObject,'Value')
+    EEG = [];
+    if ~isfield(handles, 'eeg_example')
+    
+        [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
+        if ~isequal(file, 0)
+            EEG = load_eeg(fullfile(path, file), handles.CGV);
+            handles.eeg_example = EEG;
+        end
+    else
+        EEG = handles.eeg_example;
+    end
+    if ~isempty(EEG)
+        com = '';
+        [~, ~, com, ~] = evalc('pop_firws(EEG)');
+        args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
+        if ~isempty(com) && strcmp(strtrim(args{5}), 'lowpass')
+            firsw.low.com = com;
+            handles.params.FilterParams.firws = firsw;
+        else
+            if ~ strcmp(strtrim(args{5}), 'lowpass')
+                   popup_msg('This filter must be a low pass filter',...
+                    'Error'); 
+            end
+            if isfield(handles.params.FilterParams.firws, 'low')
+                handles.params.FilterParams.firws.low = struct([]);
+            end
+            set(hObject,'Value', 0)
+        end
+    else
+        if isfield(handles.params.FilterParams.firws, 'low')
+            handles.params.FilterParams.firws.low = struct([]);
+         end
+         set(hObject,'Value', 0)
+    end
+else
+    if isfield(handles.params.FilterParams.firws, 'low')
+        handles.params.FilterParams.firws.low = struct([]);
+    end
+end
+handles = switch_components(handles);
+
+% Update handles structure
+guidata(hObject, handles);

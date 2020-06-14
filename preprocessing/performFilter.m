@@ -116,19 +116,31 @@ EEG.automagic.filtering.performed = 'no';
 if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~isempty(firws))
     EEG.automagic.filtering.performed = 'yes';
     
-    if ~isempty(firws)
-        EEG.automagic.filtering.firws.performed = 'yes';
+    if ~isempty(firws.high)
+        EEG.automagic.filtering.firws.high.performed = 'yes';
 
-        [~, EEG, com, ~] = evalc(firws.com(7:end));
+        [~, EEG, com, ~] = evalc(firws.high.com(7:end));
         args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
         for i = 2:2:(length(args)-1)
-            EEG.automagic.filtering.firws.(strtrim(args{i})) = strtrim(args{i+1});
+            EEG.automagic.filtering.firws.high.(strtrim(args{i})) = strtrim(args{i+1});
         end
     else
-        EEG.automagic.filtering.firws.performed = 'no';
+        EEG.automagic.filtering.firws.high.performed = 'no';
     end
+    
+    if ~isempty(firws.low)
+        EEG.automagic.filtering.firws.low.performed = 'yes';
 
-    if( ~isempty(high) &&  isempty(firws))
+        [~, EEG, com, ~] = evalc(firws.low.com(7:end));
+        args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
+        for i = 2:2:(length(args)-1)
+            EEG.automagic.filtering.firws.low.(strtrim(args{i})) = strtrim(args{i+1});
+        end
+    else
+        EEG.automagic.filtering.firws.low.performed = 'no';
+    end    
+
+    if( ~isempty(high) && (isempty(firws) || isempty(firws.high)))
         [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
         EEG.automagic.filtering.highpass.performed = 'yes';
         EEG.automagic.filtering.highpass.freq = high.freq;
@@ -203,7 +215,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         EEG.automagic.filtering.zapline.performed = 'no';
     end
     
-    if( ~isempty(low) &&  isempty(firws))
+    if( ~isempty(low) && (isempty(firws) || isempty(firws.low)))
         [~, EEG, ~ , b] = evalc('pop_eegfiltnew(EEG, 0, low.freq, low.order)');
         EEG.automagic.filtering.lowpass.performed = 'yes';
         EEG.automagic.filtering.lowpass.freq = low.freq;
