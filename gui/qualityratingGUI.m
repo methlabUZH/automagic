@@ -22,7 +22,7 @@ function varargout = qualityratingGUI(varargin)
 
 % Edit the above text to modify the response to help qualityratingGUI
 
-% Last Modified by GUIDE v2.5 09-Jun-2020 18:35:20
+% Last Modified by GUIDE v2.5 14-Jun-2020 17:07:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -740,14 +740,7 @@ function exclude_edit_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of exclude_edit as text
 %        str2double(get(hObject,'String')) returns contents of exclude_edit as a double
 
-to_be_excluded = str2double(get(hObject,'String'));
-handles.project.excludeChannelsFromRBC(to_be_excluded);
-cutoffs = get_gui_values(handles);
-renderChanges(handles, cutoffs);
-handles.output = hObject;
 
-% Update handles structure
-guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function exclude_edit_CreateFcn(hObject, eventdata, handles)
@@ -773,3 +766,19 @@ if ~isempty(project.committedQualityCutoffs)
 else
     popup_msg('You have not any old commits', 'Error');
 end
+
+
+% --- Executes on button press in applyexcludebutton.
+function applyexcludebutton_Callback(hObject, eventdata, handles)
+% hObject    handle to applyexcludebutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+to_be_excluded = str2double(get(handles.exclude_edit,'String'));
+handles.project.excludeChannelsFromRBC(to_be_excluded);
+cutoffs = get_gui_values(handles);
+renderChanges(handles, cutoffs);
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
