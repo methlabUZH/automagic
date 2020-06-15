@@ -116,7 +116,7 @@ EEG.automagic.filtering.performed = 'no';
 if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~isempty(firws))
     EEG.automagic.filtering.performed = 'yes';
     
-    if ~isempty(firws.high)
+    if ~isempty(firws) && ~isempty(firws.high) 
         EEG.automagic.filtering.firws.high.performed = 'yes';
 
         [~, EEG, com, ~] = evalc(firws.high.com(7:end));
@@ -128,7 +128,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         EEG.automagic.filtering.firws.high.performed = 'no';
     end
     
-    if ~isempty(firws.low)
+    if ~isempty(firws) && ~isempty(firws.low)
         EEG.automagic.filtering.firws.low.performed = 'yes';
 
         [~, EEG, com, ~] = evalc(firws.low.com(7:end));
