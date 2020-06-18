@@ -115,7 +115,20 @@ CalcQualityParams = VisualisationParams.CalcQualityParams;
 dsRate = VisualisationParams.dsRate;
 if ~isempty(params.FilterParams)
     if ~isempty(params.FilterParams.firws)
-        set(handles.firws_checkbox, 'Value', 1);
+        firws = params.FilterParams.firws;
+        if isfield(firws, 'high') && ~isempty(firws.high)
+            set(handles.firws_checkbox, 'Value', 1);
+        else
+            set(handles.firws_checkbox, 'Value', 0);
+        end
+        if isfield(firws, 'low') && ~isempty(firws.low)
+            set(handles.firwslow_checkbox, 'Value', 1);
+        else
+            set(handles.firwslow_checkbox, 'Value', 0);
+        end
+    else
+        set(handles.firws_checkbox, 'Value', 0);
+        set(handles.firwslow_checkbox, 'Value', 0);
     end
     if ~isempty(params.FilterParams.high)
         set(handles.highcheckbox, 'Value', 1);
@@ -161,6 +174,7 @@ if ~isempty(params.FilterParams)
     end
 else
     set(handles.firws_checkbox, 'Value', 0);
+    set(handles.firwslow_checkbox, 'Value', 0);
     set(handles.highcheckbox, 'Value', 0);
     set(handles.lowcheckbox, 'Value', 0);
     set(handles.highpassorderedit, 'String', '')
@@ -589,7 +603,7 @@ else
     ICLabelParams = struct([]);
 end
 
-firws = struct();
+firws = params.FilterParams.firws;
 if( get(handles.firws_checkbox, 'Value'))
     if isfield(params.FilterParams.firws, 'high')
         firws.high = params.FilterParams.firws.high;
@@ -1010,7 +1024,8 @@ end
 
 if( get(handles.firws_checkbox, 'Value') )
     set(handles.highcheckbox, 'enable', 'off');
-    set(handles.highcheckbox, 'Value', 0)
+    set(handles.highcheckbox, 'Value', 0);
+    set(handles.highedit, 'String', '');
 else
     set(handles.highcheckbox, 'enable', 'on');
 end
@@ -1018,6 +1033,7 @@ end
 if( get(handles.firwslow_checkbox, 'Value') )
     set(handles.lowcheckbox, 'enable', 'off');
     set(handles.lowcheckbox, 'Value', 0)
+     set(handles.lowedit, 'String', '');
 else
     set(handles.lowcheckbox, 'enable', 'on');
 end
@@ -3045,6 +3061,7 @@ function firws_checkbox_Callback(hObject, eventdata, handles)
 
 if get(hObject,'Value')
     EEG = [];
+    firsw = handles.params.FilterParams.firws;
     if ~isfield(handles, 'eeg_example')
     
         [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
@@ -3126,6 +3143,7 @@ function firwslow_checkbox_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of firwslow_checkbox
 if get(hObject,'Value')
     EEG = [];
+    firsw = handles.params.FilterParams.firws;
     if ~isfield(handles, 'eeg_example')
     
         [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
