@@ -138,7 +138,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         EEG.automagic.filtering.highpass.freq = high.freq;
         EEG.automagic.filtering.highpass.order = length(b)-1;
         EEG.automagic.filtering.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
-        EEG.automagic.filtering.highpass.cutoff_freq = cuttoff_freq;
+        EEG.automagic.filtering.highpass.cutoff_freq = str2double(cuttoff_freq);
     else
         EEG.automagic.filtering.highpass.performed = 'no';
     end
@@ -230,7 +230,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         EEG.automagic.filtering.lowpass.freq = low.freq;
         EEG.automagic.filtering.lowpass.order = length(b)-1;
         EEG.automagic.filtering.lowpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
-        EEG.automagic.filtering.lowpass.cutoff_freq = cuttoff_freq;
+        EEG.automagic.filtering.lowpass.cutoff_freq = str2double(cuttoff_freq);
     else
         EEG.automagic.filtering.lowpass.performed = 'no';
     end
