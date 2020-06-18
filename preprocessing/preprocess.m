@@ -375,7 +375,8 @@ else
 end
 %%% 
 
-if ~isempty(FilterParams.high)
+if ~isempty(FilterParams.high) || ...
+        (~isempty(FilterParams.firws) && ~isempty(FilterParams.firws.high))
     plot_FilterParams = FilterParams;
     if isempty(plot_FilterParams.zapline)
         plot_FilterParams.zapline=[];
@@ -516,7 +517,11 @@ colormap(CT);
 caxis([-100 100])
 set(ax,'XTick', XTicks)
 set(ax,'XTickLabel', XTicketLabels)
+if isfield(plot_FilterParams.high, 'high')
 title_str = [num2str(plot_FilterParams.high.freq) ' Hz High pass filtered EEG data'];
+else
+title_str = [num2str(EEG_filtered_toplot.automagic.filtering.firws.high.fcutoff) ' Hz High pass filtered EEG data'];
+end
 title(title_str, 'FontSize', 10)
 colorbar;
 
