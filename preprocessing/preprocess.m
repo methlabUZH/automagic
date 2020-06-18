@@ -517,7 +517,7 @@ colormap(CT);
 caxis([-100 100])
 set(ax,'XTick', XTicks)
 set(ax,'XTickLabel', XTicketLabels)
-if isfield(plot_FilterParams.high, 'high')
+if isfield(plot_FilterParams.high, 'freq')
 title_str = [num2str(plot_FilterParams.high.freq) ' Hz High pass filtered EEG data'];
 else
 title_str = [num2str(EEG_filtered_toplot.automagic.filtering.firws.high.fcutoff) ' Hz High pass filtered EEG data'];
