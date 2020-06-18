@@ -3071,7 +3071,10 @@ function firws_checkbox_Callback(hObject, eventdata, handles)
 
 if get(hObject,'Value')
     EEG = [];
-    firsw = handles.params.FilterParams.firws;
+    firws = handles.params.FilterParams.firws;
+    if isempty(firws)
+        firws = struct();
+    end
     if ~isfield(handles, 'eeg_example')
     
         [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
@@ -3087,8 +3090,8 @@ if get(hObject,'Value')
         [~, ~, com, ~] = evalc('pop_firws(EEG)');
         args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
         if ~isempty(com) && strcmp(strtrim(args{5}), 'highpass')
-            firsw.high.com = com;
-            handles.params.FilterParams.firws = firsw;
+            firws.high.com = com;
+            handles.params.FilterParams.firws = firws;
         else
             if ~ strcmp(strtrim(args{5}), 'highpass')
                    popup_msg('This filter must be a high pass filter',...
@@ -3153,7 +3156,10 @@ function firwslow_checkbox_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of firwslow_checkbox
 if get(hObject,'Value')
     EEG = [];
-    firsw = handles.params.FilterParams.firws;
+    firws = handles.params.FilterParams.firws;
+    if isempty(firws)
+        firws = struct();
+    end
     if ~isfield(handles, 'eeg_example')
     
         [file, path] = uigetfile('','Please select an example EEG file that will be used in the project. ');
@@ -3169,8 +3175,8 @@ if get(hObject,'Value')
         [~, ~, com, ~] = evalc('pop_firws(EEG)');
         args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
         if ~isempty(com) && strcmp(strtrim(args{5}), 'lowpass')
-            firsw.low.com = com;
-            handles.params.FilterParams.firws = firsw;
+            firws.low.com = com;
+            handles.params.FilterParams.firws = firws;
         else
             if ~ strcmp(strtrim(args{5}), 'lowpass')
                    popup_msg('This filter must be a low pass filter',...
