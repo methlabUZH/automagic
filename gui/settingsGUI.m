@@ -605,6 +605,9 @@ end
 
 firws = params.FilterParams.firws;
 if( get(handles.firws_checkbox, 'Value'))
+    if isempty(firws)
+        firws = [];
+    end
     if isfield(params.FilterParams.firws, 'high')
         firws.high = params.FilterParams.firws.high;
     else
@@ -612,10 +615,15 @@ if( get(handles.firws_checkbox, 'Value'))
         firws.high = struct([]);
     end
 else
-    firws.high = struct([]);
+    if ~isempty(firws)
+        firws.high = struct([]);
+    end
 end
 
 if( get(handles.firwslow_checkbox, 'Value'))
+   if isempty(firws)
+        firws = [];
+    end
     if isfield(params.FilterParams.firws, 'low')
         firws.low = params.FilterParams.firws.low;
     else
@@ -623,7 +631,9 @@ if( get(handles.firwslow_checkbox, 'Value'))
         firws.low = struct([]);
     end
 else
-    firws.low = struct([]);
+    if ~isempty(firws)
+        firws.low = struct([]);
+    end
 end
 
 if ~isempty(firws) && isempty(firws.low) && isempty(firws.high)
