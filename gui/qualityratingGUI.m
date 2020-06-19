@@ -222,11 +222,11 @@ if project.committed && isequaln(project.committedQualityCutoffs, cutoffs)
     set(handle, 'units', 'normalized')
     screen_size = get( groot, 'Screensize' );
     choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
-        'Commit already commited files',...
-        'Abort', 'Commit quality ratings only for recently added files','Commit quality ratings only for recently added files');
+        'Commit remaining files',...
+        'Commit quality ratings only for recently added files', 'Do not commit', 'Do not commit');
 
     switch choice
-        case 'Abort'
+        case 'Do not commit'
             return;
         case 'Commit quality ratings only for recently added files'
             keep_old = true;
