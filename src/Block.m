@@ -89,6 +89,13 @@ classdef Block < handle
         reducedAddress
         
         qualityScores
+        
+        % Number of times commit button has been applied on this block. The
+        % initial number is -1. Everytime the block is preprocessed then
+        % this number is set to the initial -1 and commited immediately and
+        % thus it becomes 0. After preprocessing everytime the commit
+        % button is clicked then it increments by 1.
+        commitedNb
     end
 
     properties(SetAccess=private)
@@ -141,13 +148,6 @@ classdef Block < handle
         %   iip - preprocessed file rated as Interpolated and interpolated 
         %   at least once
         prefix
-        
-        % Number of times commit button has been applied on this block. The
-        % initial number is -1. Everytime the block is preprocessed then
-        % this number is set to the initial -1 and commited immediately and
-        % thus it becomes 0. After preprocessing everytime the commit
-        % button is clicked then it increments by 1.
-        commitedNb
         
         % List of the channels chosen by the user in the gui to be 
         % interpolated.

@@ -507,6 +507,24 @@ if( isempty(handles.rategroup.SelectedObject))
 end
 block = project.getCurrentBlock();
 new_rate = handles.rategroup.SelectedObject.String;
+if block.commitedNb > 0 && ...
+        isequaln(project.committedQualityCutoffs, project.qualityCutoffs) &&...
+        ~ strcmp(new_rate, block.rate)
+    popup_msg('This file is already committed. You can not rewrite this','Error');
+    switch block.rate
+        case 'Good'
+            set(handles.rategroup,'selectedobject',handles.goodrate)
+        case 'OK'
+            set(handles.rategroup,'selectedobject',handles.okrate)
+        case 'Bad'
+            set(handles.rategroup,'selectedobject',handles.badrate)
+        case 'Interpolate'
+            set(handles.rategroup,'selectedobject',handles.interpolaterate)
+        case 'Not Rated'
+            set(handles.rategroup,'selectedobject',handles.notrate)
+    end
+    return;
+end
 block.setRatingInfoAndUpdate(struct('rate', new_rate, 'isManuallyRated', 1));
 
 % --- Turn on the selection mode to choose channels that should be
@@ -731,6 +749,24 @@ function detectedpushbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 block = handles.project.getCurrentBlock();
+if block.commitedNb > 0 && ...
+        isequaln(project.committedQualityCutoffs, project.qualityCutoffs)
+    popup_msg('This file is already committed. You can not rewrite this','Error');
+    switch block.rate
+        case 'Good'
+            set(handles.rategroup,'selectedobject',handles.goodrate)
+        case 'OK'
+            set(handles.rategroup,'selectedobject',handles.okrate)
+        case 'Bad'
+            set(handles.rategroup,'selectedobject',handles.badrate)
+        case 'Interpolate'
+            set(handles.rategroup,'selectedobject',handles.interpolaterate)
+        case 'Not Rated'
+            set(handles.rategroup,'selectedobject',handles.notrate)
+    end
+    return;
+end
+
 interpolated = block.finalBadChans;
 tobeInterpolated = block.tobeInterpolated;
 autos = block.autoBadChans;
