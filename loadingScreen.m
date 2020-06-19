@@ -24,4 +24,6 @@ t1.FontSize = 20;
 message2 = 'First time takes longer';
 t2 = text(80, 520 ,message2);
 t2.FontSize = 13;
-set(hFig,'Name','Automagic v.2.4.1');
+CST = ConstantGlobalValues;
+version = CST.VERSION;set(hFig,'Name',strcat('Automagic v.',version));
+set(hFig,'Name','Automagic v.2.4.3');
