@@ -430,20 +430,20 @@ h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
 mainGUI_handle = guidata(h);
 rec = handles.CGV.RecParams;
 if( get(mainGUI_handle.egiradio, 'Value'))
-    set(handles.rarcheckbox, 'Value', 1);
+    set(handles.rarcheckbox, 'Value', 0);
     if (get(handles.PREPnoNotch, 'Value'))
         set(handles.rarcheckbox, 'Value', 0);
     end
-    set(handles.PREPnoNotch, 'Value', 0);
-    set(handles.highvarcheckbox, 'Value', 1);
+    set(handles.PREPnoNotch, 'Value', 1);
+    set(handles.highvarcheckbox, 'Value', 0);
     set(handles.minvarcheckbox, 'Value', 1);
     set(handles.zaplinecheckbox, 'Value', 1);
     set(handles.ncomponentsZL, 'String', 5);
     set(handles.highcheckbox, 'Value', 1);
     set(handles.highedit, 'String', rec.FilterParams.high.freq);
     set(handles.lowcheckbox, 'Value', 1);
-    set(handles.lowedit, 'String', 49);
-    set(handles.eogcheckbox, 'Value', 0);
+    set(handles.lowedit, 'String', 35);
+%     set(handles.eogcheckbox, 'Value', 0);
     set(handles.euradio, 'Value', 1);   
     set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
     set(handles.highvaredit, 'String', rec.HighvarParams.sd);
@@ -1024,9 +1024,10 @@ handles.params.InterpolationParams.method = method;
 function handles = switch_components(handles)
 
 h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
-mainGUI_handle = guidata(h);
-if(~ get(mainGUI_handle.egiradio, 'Value') && ...
-        get(handles.eogcheckbox, 'Value'))
+% mainGUI_handle = guidata(h);
+% if(~ get(mainGUI_handle.egiradio, 'Value') && ...
+%         get(handles.eogcheckbox, 'Value'))
+if(get(handles.eogcheckbox, 'Value'))
     set(handles.eogedit, 'enable', 'on');
 else
     set(handles.eogedit, 'enable', 'off');
