@@ -56,15 +56,21 @@ function EEGClean = performMARA(EEG, varargin)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 defaults = DefaultParameters.MARAParams;
-CSTS = PreprocessingConstants.MARACsts;
+recs = RecommendedParameters.MARAParams;
+if isempty(defaults)
+    defaults = recs;
+end
 % chanlocMap could be inexistant. This might be necessary so that in the
 % SystemDependentParse.m the default mapping is not assigned. But here it
 % does not matter if it is existent or not as nothing will happen depending
 % on this. Existence and non existence of this field is only necessary for
 % the above mentioned function.
 if ~isfield(defaults, 'chanlocMap')
+    defaults = [];
     defaults.chanlocMap = RecommendedParameters.MARAParams.chanlocMap;
 end
+
+CSTS = PreprocessingConstants.MARACsts;
 %% Parse and check parameters
 p = inputParser;
 validate_param = @(x) isa(x, 'containers.Map');
