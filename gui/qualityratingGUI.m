@@ -215,7 +215,7 @@ project = handles.project;
 
 keep_old = false;
 if project.committed && isequaln(project.committedQualityCutoffs, cutoffs)
-    question = 'Would you like to recommit already commited files as well or keep them as before ?';
+    question = 'This project has been already committed with the same cutoff values. Would you like to commit the recently added files (if any) or abort committing ?';
     handle = findobj(allchild(0), 'flat', 'Tag', 'qualityrating');
     set(handle, 'units', 'pixels')
     main_pos = get(handle,'position');
@@ -223,11 +223,11 @@ if project.committed && isequaln(project.committedQualityCutoffs, cutoffs)
     screen_size = get( groot, 'Screensize' );
     choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
         'Commit already commited files',...
-        'Commit quality rating again for old files as well', 'Commit quality ratings only for recently added files','Commit quality ratings only for recently added files');
+        'Abort', 'Commit quality ratings only for recently added files','Commit quality ratings only for recently added files');
 
     switch choice
-        case 'Commit quality rating again for old files as well'
-            keep_old = false;
+        case 'Abort'
+            return;
         case 'Commit quality ratings only for recently added files'
             keep_old = true;
         otherwise
@@ -273,7 +273,7 @@ project = handles.project;
 cutoffs = get_gui_values(handles);
 
 if project.committed && ~ isequaln(project.committedQualityCutoffs, cutoffs)
-    question = 'This project has been already committed with different cutoff values. Are you sure you want overwrite your commits?';
+    question = 'This project has been already committed with different cutoff values. Are you sure you want overwrite your commits? This is not a good research practice.';
     handle = findobj(allchild(0), 'flat', 'Tag', 'qualityrating');
     set(handle, 'units', 'pixels')
     main_pos = get(handle,'position');
