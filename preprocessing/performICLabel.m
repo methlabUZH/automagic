@@ -88,19 +88,6 @@ high = p.Results.high;
 EEG.etc.keep_comps = p.Results.keep_comps;
 EEG.etc.keep_comps = ~isempty(EEG.etc.keep_comps);
 
-%% Check (and add) ICLabel to EEGLAB plugins
-parts = addEEGLab();
-ICLabelFolderIndex = find(~cellfun(@isempty,strfind(parts,'ICLabel')));
-found = ~isempty(ICLabelFolderIndex);
-if found == 0
-    disp('Installing ICLabel');
-    evalc('plugin_askinstall(''ICLabel'',[],true)');
-    close();
-    str = which('vl_nnconv.mexw64');
-    mexFolder = strfind(str,filesep);
-    mexFolder = str(1:mexFolder(end));
-    addpath(mexFolder);
-end
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
 if( ~isempty(high) ) % temporary high-pass filter

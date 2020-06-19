@@ -444,6 +444,22 @@ classdef Project < handle
                 excluList = load(strcat(self.resultFolder,'exclusionList.mat'));
             end
             
+            % If ICLabel, check it's installed, then compile MEX files
+            if ~isempty(self.params.ICLabelParams)
+                parts = addEEGLab();
+                ICLabelFolderIndex = find(~cellfun(@isempty,strfind(parts,'ICLabel')));
+                found = ~isempty(ICLabelFolderIndex);
+                if found == 0
+                    disp('Installing ICLabel');
+                    evalc('plugin_askinstall(''ICLabel'',[],true)');
+                    close();
+                end
+                str = which('vl_nnconv.mexw64');
+                mexFolder = strfind(str,filesep);
+                mexFolder = str(1:mexFolder(end));
+                addpath(mexFolder);
+            end
+            
             fprintf('*******Start preprocessing all dataset*******\n');
             startTime = cputime;
             for i = 1:length(self.blockList)
