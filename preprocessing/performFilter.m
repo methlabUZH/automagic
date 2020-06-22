@@ -107,7 +107,7 @@ if( ~isempty(notch) && ~isfield(notch, 'freq'))
 end
 
 if( ~isempty(zapline) && ~isfield(zapline, 'freq'))
-    warning(['Input argument to notch filter is not complete. notch.freq',...
+    warning(['Input argument to Zapline filter is not complete. zapline.freq',...
         'must be provided. The default will be used.'])
     zapline = defaults.zapline;
 end

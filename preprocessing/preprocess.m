@@ -200,6 +200,7 @@ EEG = performFilter(EEG, FilterParams);
 if isfield(EEG.automagic,'ZapFig')
     fig3 = EEG.automagic.ZapFig;
     EEG.automagic = rmfield(EEG.automagic,'ZapFig');
+    FilterParams.zapline.finalPlot = 1;
 else
     fig3 = [];
 end
@@ -378,13 +379,8 @@ end
 if ~isempty(FilterParams.high) || ...
         (~isempty(FilterParams.firws) && ~isempty(FilterParams.firws.high))
     plot_FilterParams = FilterParams;
-    if isempty(plot_FilterParams.zapline)
-        plot_FilterParams.zapline=[];
-    end
-    plot_FilterParams.zapline.finalPlot = true;
 else
     disp('No high-pass filter selected. Plotting with 1Hz by default');
-
     plot_FilterParams.high.freq = 1;
     plot_FilterParams.high.order = [];
 end
