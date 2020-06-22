@@ -183,3 +183,13 @@ if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), components))
 end
 EEG.automagic.iclabel.performed = 'yes';
 EEG.automagic.iclabel.rejectComponents = components;
+EEG.automagic.iclabel.settings = [];
+EEG.automagic.iclabel.settings.brainTher = brainTher;
+EEG.automagic.iclabel.settings.muscleTher = muscleTher;
+EEG.automagic.iclabel.settings.heartTher = heartTher;
+EEG.automagic.iclabel.settings.eyeTher = eyeTher;
+EEG.automagic.iclabel.settings.lineNoiseTher = lineNoiseTher;
+EEG.automagic.iclabel.settings.channelNoiseTher = channelNoiseTher;
+EEG.automagic.iclabel.settings.otherTher = otherTher;
+EEG.automagic.iclabel.settings.includeSelected = includeSelected;
+EEG.automagic.iclabel.settings.high = high;
