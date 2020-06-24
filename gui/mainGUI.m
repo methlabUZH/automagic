@@ -1370,6 +1370,20 @@ if get(handles.egiradio, 'Value')
     new_params = handles.params;
     new_params.EEGSystem = new_pars;
     handles = setEEGSystem(new_params, handles);
+    handles.params.PrepParams = [];
+    handles.params.PrepParams.discardNotch = 1;
+    handles.params.FilterParams.zapline = [];
+    handles.params.FilterParams.zapline.freq = 50;
+    handles.params.FilterParams.zapline.ncomps = 5;
+    handles.params.FilterParams.high = [];
+    rec = RecommendedParameters;
+    handles.params.FilterParams.high.freq = rec.FilterParams.high.freq;
+    handles.params.FilterParams.high.order = [];
+    handles.params.FilterParams.low = [];
+    handles.params.FilterParams.low.freq = 35;
+    handles.params.FilterParams.low.order = [];
+    handles.params.MinvarParams = [];
+    handles.params.MinvarParams.sd = 1;
 else
     defs = handles.CGV.DefaultParams;
     new_pars = defs.EEGSystem;

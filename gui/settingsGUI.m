@@ -425,34 +425,33 @@ if ~isempty(params.Settings)
 else
     set(handles.savestepscheckbox, 'Value', 0);
 end
-
-h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
-mainGUI_handle = guidata(h);
-rec = handles.CGV.RecParams;
-if( get(mainGUI_handle.egiradio, 'Value'))
-    set(handles.rarcheckbox, 'Value', 0);
-    if (get(handles.PREPnoNotch, 'Value'))
-        set(handles.rarcheckbox, 'Value', 0);
-    end
-    set(handles.PREPnoNotch, 'Value', 1);
-    set(handles.highvarcheckbox, 'Value', 0);
-    set(handles.minvarcheckbox, 'Value', 1);
-    set(handles.zaplinecheckbox, 'Value', 1);
-    set(handles.ncomponentsZL, 'String', 5);
-    set(handles.highcheckbox, 'Value', 1);
-    set(handles.highedit, 'String', rec.FilterParams.high.freq);
-    set(handles.lowcheckbox, 'Value', 1);
-    set(handles.lowedit, 'String', 35);
-%     set(handles.eogcheckbox, 'Value', 0);
-    set(handles.euradio, 'Value', 1);   
-    set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
-    set(handles.highvaredit, 'String', rec.HighvarParams.sd);
-    set(handles.HVCutoffEdit, 'String', rec.HighvarParams.cutoff);
-    set(handles.RejectRatioEdit, 'String', rec.HighvarParams.rejRatio);
-    set(handles.highpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
-    set(handles.lowpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
-    set(handles.minvaredit, 'String', rec.MinvarParams.sd);  
-end
+% h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
+% mainGUI_handle = guidata(h);
+% rec = handles.CGV.RecParams;
+% if( get(mainGUI_handle.egiradio, 'Value'))
+%     set(handles.rarcheckbox, 'Value', 0);
+%     if (get(handles.PREPnoNotch, 'Value'))
+%         set(handles.rarcheckbox, 'Value', 0);
+%     end
+%     set(handles.PREPnoNotch, 'Value', 1);
+%     set(handles.highvarcheckbox, 'Value', 0);
+%     set(handles.minvarcheckbox, 'Value', 1);
+%     set(handles.zaplinecheckbox, 'Value', 1);
+%     set(handles.ncomponentsZL, 'String', 5);
+%     set(handles.highcheckbox, 'Value', 1);
+%     set(handles.highedit, 'String', rec.FilterParams.high.freq);
+%     set(handles.lowcheckbox, 'Value', 1);
+%     set(handles.lowedit, 'String', 35);
+% %     set(handles.eogcheckbox, 'Value', 0);
+%     set(handles.euradio, 'Value', 1);   
+%     set(handles.notchedit, 'String', handles.CGV.PreprocessingCsts.FilterCsts.NOTCH_EU);
+%     set(handles.highvaredit, 'String', rec.HighvarParams.sd);
+%     set(handles.HVCutoffEdit, 'String', rec.HighvarParams.cutoff);
+%     set(handles.RejectRatioEdit, 'String', rec.HighvarParams.rejRatio);
+%     set(handles.highpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+%     set(handles.lowpassorderedit, 'String',handles.CGV.DEFAULT_KEYWORD);
+%     set(handles.minvaredit, 'String', rec.MinvarParams.sd);  
+% end
 
 handles = switch_components(handles);
 
