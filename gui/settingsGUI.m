@@ -1028,6 +1028,11 @@ h = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
 %         get(handles.eogcheckbox, 'Value'))
 if(get(handles.eogcheckbox, 'Value'))
     set(handles.eogedit, 'enable', 'on');
+    if isfield(handles.params,'LangerLabSettings')
+        if handles.params.LangerLabSettings
+            set(handles.eogedit, 'Enable', 'off')
+        end
+    end
 else
     set(handles.eogedit, 'enable', 'off');
 end

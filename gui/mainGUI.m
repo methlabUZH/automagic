@@ -1384,6 +1384,7 @@ if get(handles.egiradio, 'Value')
     handles.params.FilterParams.low.order = [];
     handles.params.MinvarParams = [];
     handles.params.MinvarParams.sd = 1;
+    handles.params.LangerLabSettings = 1;
 else
     defs = handles.CGV.DefaultParams;
     new_pars = defs.EEGSystem;
@@ -1394,6 +1395,7 @@ else
     new_params.EEGSystem = new_pars;
     handles = setEEGSystem(new_params, handles);
     handles.params.MARAParams = struct([]);
+    handles.params.LangerLabSettings = 0;
 end
 
 % Update handles structure
