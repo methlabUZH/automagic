@@ -938,7 +938,6 @@ if( ~get(handles.egiradio, 'Value') && ~isempty(EOGParams) && ...
 end
 
 params = handles.params;
-params = rmfield(params,'LangerLabSettings');
 VisualisationParams = handles.VisualisationParams;
 % Change the cursor to a watch while updating...
 set(handles.mainGUI, 'pointer', 'watch')
