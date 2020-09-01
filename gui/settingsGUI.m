@@ -3094,7 +3094,7 @@ if get(hObject,'Value')
         com = '';
         firws_exception = [];
         [~] = evalc('try, [~, com, ~] = pop_firws(EEG); catch E, firws_exception = E; end');
-        args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
+        args = strsplit(erase(com, ['''', ';', '(', ')']), ',');
         if ~isempty(com) && strcmp(strtrim(args{5}), 'highpass')
             firws.high.com = com;
             handles.params.FilterParams.firws = firws;
@@ -3182,7 +3182,7 @@ if get(hObject,'Value')
         com = '';
         firws_exception = [];
         [~] = evalc('try, [~, com, ~] = pop_firws(EEG); catch E, firws_exception = E; end');
-        args = strsplit(erase(com, ["'", ';', '(', ')']), ',');
+        args = strsplit(erase(com, ['''', ';', '(', ')']), ',');
         if ~isempty(com) && strcmp(strtrim(args{5}), 'lowpass')
             firws.low.com = com;
             handles.params.FilterParams.firws = firws;

@@ -1307,12 +1307,12 @@ classdef Project < handle
                     end
                     
                     % log file
-                    logFile = [block.subject.resultFolder slash block.fileName '_log.txt'];
+                    logFile = [block.resultsFolder slash block.fileName '_log.txt'];
                     copyfile(logFile, newlogFile);
                     
                     % JPEG files
-                    images = dir([block.subject.resultFolder slash block.fileName '_orig.jpg']);
-                    images = [images dir([block.subject.resultFolder slash block.fileName '.jpg'])];
+                    images = dir([block.resultsFolder slash block.fileName '_orig.jpg']);
+                    images = [images dir([block.resultsFolder slash block.fileName '.jpg'])];
                     for imIdx = 1:length(images)
                         image = images(imIdx);
                         imageAddress = [image.folder slash image.name];

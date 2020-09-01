@@ -114,7 +114,8 @@ if (~isempty(EEGSystem.name) && ...
         EEGSystem.refChan.idx = EEG.nbchan;
         
         % Add an arbitraty channel location for the reference channel
-        if (size(EEG.chanlocs,2) ~= size(EEG.data,1))
+        % but only if EEG.chanlocs exists
+        if (size(EEG.chanlocs,2) ~= size(EEG.data,1) && ~isempty(EEG.chanlocs))
             EEG.chanlocs(size(EEG.data,1)) = EEG.chanlocs(end);
             EEG.chanlocs(end).labels = 'REF';
         end
@@ -125,7 +126,7 @@ if (~isempty(EEGSystem.name) && ...
     
     % If chanloc is not a provided field load it from the provided file
     if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
-        length(EEG.chanlocs) ~= EEG.nbchan)
+        length(EEG.chanlocs) ~= EEG.nbchan || ~isempty(EEGSystem.locFile))
     
         if isempty(EEGSystem.locFile) || isempty(EEGSystem.fileLocType)
             error(['Either provide a channel location field for the '...
@@ -205,7 +206,7 @@ if (~isempty(EEGSystem.name) && ...
         clear keySet valueSet;
     end
 
-% Case of EGI
+% Case of EGI (Langer Presets)
 elseif(~isempty(EEGSystem.name) && ...
         strcmp(EEGSystem.name, Csts.EEGSystemCsts.EGI_NAME))
     
@@ -245,8 +246,8 @@ elseif(~isempty(EEGSystem.name) && ...
             EEG.nbchan = EEG.nbchan + 1;
             EEGSystem.refChan.idx = EEG.nbchan;
             
-            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
-                    length(EEG.chanlocs) ~= EEG.nbchan)
+            
+            if(length(EEG.chanlocs) ~= EEG.nbchan)                   
                 if(~ EEGSystem.sys10_20)  % This is a look up which locates the channels based on 10-20 system labels
                     [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-129.sfp'' , ''filetype'', ''sfp''})']);
@@ -261,8 +262,7 @@ elseif(~isempty(EEGSystem.name) && ...
             tobeExcludedChans = setdiff(1:129, union(chan128, eog_channels));
             
             EEGSystem.refChan.idx = EEG.nbchan;
-            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
-                    length(EEG.chanlocs) ~= EEG.nbchan)
+            if(length(EEG.chanlocs) ~= EEG.nbchan)                   
                 if(~ EEGSystem.sys10_20) % Look up of the channel location coordinates based on the labels
                     [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-129.sfp'' , ''filetype'', ''sfp''})']);
@@ -281,8 +281,7 @@ elseif(~isempty(EEGSystem.name) && ...
             EEG.data(end+1,:) = 0;
             EEG.nbchan = EEG.nbchan + 1;
             EEGSystem.refChan.idx = EEG.nbchan;
-            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
-                    length(EEG.chanlocs) ~= EEG.nbchan)
+            if(length(EEG.chanlocs) ~= EEG.nbchan)                    
                 if(~ EEGSystem.sys10_20)
                     [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-257_be.sfp'' , ''filetype'', ''sfp''})']);
@@ -298,8 +297,7 @@ elseif(~isempty(EEGSystem.name) && ...
             tobeExcludedChans = setdiff(1:257, union(chan256, eog_channels));
             
             EEGSystem.refChan.idx = EEG.nbchan;
-            if(isempty(EEG.chanlocs) || isempty([EEG.chanlocs.X]) || ...
-                    length(EEG.chanlocs) ~= EEG.nbchan)
+            if(length(EEG.chanlocs) ~= EEG.nbchan)
                 if(~ EEGSystem.sys10_20)
                     [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                         '''load'',{ ''GSN-HydroCel-257_be.sfp'' , ''filetype'', ''sfp''})']);
