@@ -487,9 +487,9 @@ classdef Project < handle
                 
                 if exist('excluList')
                     if excluList.exclusionList(i)==1
-                        fprintf(['File-size too small. Skipping '...
+                        fprintf(['File-size not in chosen range. Skipping '...
                         'prerocessing for this file...\n']);
-                    message = ' File-size too small';
+                    message = 'File-size not in chosen range';
                     self.writeToLog(block.sourceAddress, message);
                     continue;
                     end

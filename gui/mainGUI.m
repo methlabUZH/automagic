@@ -1610,68 +1610,83 @@ catch ME
     warning('You must first create the project')
     noProject = 1;
 end
+
 if ~noProject
-[absThresh,absCheckbox,MADcheckbox,IQRcheckbox,changeCheck,MADscalar,IQRquantile] = fileSizeFilterGUI(datafolder,handles);
-handles.filesizeParams.absThresh = absThresh;
-handles.filesizeParams.absCheckbox = absCheckbox;
-handles.filesizeParams.MADcheckbox = MADcheckbox;
-handles.filesizeParams.IQRcheckbox = IQRcheckbox;
-handles.filesizeParams.IQRedit = IQRquantile;
-handles.filesizeParams.MADedit = MADscalar;
+[checkbox_MAD,checkbox_IQR,checkbox_MAX,checkbox_MIN,changeCheck,edit_MAD,edit_IQR, edit_MAX, edit_MIN] = fileSizeFilterGUI(datafolder,handles);
+handles.filesizeParams.checkbox_MAD = checkbox_MAD;
+handles.filesizeParams.checkbox_IQR = checkbox_IQR;
+handles.filesizeParams.checkbox_MAX = checkbox_MAX;
+handles.filesizeParams.checkbox_MIN = checkbox_MIN;
+handles.filesizeParams.edit_MAD = edit_MAD;
+handles.filesizeParams.edit_IQR = edit_IQR;
+handles.filesizeParams.edit_MAX = edit_MAX;
+handles.filesizeParams.edit_MIN = edit_MIN;
 
 guidata(hObject,handles);
 if changeCheck
 resultsFolder = datafolder{1};
 fileSizeList = [];
 subjFolders = dir(resultsFolder);
+ext = handles.extedit.String;
+slash = filesep;
+
 for subj = 3 : size(subjFolders,1)
     subjName = subjFolders(subj).name;
     filepath = [resultsFolder subjName];
-    subjFiles = dir(filepath);
-    for file = 3 : size(subjFiles,1)
-        filename = subjFiles(file).name;
-        exten = handles.extedit.String;
-        fileSize = subjFiles(file).bytes/1050000;
-        if contains(filename,exten)
+    subjFiles = dir([filepath slash '*' ext]);
+    
+    for file = 1 : size(subjFiles,1)
+        fileSize = subjFiles(file).bytes/1e+6;
         fileSizeList = [fileSizeList; fileSize];
-        end
     end
 end
+
 fileSizeList = round(fileSizeList,3,'significant');
-absCase = absCheckbox;
-madCase = MADcheckbox;
-iqrCase = IQRcheckbox; 
-IQRquantile = str2double(IQRquantile)/100;
-MADscalar = str2double(MADscalar);
-absThresh = str2double(absThresh);
-if isempty(absThresh)
-    absCase = 0;
+
+MAXCase = checkbox_MAX;
+MADCase = checkbox_MAD;
+IQRCase = checkbox_IQR; 
+MINCase = checkbox_MIN;
+
+MADvalue = str2double(edit_MAD);
+MAXvalue = str2double(edit_MAX);
+MINvalue = str2double(edit_MIN);
+IQRvalue = str2double(edit_IQR);
+
+if isempty(MAXvalue)
+    MAXCase = 0;
 end
-if absCase
-    absList = fileSizeList>=absThresh;
+if MINCase
+    MIN_List = fileSizeList <= MINvalue;
 else
-    absList = zeros(numel(fileSizeList),1);
-end    
-if madCase
-    MADfileSizeList = (abs(fileSizeList-median(fileSizeList)))/mad(fileSizeList,1,1); % median 
-    madList = MADfileSizeList>=MADscalar;
-else
-    madList = zeros(numel(fileSizeList),1);    
+    MIN_List = zeros(numel(fileSizeList),1);
 end
-if iqrCase
-    P = IQRquantile;
+if MAXCase
+    MAX_List = fileSizeList >= MAXvalue;
+else
+    MAX_List = zeros(numel(fileSizeList),1);
+end
+if MADCase
+    MADfileSizeList = mad(fileSizeList,1,1); % median 
+    MAD_List = fileSizeList <= MADfileSizeList - MADvalue | fileSizeList >= MADfileSizeList + MADvalue;
+else
+    MAD_List = zeros(numel(fileSizeList),1);    
+end
+if IQRCase
+    P = IQRvalue/100;
     M = 0.5;
     T = M + P/2; % John: my back-of-the-envelope equations. See diary entry date 30/3/2020
     t = quantile(fileSizeList,T);
     Q = M - P/2;
     q = quantile(fileSizeList,Q);
     iqrThr = [q,t];
-    iqrList = [fileSizeList<=iqrThr(1),fileSizeList>=iqrThr(2)];
-    iqrList = iqrList(:,1)|iqrList(:,2);
+    IQR_List = [fileSizeList <= iqrThr(1),fileSizeList >= iqrThr(2)];
+    IQR_List = IQR_List(:,1) | IQR_List(:,2);
 else
-    iqrList = zeros(numel(fileSizeList),1);    
+    IQR_List = zeros(numel(fileSizeList),1);    
 end
-exclusionList = absList | madList | iqrList;
+
+exclusionList = MIN_List | MAX_List | MAD_List | IQR_List;
 % percentLost = num2str(100*sum(exclusionList)/l% disp(percentExcluded);
 storeSite = projDetails.resultFolder;
 save(strcat(storeSite,'exclusionList.mat'),'exclusionList'); 
