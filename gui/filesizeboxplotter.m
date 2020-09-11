@@ -10,7 +10,7 @@ for subj = 3 : size(subjFolders,1)
     filepath = [resultsFolder subjName];
     subjFiles = dir([filepath slash '*' ext]);
     
-    for file = 3 : size(subjFiles,1)
+    for file = 1 : size(subjFiles,1)
         fileSize = subjFiles(file).bytes/1e+6;
         fileSizeList = [fileSizeList; fileSize];
     end
