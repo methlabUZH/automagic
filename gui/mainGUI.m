@@ -1667,8 +1667,9 @@ else
     MAX_List = zeros(numel(fileSizeList),1);
 end
 if MADCase
-    MADfileSizeList = mad(fileSizeList,1,1); % median 
-    MAD_List = fileSizeList <= MADfileSizeList - MADvalue | fileSizeList >= MADfileSizeList + MADvalue;
+    m = mad(fileSizeList,1,1); % median absolute devations
+    med = median(fileSizeList,1); % median of data
+    MAD_List = fileSizeList <= med - (m * MADvalue) | fileSizeList >= med + (m * MADvalue);
 else
     MAD_List = zeros(numel(fileSizeList),1);    
 end
