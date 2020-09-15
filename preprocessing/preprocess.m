@@ -103,6 +103,7 @@ addParameter(p,'ChannelReductionParams', Defaults.ChannelReductionParams, @isstr
 addParameter(p,'Settings', Defaults.Settings, @isstruct);
 addParameter(p,'DetrendingParams', Defaults.DetrendingParams, @isstruct);
 addParameter(p,'ORIGINAL_FILE', Csts.GeneralCsts.ORIGINAL_FILE, @ischar);
+addParameter(p, 'TrimDataParams', Defaults.TrimDataParams, @isstruct);
 parse(p, varargin{:});
 params = p.Results;
 EEGSystem = p.Results.EEGSystem;
@@ -120,6 +121,7 @@ ChannelReductionParams = p.Results.ChannelReductionParams;
 Settings = p.Results.Settings;
 DetrendingParams = p.Results.DetrendingParams;
 ORIGINAL_FILE = p.Results.ORIGINAL_FILE;
+TrimDataParams = p.Results.TrimDataParams;
 
 if isempty(Settings)
     Settings = Recs.Settings;
@@ -129,6 +131,29 @@ clear p varargin;
 % Add and download necessary paths
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
     'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
+
+% Trim data
+if isfield(TrimDataParams, 'changeCheck')
+    if TrimDataParams.changeCheck
+        try
+            x = data.pnts;
+            disp('Trimming data')
+            data = performTrimData(data, TrimDataParams);
+            if x > data.pnts
+                data.automagic.TrimData.performed = 'Yes';
+            else
+                data.automagic.TrimData.performed = 'No';
+            end
+            clear x
+        catch ME
+            message = ['Trim Data is not done on this subject, continue with the next steps: ' ...
+            ME.message];
+            warning(message)
+            data.automagic.TrimData.performed = 'FAILED';
+        end
+    end
+end
+
                           
 % Set system dependent parameters and eeparate EEG from EOG
 [EEG, EOG, EEGSystem, MARAParams] = ...

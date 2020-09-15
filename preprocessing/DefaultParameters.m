@@ -22,8 +22,10 @@ classdef DefaultParameters
     % 
     % You should have received a copy of the GNU General Public License
     % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    properties(Constant)          
-       FilterParams = struct('notch',    struct([]),...
+    properties(Constant)  
+        
+
+        FilterParams = struct('notch',    struct([]),...
                              'zapline',  struct([]),...
                              'high',     struct([]),...
                              'low',      struct([]), ...
@@ -42,6 +44,8 @@ classdef DefaultParameters
         RPCAParams = struct([]);
         
         MARAParams = struct([]);
+        
+        TrimDataParams = struct();
         
         AMICAParams = struct('numprocs', 1, 'max_threads', 1, 'num_models',1, 'max_iter', 2000);
         
@@ -69,11 +73,13 @@ classdef DefaultParameters
                            'refChan', struct('idx', []), ...
                            'fileLocType', '',...
                            'eogChans', [],...
-                           'powerLineFreq', []);
+                           'powerLineFreq', []);          
                        
         % Additonal parameters of the preprocessing
         Settings = struct('trackAllSteps', 0,...
                           'colormap','Default'); 
-                        
+                      
+        
+                           
     end
 end

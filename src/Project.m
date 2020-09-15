@@ -230,6 +230,7 @@ classdef Project < handle
             addParameter(p,'ChannelReductionParams', defs.ChannelReductionParams, @isstruct);
             addParameter(p,'DetrendingParams', defs.DetrendingParams, @isstruct);
             addParameter(p,'Settings', defs.Settings, @isstruct);
+            addParameter(p,'TrimDataParams', defs.TrimDataParams, @isstruct);
             parse(p, params);
             params = p.Results;
             

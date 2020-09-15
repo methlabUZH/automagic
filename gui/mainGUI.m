@@ -41,7 +41,7 @@ function varargout = mainGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 19-Sep-2018 15:59:44
+% Last Modified by GUIDE v2.5 11-Sep-2020 12:53:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -827,6 +827,19 @@ function existingpopupmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns existingpopupmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from existingpopupmenu
 handles = update_and_load(handles);
+
+% disable TrimDataButton after the project is created
+idx = get(handles.existingpopupmenu, 'Value');
+projects = get(handles.existingpopupmenu, 'String');
+name = projects{idx};
+project = handles.projectList(name);
+
+if ~isempty(project)
+    set(handles.TrimDataButton,'Enable','off')
+else
+    set(handles.TrimDataButton,'Enable','on')
+end
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -835,6 +848,12 @@ function createbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to createbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% disable TrimDataButton after the project is created
+set(handles.TrimDataButton,'Enable','off')
+
+
+%
 CGV = handles.CGV;
 name = get(handles.projectname, 'String');
 projectFolder = get(handles.projectfoldershow, 'String');
@@ -1358,6 +1377,7 @@ params.Settings = DefaultParams.Settings;
 params.HighvarParams = DefaultParams.HighvarParams;
 params.MinvarParams = DefaultParams.MinvarParams;
 params.DetrendingParams = DefaultParams.DetrendingParams;
+params.TrimDataParams = DefaultParams.TrimDataParams;
 
 % --- Executes on button press in egiradio.
 function egiradio_Callback(hObject, eventdata, handles)
@@ -1781,4 +1801,33 @@ function helppresetpushbutton_Callback(hObject, eventdata, handles)
 web('https://github.com/methlabUZH/automagic/wiki/How-to-start#preset-values-of-langer-lab', '-browser');
 
 
+% --- Executes on button press in emailPushbutton.
+function emailPushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to emailPushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
+
+% --- Executes on button press in TrimDataButton.
+function TrimDataButton_Callback(hObject, eventdata, handles)
+% hObject    handle to TrimDataButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% call the trimDataGUI
+[checkbox_firstTrigger,checkbox_lastTrigger,changeCheck,edit_firstTrigger,edit_lastTrigger, edit_paddingFirst, edit_paddingLast] = trimDataGUI(handles);
+
+if changeCheck
+    handles.params.TrimDataParams.checkbox_firstTrigger = checkbox_firstTrigger;
+    handles.params.TrimDataParams.checkbox_lastTrigger = checkbox_lastTrigger;
+    handles.params.TrimDataParams.changeCheck = changeCheck;
+    handles.params.TrimDataParams.edit_firstTrigger = edit_firstTrigger;
+    handles.params.TrimDataParams.edit_lastTrigger = edit_lastTrigger;
+    handles.params.TrimDataParams.edit_paddingFirst = edit_paddingFirst;
+    handles.params.TrimDataParams.edit_paddingLast = edit_paddingLast;
+    
+    % update handles (for 'if isfield(params,'TrimDataParams')' in trimDataGUI.m) 
+    handles.TrimDataParams = handles.params.TrimDataParams;
+end
+
+guidata(hObject,handles);
