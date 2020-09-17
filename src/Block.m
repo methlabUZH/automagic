@@ -1122,7 +1122,7 @@ classdef Block < handle
             addEEGLab();
             
             % Case of .mat file
-            if( any(strcmp(self.fileExtension(end-3:end), ...
+            if( any(strcmp(self.fileExtension(end-(length(self.fileExtension)-1):end), ...
                     {self.CGV.EXTENSIONS.mat})))
                 data = load(self.sourceAddress);
                 data = data.EEG;
