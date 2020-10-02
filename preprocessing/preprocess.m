@@ -479,7 +479,7 @@ if strcmp(EEG_regressed.automagic.EOGRegression.performed,'no')
             title_text = '\color{red}No EOG-Regression requested';
             cla(eogRegress_subplot)
 else
-    title_text = 'EOG regressed out';
+    title_text = 'EOG regressed out (only good channels)';
 end
 title(title_text);
 colorbar;
@@ -495,10 +495,12 @@ if (~isempty(MARAParams))
         title_text = '\color{red}ICA FAILED';
         cla(ica_subplot)
     else
-        title_text = 'ICA corrected clean data';
+        title_text = 'ICA corrected clean data (only good channels)';
     end
-elseif(~isempty(RPCAParams))
-    title_text = 'RPCA corrected clean data';
+elseif (~isempty(RPCAParams))
+    title_text = 'RPCA corrected clean data (only good channels)';
+elseif (~isempty(ICLabelParams))
+    title_text = 'ICLabel corrected clean data (only good channels)';
 else
     title_text = '';
 end

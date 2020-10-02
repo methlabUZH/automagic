@@ -618,7 +618,65 @@ classdef Block < handle
             % originally
             original_nans = setdiff(nanchans, interpolate_chans);
             EEG.data(original_nans, :) = NaN;
+            
+            % Find the colormap selected
+            if strcmp(automagic.params.Settings.colormap,'Default')
+                CT = 'jet';
+            else
+                cm = automagic.params.Settings.colormap;
+                [~,CT]=evalc('cbrewer(''div'', cm, 64)');
+            end
+            
+            % overwirte ICA figure    
+            if exist(strcat(self.imageAddress, '.fig'), 'file')
+                
+                clear fig;
+                % open figure
+                fig = open(strcat(self.imageAddress, '.fig'));
+                
+%                 % delete old figure
+%                 delete(strcat(self.imageAddress, '.jpg'));
 
+                ica_subplot = subplot(11,1,8:9);
+                cla(ica_subplot);
+                imagesc(EEG.data);
+                colormap(CT);
+                caxis([-100 100])
+                XTicks = [];
+                set(gca,'XTick',XTicks)
+                XTicketLabels = [];
+                set(gca,'XTickLabel',XTicketLabels)
+
+                % select correct title
+                if (~isempty(automagic.params.MARAParams))
+                        if strcmp(automagic.mara.performed, 'FAILED')
+                            title_text = '\color{red}ICA FAILED';
+                            cla(ica_subplot)
+                        else
+                            title_text = 'ICA corrected clean data';
+                        end
+                elseif (~isempty(automagic.params.RPCAParams))
+                    title_text = 'RPCA corrected clean data';
+                elseif (~isempty(automagic.params.ICLabelParams))
+                    title_text = 'ICLabel corrected clean data';
+                else
+                    title_text = '';
+                end
+
+                title(title_text);
+                colorbar;
+                % save new figure
+                print(fig, strcat(self.imageAddress), '-djpeg', '-r100');
+
+                % delete old figure (.fig)
+                delete(strcat(self.imageAddress, '.fig'));
+
+                close(fig);
+                clear fig;
+            else
+                warning('Interpolated channels were not added to the ICA figure')
+            end
+           
             % Downsample the new file and save it
             PrepCsts = self.CGV.PreprocessingCsts;
             reduced.data = (downsample(EEG.data', self.dsRate))'; %#ok<STRNU>
@@ -1170,7 +1228,8 @@ classdef Block < handle
             
             % save results
             set(fig1,'PaperUnits','inches','PaperPosition',[0 0 10 8])
-            print(fig1, self.imageAddress, '-djpeg', '-r200');
+            print(fig1, self.imageAddress, '-djpeg', '-r200'); % as jpg
+            saveas(fig1, strcat(self.imageAddress, '.fig')); % as fig         
             close(fig1);
             print(fig2, strcat(self.imageAddress, '_orig'), '-djpeg', '-r100');
             close(fig2);
