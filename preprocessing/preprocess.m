@@ -255,6 +255,7 @@ EEG.automagic.preprocessing.removedMask = removedMask;
 EEG.automagic.preprocessing.toRemove = toRemove;
 clear toRemove removedMask newToRemove;
 
+EEGforTrimPlot = EEG;
 % trim outliers (datapoints)
 if isfield(TrimOutlierParams, 'AmpTresh')
     if ~isempty(TrimOutlierParams.AmpTresh) & ~isempty(TrimOutlierParams.rejRange)
@@ -267,7 +268,6 @@ if isfield(TrimOutlierParams, 'AmpTresh')
         end
     end
 end
-EEGtrimOut = EEG;
 
 % Remove effect of EOG
 EEG = performEOGRegression(EEG, EOG, EOGRegressionParams);
@@ -487,10 +487,10 @@ colorbar;
 
 % subplot, rejected data points
 subplot(13,1,6:7)
-imagesc(EEGtrimOut.data);
+imagesc(EEGforTrimPlot.data);
 % add vertical lines showing datapoints to trim
 toPlot = EEG.etc.trimOutlier.cleanDatapointMask;
-if sum(toPlot) > EEGtrimOut.pnts
+if sum(toPlot) > EEGforTrimPlot.pnts
     starts = strfind([false, toPlot], [1 0]);
     stops = strfind([toPlot, false], [0 1]);
     if size(starts, 2) > size(stops, 2)
