@@ -104,6 +104,7 @@ addParameter(p,'Settings', Defaults.Settings, @isstruct);
 addParameter(p,'DetrendingParams', Defaults.DetrendingParams, @isstruct);
 addParameter(p,'ORIGINAL_FILE', Csts.GeneralCsts.ORIGINAL_FILE, @ischar);
 addParameter(p, 'TrimDataParams', Defaults.TrimDataParams, @isstruct);
+addParameter(p, 'TrimOutlierParams', Defaults.TrimOutlierParams, @isstruct);
 parse(p, varargin{:});
 params = p.Results;
 EEGSystem = p.Results.EEGSystem;
@@ -122,6 +123,7 @@ Settings = p.Results.Settings;
 DetrendingParams = p.Results.DetrendingParams;
 ORIGINAL_FILE = p.Results.ORIGINAL_FILE;
 TrimDataParams = p.Results.TrimDataParams;
+TrimOutlierParams = p.Results.TrimOutlierParams;
 
 if isempty(Settings)
     Settings = Recs.Settings;
@@ -252,6 +254,20 @@ toRemove = [];
 EEG.automagic.preprocessing.removedMask = removedMask;
 EEG.automagic.preprocessing.toRemove = toRemove;
 clear toRemove removedMask newToRemove;
+
+% trim outliers (datapoints)
+if isfield(TrimOutlierParams, 'AmpTresh')
+    if ~isempty(TrimOutlierParams.AmpTresh) & ~isempty(TrimOutlierParams.rejRange)
+        try
+            EEG = performTrimOutlier(EEG, str2double(TrimOutlierParams.AmpTresh), str2double(TrimOutlierParams.rejRange));
+            EEG.automagic.TrimOutlier.performed = 'Yes';
+        catch ME
+            ME.message
+            EEG.automagic.TrimOutlier.performed = 'No';
+        end
+    end
+end
+EEGtrimOut = EEG;
 
 % Remove effect of EOG
 EEG = performEOGRegression(EEG, EOG, EOGRegressionParams);
@@ -414,7 +430,7 @@ fig1 = figure('visible', 'off');
 set(gcf, 'Color', [1,1,1])
 hold on
 % eog figure
-subplot(11,1,1)
+subplot(13,1,1)
 if ~isempty(EOG.data)
     visEOG = zscore(EOG.data');
     visEOG = visEOG';
@@ -435,7 +451,7 @@ else
     title('No EOG data available');
 end
 %eeg figure
-subplot(11,1,2:3)
+subplot(13,1,2:3)
 imagesc(EEG_filtered_toplot.data);
 colormap(CT);
 caxis([-100 100])
@@ -450,7 +466,7 @@ else
 end
 colorbar;
 %eeg figure
-subplot(11,1,4:5)
+subplot(13,1,4:5)
 imagesc(EEG_filtered_toplot.data);
 axe = gca;
 hold on;
@@ -468,8 +484,32 @@ set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
 title('Detected bad channels')
 colorbar;
+
+% subplot, rejected data points
+subplot(13,1,6:7)
+imagesc(EEGtrimOut.data);
+% add vertical lines showing datapoints to trim
+toPlot = EEG.etc.trimOutlier.cleanDatapointMask;
+if sum(toPlot) > EEGtrimOut.pnts
+    starts = strfind([false, toPlot], [1 0]);
+    stops = strfind([toPlot, false], [0 1]);
+    if size(starts, 2) > size(stops, 2)
+        stops(end+1) = EEG_filtered_toplot.pnts;
+    end
+    for i = 1:size(starts,2)
+        xline(starts(i), '-red', 'LineWidth', 2)
+        xline(stops(i), '-black', 'LineWidth', 2)
+    end
+end
+colormap(CT);
+caxis([-100 100])
+set(gca,'XTick', XTicks)
+set(gca,'XTickLabel', XTicketLabels)
+title('Detected bad datapoints')
+colorbar;
+
 % figure;
-eogRegress_subplot=subplot(11,1,6:7);
+eogRegress_subplot=subplot(13,1,8:9);
 imagesc(EEG_regressed.data);
 colormap(CT);
 caxis([-100 100])
@@ -484,7 +524,7 @@ end
 title(title_text);
 colorbar;
 %figure;
-ica_subplot = subplot(11,1,8:9);
+ica_subplot = subplot(13,1,10:11);
 imagesc(EEG_cleared.data);
 colormap(CT);
 caxis([-100 100])
@@ -508,7 +548,7 @@ title(title_text)
 colorbar;
 %figure;
 if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParams.lambda ~= -1))
-    subplot(11,1,10:11)
+    subplot(13,1,12:13)
     imagesc(pca_noise);
     colormap(CT);
     caxis([-100 100])

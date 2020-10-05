@@ -47,6 +47,8 @@ classdef DefaultParameters
         
         TrimDataParams = struct();
         
+        TrimOutlierParams = struct();
+        
         AMICAParams = struct('numprocs', 1, 'max_threads', 1, 'num_models',1, 'max_iter', 2000);
         
         ICLabelParams = struct('brainTher', [], ...

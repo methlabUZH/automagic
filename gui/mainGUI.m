@@ -41,7 +41,7 @@ function varargout = mainGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 11-Sep-2020 12:53:50
+% Last Modified by GUIDE v2.5 02-Oct-2020 18:00:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -828,7 +828,7 @@ function existingpopupmenu_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from existingpopupmenu
 handles = update_and_load(handles);
 
-% disable TrimDataButton after the project is created
+% disable TrimDataButton & TrimOutlier after the project is created
 idx = get(handles.existingpopupmenu, 'Value');
 projects = get(handles.existingpopupmenu, 'String');
 name = projects{idx};
@@ -836,8 +836,10 @@ project = handles.projectList(name);
 
 if ~isempty(project)
     set(handles.TrimDataButton,'Enable','off')
+    set(handles.TrimOutlierButton,'Enable','off')
 else
     set(handles.TrimDataButton,'Enable','on')
+    set(handles.TrimOutlierButton,'Enable','on')
 end
 
 % Update handles structure
@@ -849,9 +851,9 @@ function createbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% disable TrimDataButton after the project is created
+% disable TrimDataButton & TrimOutlierButton after the project is created
 set(handles.TrimDataButton,'Enable','off')
-
+set(handles.TrimOutlierButton,'Enable','off')
 
 %
 CGV = handles.CGV;
@@ -1815,19 +1817,49 @@ function TrimDataButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % call the trimDataGUI
-[checkbox_firstTrigger,checkbox_lastTrigger,changeCheck,edit_firstTrigger,edit_lastTrigger, edit_paddingFirst, edit_paddingLast] = trimDataGUI(handles);
+try
+    [checkbox_firstTrigger,checkbox_lastTrigger,changeCheck,edit_firstTrigger,edit_lastTrigger, edit_paddingFirst, edit_paddingLast] = trimDataGUI(handles);
 
-if changeCheck
-    handles.params.TrimDataParams.checkbox_firstTrigger = checkbox_firstTrigger;
-    handles.params.TrimDataParams.checkbox_lastTrigger = checkbox_lastTrigger;
-    handles.params.TrimDataParams.changeCheck = changeCheck;
-    handles.params.TrimDataParams.edit_firstTrigger = edit_firstTrigger;
-    handles.params.TrimDataParams.edit_lastTrigger = edit_lastTrigger;
-    handles.params.TrimDataParams.edit_paddingFirst = edit_paddingFirst;
-    handles.params.TrimDataParams.edit_paddingLast = edit_paddingLast;
     
-    % update handles (for 'if isfield(params,'TrimDataParams')' in trimDataGUI.m) 
-    handles.TrimDataParams = handles.params.TrimDataParams;
+    if changeCheck
+        handles.params.TrimDataParams.checkbox_firstTrigger = checkbox_firstTrigger;
+        handles.params.TrimDataParams.checkbox_lastTrigger = checkbox_lastTrigger;
+        handles.params.TrimDataParams.changeCheck = changeCheck;
+        handles.params.TrimDataParams.edit_firstTrigger = edit_firstTrigger;
+        handles.params.TrimDataParams.edit_lastTrigger = edit_lastTrigger;
+        handles.params.TrimDataParams.edit_paddingFirst = edit_paddingFirst;
+        handles.params.TrimDataParams.edit_paddingLast = edit_paddingLast;
+
+        % update handles (for 'if isfield(params,'TrimDataParams')' in trimDataGUI.m) 
+        handles.TrimDataParams = handles.params.TrimDataParams;
+    end
+    
+catch ME
+    warning(ME.message)
+end
+
+guidata(hObject,handles);
+
+
+% --- Executes on button press in TrimOutlierButton.
+function TrimOutlierButton_Callback(hObject, eventdata, handles)
+% hObject    handle to TrimOutlierButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+try
+    [edit_AmpTresh, edit_rejRange] = TrimOutlierGUI(handles);
+    
+
+    handles.params.TrimOutlierParams.rejRange = edit_rejRange;
+    handles.params.TrimOutlierParams.AmpTresh = edit_AmpTresh;
+
+        
+    % update handles (for 'if isfield(params,'TrimOutlierParams')' in trimOutlierGUI.m) 
+    handles.TrimOutlierParams = handles.params.TrimOutlierParams;
+        
+catch ME
+    warning(ME.message)
 end
 
 guidata(hObject,handles);

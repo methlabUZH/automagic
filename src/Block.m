@@ -634,10 +634,10 @@ classdef Block < handle
                 % open figure
                 fig = open(strcat(self.imageAddress, '.fig'));
                 
-%                 % delete old figure
-%                 delete(strcat(self.imageAddress, '.jpg'));
+                % delete old figure
+                delete(strcat(self.imageAddress, '.jpg'));
 
-                ica_subplot = subplot(11,1,8:9);
+                ica_subplot = subplot(13,1,10:11);
                 cla(ica_subplot);
                 imagesc(EEG.data);
                 colormap(CT);
@@ -646,24 +646,26 @@ classdef Block < handle
                 set(gca,'XTick',XTicks)
                 XTicketLabels = [];
                 set(gca,'XTickLabel',XTicketLabels)
+                title_text = 'Clean interpolated data';
 
-                % select correct title
-                if (~isempty(automagic.params.MARAParams))
-                        if strcmp(automagic.mara.performed, 'FAILED')
-                            title_text = '\color{red}ICA FAILED';
-                            cla(ica_subplot)
-                        else
-                            title_text = 'ICA corrected clean data';
-                        end
-                elseif (~isempty(automagic.params.RPCAParams))
-                    title_text = 'RPCA corrected clean data';
-                elseif (~isempty(automagic.params.ICLabelParams))
-                    title_text = 'ICLabel corrected clean data';
-                else
-                    title_text = '';
-                end
+%                 % select correct title
+%                 if (~isempty(automagic.params.MARAParams))
+%                         if strcmp(automagic.mara.performed, 'FAILED')
+%                             title_text = '\color{red}ICA FAILED';
+%                             cla(ica_subplot)
+%                         else
+%                             title_text = 'ICA corrected clean data';
+%                         end
+%                 elseif (~isempty(automagic.params.RPCAParams))
+%                     title_text = 'RPCA corrected clean data';
+%                 elseif (~isempty(automagic.params.ICLabelParams))
+%                     title_text = 'ICLabel corrected clean data';
+%                 else
+%                     title_text = '';
+%                 end
 
                 title(title_text);
+                disp(title_text);
                 colorbar;
                 % save new figure
                 print(fig, strcat(self.imageAddress), '-djpeg', '-r100');
