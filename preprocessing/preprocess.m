@@ -490,10 +490,10 @@ subplot(13,1,6:7)
 imagesc(EEGforTrimPlot.data);
 % add vertical lines showing datapoints to trim
 toPlot = EEG.etc.trimOutlier.cleanDatapointMask;
-zeros = strfind(toPlot, 0);
+zer = strfind(toPlot, 0);
 axe = gca;
 hold on;
-if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes') & ~isempty(zeros)
+if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes') & ~isempty(zer)
     starts = strfind([false, toPlot], [1 0]);
     stops = strfind([toPlot, false], [0 1]);
     if size(starts, 2) > size(stops, 2)
