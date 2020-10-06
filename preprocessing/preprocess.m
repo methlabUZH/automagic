@@ -490,6 +490,8 @@ subplot(13,1,6:7)
 imagesc(EEGforTrimPlot.data);
 % add vertical lines showing datapoints to trim
 toPlot = EEG.etc.trimOutlier.cleanDatapointMask;
+axe = gca;
+hold on;
 if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes')
     starts = strfind([false, toPlot], [1 0]);
     stops = strfind([toPlot, false], [0 1]);
@@ -497,15 +499,21 @@ if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes')
         stops(end+1) = EEG_filtered_toplot.pnts;
     end
     for i = 1:size(starts,2)
-        xline(starts(i), '-red', 'LineWidth', 2)
-        xline(stops(i), '-black', 'LineWidth', 2)
+%         xline(starts(i), '-red', 'LineWidth', 2)
+%         xline(stops(i), '-black', 'LineWidth', 2)
+        p1 = [starts(i) starts(i)];
+        p2 = [stops(i) stops(i)];
+        p3 = [0, size(EEGforTrimPlot.data, 1)];
+        plot(axe, p1, p3, '-red', 'LineWidth', 2)
+        plot(axe, p2, p3, '-black', 'LineWidth', 2)
     end
 end
+hold off;
 colormap(CT);
 caxis([-100 100])
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
-title('Detected bad datapoints')
+title('Detected bad datapoints (start: red line, end: black line)')
 colorbar;
 
 % figure;
