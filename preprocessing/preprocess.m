@@ -490,24 +490,26 @@ colorbar;
 subplot(13,1,6:7)
 imagesc(EEGforTrimPlot.data);
 % add vertical lines showing datapoints to trim
-toPlot = EEG.etc.trimOutlier.cleanDatapointMask;
-zer = find(~toPlot);
 axe = gca;
 hold on;
-if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes') & ~isempty(zer)
-    starts = strfind([false, toPlot], [1 0]);
-    stops = strfind([toPlot, false], [0 1]);
-    if size(starts, 2) > size(stops, 2)
-        stops(end+1) = EEG_filtered_toplot.pnts;
-    end
-    for i = 1:size(starts,2)
-%         xline(starts(i), '-red', 'LineWidth', 2)
-%         xline(stops(i), '-black', 'LineWidth', 2)
-        p1 = [starts(i) starts(i)];
-        p2 = [stops(i) stops(i)];
-        p3 = [0, size(EEGforTrimPlot.data, 1)];
-        plot(axe, p1, p3, '-red', 'LineWidth', 2)
-        plot(axe, p2, p3, '-black', 'LineWidth', 2)
+if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes') 
+    toPlot = EEG.etc.trimOutlier.cleanDatapointMask;
+    zer = find(~toPlot);
+    if ~isempty(zer)
+        starts = strfind([false, toPlot], [1 0]);
+        stops = strfind([toPlot, false], [0 1]);
+        if size(starts, 2) > size(stops, 2)
+            stops(end+1) = EEG_filtered_toplot.pnts;
+        end
+        for i = 1:size(starts,2)
+    %         xline(starts(i), '-red', 'LineWidth', 2)
+    %         xline(stops(i), '-black', 'LineWidth', 2)
+            p1 = [starts(i) starts(i)];
+            p2 = [stops(i) stops(i)];
+            p3 = [0, size(EEGforTrimPlot.data, 1)];
+            plot(axe, p1, p3, '-red', 'LineWidth', 2)
+            plot(axe, p2, p3, '-black', 'LineWidth', 2)
+        end
     end
 end
 hold off;
