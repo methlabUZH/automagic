@@ -257,6 +257,7 @@ clear toRemove removedMask newToRemove;
 
 EEGforTrimPlot = EEG;
 % trim outliers (datapoints)
+EEG.automagic.TrimOutlier.performed = 'No';
 if isfield(TrimOutlierParams, 'AmpTresh')
     if ~isempty(TrimOutlierParams.AmpTresh) & ~isempty(TrimOutlierParams.rejRange)
         try
