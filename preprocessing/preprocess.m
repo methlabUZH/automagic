@@ -134,6 +134,7 @@ clear p varargin;
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
     'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
 
+data_orig = data; % for plot with original data
 % Trim data
 if isfield(TrimDataParams, 'changeCheck')
     if TrimDataParams.changeCheck
@@ -426,7 +427,7 @@ else
     plot_FilterParams.high.freq = 1;
     plot_FilterParams.high.order = [];
 end
-EEG_filtered_toplot = performFilter(EEGOrig, plot_FilterParams);
+EEG_filtered_toplot = performFilter(data_orig, plot_FilterParams);
 fig1 = figure('visible', 'off');
 set(gcf, 'Color', [1,1,1])
 hold on
@@ -487,8 +488,12 @@ title('Detected bad channels')
 colorbar;
 
 % subplot, rejected data points
-subplot(13,1,6:7)
+trimOutlier_subplot = subplot(13,1,6:7);
 imagesc(EEGforTrimPlot.data);
+colormap(CT);
+caxis([-100 100])
+set(gca,'XTick', XTicks)
+set(gca,'XTickLabel', XTicketLabels)
 % add vertical lines showing datapoints to trim
 axe = gca;
 hold on;
@@ -509,15 +514,17 @@ if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes')
             p3 = [0, size(EEGforTrimPlot.data, 1)];
             plot(axe, p1, p3, '-red', 'LineWidth', 2)
             plot(axe, p2, p3, '-black', 'LineWidth', 2)
-        end
+        end     
+        title_text = 'Detected bad datapoints (start: red line, end: black line)';
+    else
+        title_text = 'No bad datapoints selected';
     end
+else
+    title_text = '\color{red}No bad datapoints detection requested';
+    cla(trimOutlier_subplot)
 end
 hold off;
-colormap(CT);
-caxis([-100 100])
-set(gca,'XTick', XTicks)
-set(gca,'XTickLabel', XTicketLabels)
-title('Detected bad datapoints (start: red line, end: black line)')
+title(title_text)
 colorbar;
 
 % figure;
