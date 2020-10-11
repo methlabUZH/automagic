@@ -1,4 +1,4 @@
-function EEGClean = performMARA(EEG, varargin)
+function EEG = performMARA(EEG, varargin)
 % performMARA  perform Independent Component Analysis (ICA) on the high 
 %   passsed data and classifies bad components using MARA.
 %   This function applies a high pass filter before the ICA. But the output
@@ -132,7 +132,7 @@ if(length(intersect_labels) < 3)
     throw(ME)
 end
 
-%% Perform ICA
+%%
 display(CSTS.RUN_MESSAGE);
 %dataFiltered = EEG;
 % % if( ~isempty(high) )
@@ -145,225 +145,111 @@ display(CSTS.RUN_MESSAGE);
 % %     dataFiltered.automagic.mara.highpass.performed = 'no';
 % % end
         
-options = [0 1 0 0 0]; %#ok<NASGU>
-[~, ALLEEG, EEGMara, ~] = evalc('processMARA_with_no_popup(EEG, EEG, 1, high, options)');
+%% checks of channel locations available
+if isempty(EEG.chanlocs)
+    try
+        error('No channel locations. Aborting MARA.')
+    catch
+       eeglab_error; 
+       return; 
+    end
+end
+
+    
+ %% temporary filtering before ICA
+if ( ~isempty(high) )      
+    EEG_orig=EEG;  
+    [~, EEG, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');    
+    EEG_orig.automagic.mara.highpass.performed = 'yes';
+    EEG_orig.automagic.mara.highpass.freq = high.freq;
+    EEG_orig.automagic.mara.highpass.order = length(b)-1;
+    EEG_orig.automagic.mara.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG_orig.srate;
+else
+    EEG_orig = EEG;  % this is only done to keep the the rest of the MARA script as it is.
+    EEG_orig.automagic.mara.highpass.performed = 'no';
+end
+
+%% Run ICA
+disp('Run ICA');
+        
+[~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
+
+if EEG_orig.etc.keep_comps
+    EEG_orig.etc.beforeICremove.icaact = EEG.icaact;
+    EEG_orig.etc.beforeICremove.icawinv = EEG.icawinv;
+    EEG_orig.etc.beforeICremove.icasphere = EEG.icasphere;
+    EEG_orig.etc.beforeICremove.icaweights = EEG.icaweights;
+    EEG_orig.etc.beforeICremove.chanlocs = EEG.chanlocs;
+end
+
+% turn off MARA gui
+% g.gui = 'off';
+% [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, g);
+% eegh(LASTCOM);
+
+[artcomps, MARAinfo] = MARA(EEG);
+EEG.reject.MARAinfo = MARAinfo; 
 
 % Get back info before ica components were rejected
-[~, artcomps, MARAinfo] = evalc('MARA(EEGMara)');
-[~, retVar]  = compvar(EEGMara.data, ...
-    {EEGMara.icasphere EEGMara.icaweights}, ...
-    EEGMara.icawinv, setdiff(EEGMara.icachansind, artcomps)); 
+% [~, artcomps, MARAinfo] = evalc('MARA(EEGMara)');
 
-% Clean with ICA
-EEGMara.data = EEG.data;
-EEGClean = pop_subcomp(EEGMara, []);
+%% compute retained variance
+[~, retVar]  = compvar(EEG.data, ...
+    {EEG.icasphere EEG.icaweights}, ...
+    EEG.icawinv, setdiff(EEG.icachansind, artcomps)); 
 
-EEGClean.automagic.mara.performed = 'yes';
-EEGClean.automagic.mara.prerejection.reject = EEGMara.reject;
-EEGClean.automagic.mara.prerejection.icaact  = EEGClean.icaact;
-EEGClean.automagic.mara.prerejection.icawinv     = EEGClean.icawinv;
-EEGClean.automagic.mara.prerejection.icaweights  = EEGClean.icaweights;
-EEGClean.automagic.mara.ICARejected = find(EEGMara.reject.gcompreject == 1);
-EEGClean.automagic.mara.retainedVariance = retVar;
-EEGClean.automagic.mara.postArtefactProb = MARAinfo.posterior_artefactprob;
-EEGClean.automagic.mara.MARAinfo = MARAinfo;
+%% Remove bad components
+% replace the potentially filtered data with the non filtered data 
+EEG.data = EEG_orig.data;
+
+% Subtract components from data
+if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), artcomps))
+    EEG = pop_subcomp(EEG, artcomps);
+end
+
+if isempty(EEG.reject) 
+    EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2)); 
+end
+EEG.reject.gcompreject(artcomps) = 1; 
+
+EEG_orig.automagic.mara.performed = 'yes';
+EEG_orig.automagic.mara.prerejection.reject = EEG.reject;
+EEG_orig.automagic.mara.prerejection.icaact  = EEG.icaact;
+EEG_orig.automagic.mara.prerejection.icawinv     = EEG.icawinv;
+EEG_orig.automagic.mara.prerejection.icaweights  = EEG.icaweights;
+EEG_orig.automagic.mara.ICARejected = find(EEG.reject.gcompreject == 1);
+EEG_orig.automagic.mara.retainedVariance = retVar;
+EEG_orig.automagic.mara.postArtefactProb = MARAinfo.posterior_artefactprob;
+EEG_orig.automagic.mara.MARAinfo = MARAinfo;
+
+%% Recompute icaact & icawinv         
+EEG_orig.icasphere   = EEG.icasphere;
+EEG_orig.icaweights  = EEG.icaweights;
+EEG_orig.icachansind = EEG.icachansind;
+EEG_orig = eeg_checkset(EEG_orig); % let EEGLAB re-compute EEG.icaact & EEG.icawinv
+EEG_orig.data = EEG.data; 
+EEG = EEG_orig;  
+
+
 %% Return
 % Change back the labels to the original one
 if( ~ isempty(chanlocMap))
     for i = idx
-       EEGClean.chanlocs(1,i).labels = inverseChanlocMap(...
-                                                EEGClean.chanlocs(1,i).labels);
+       EEG.chanlocs(1,i).labels = inverseChanlocMap(...
+                                                EEG.chanlocs(1,i).labels);
     end
     
-    for i = 1:length(EEGClean.chanlocs)
+    for i = 1:length(EEG.chanlocs)
         if(~ any(i == idx))
-            EEGClean.chanlocs(1,i).labels = strtok(...
-                EEGClean.chanlocs(1,i).labels, '_automagiced');
+            EEG.chanlocs(1,i).labels = strtok(...
+                EEG.chanlocs(1,i).labels, '_automagiced');
         end
     end
 end
 
-if(~isreal(EEGClean.data))
+if(~isreal(EEG.data))
     msg = 'ICA returns complex values. Probably due to rank deficiency.';
     ME = MException('Automagic:ICA:complexValuesReturned', msg);
     throw(ME)
 end
 
-end
-
-function [ALLEEG,EEG,CURRENTSET] = processMARA_with_no_popup(ALLEEG,EEG,CURRENTSET,high,varargin) %#ok<DEFNU>
-% This is only an (almost) exact copy of the function processMARA where few
-% of the paramters are changed for our need. (Mainly to supress outputs)
-
-addpath('../matlab_scripts');
-    if isempty(EEG.chanlocs)
-        try
-            error('No channel locations. Aborting MARA.')
-        catch
-           eeglab_error; 
-           return; 
-        end
-    end
-    
-    if not(isempty(varargin))
-        options = varargin{1}; 
-    else
-        options = [0 0 0 0 0]; 
-    end
-    
-
-    %% filter the data
-%     if options(1) == 1
-%         disp('Filtering data');
-%         [EEG, LASTCOM] = pop_eegfilt(EEG);
-%         eegh(LASTCOM);
-%         [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET);
-%         eegh(LASTCOM);
-%     end
-%     
-if ( ~isempty(high) )
-        
-    EEG_temp=EEG;
-    [~, EEG_temp, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
-    EEG.automagic.mara.highpass.performed = 'yes';
-    EEG.automagic.mara.highpass.freq = high.freq;
-    EEG.automagic.mara.highpass.order = length(b)-1;
-    EEG.automagic.mara.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG_temp.srate;
-else
-    EEG.automagic.mara.highpass.performed = 'no';
-end
-
-    %% run ica
-    if options(2) == 1
-        disp('Run ICA');
-        
-        if( ~isempty(high) ) % temporary high-pass filter
-            [~, EEG_temp, ~] = evalc('pop_runica(EEG_temp, ''icatype'',''runica'',''chanind'',EEG_temp.icachansind)');
-            
-            % Remember ICA weights & sphering matrix
-            wts = EEG_temp.icaweights;
-            sph = EEG_temp.icasphere;
-            
-            % Remove any existing ICA solutions from your original dataset
-            EEG.icaact      = [];
-            EEG.icasphere   = [];
-            EEG.icaweights  = [];
-            EEG.icachansind = [];
-            EEG.icawinv     = [];
-            
-            EEG.icasphere   = sph;
-            EEG.icaweights  = wts;
-            EEG.icachansind = EEG_temp.icachansind;
-            EEG = eeg_checkset(EEG); % let EEGLAB re-compute EEG.icaact & EEG.icawinv
-        else
-            [EEG, LASTCOM] = pop_runica(EEG, 'icatype','runica','chanind',EEG.icachansind);
-        end
-        if EEG.etc.keep_comps
-            EEG.etc.beforeICremove.icaact = EEG.icaact;
-            EEG.etc.beforeICremove.icawinv = EEG.icawinv;
-            EEG.etc.beforeICremove.icasphere = EEG.icasphere;
-            EEG.etc.beforeICremove.icaweights = EEG.icaweights;
-            EEG.etc.beforeICremove.chanlocs = EEG.chanlocs;
-        end
-        g.gui = 'off';
-        [ALLEEG EEG CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, g);
-        eegh(LASTCOM);
-    end
-
-    %% check if ica components are present
-    [EEG LASTCOM] = eeg_checkset(EEG, 'ica'); 
-    if LASTCOM < 0
-        disp('There are no ICA components present. Aborting classification.');
-        return 
-    else
-        eegh(LASTCOM);
-    end
-
-    %% classify artifactual components with MARA
-    [artcomps, MARAinfo] = MARA(EEG);
-    EEG.reject.MARAinfo = MARAinfo; 
-    disp('MARA marked the following components for rejection: ')
-    if isempty(artcomps)
-        disp('None')
-    else
-        disp(artcomps)    
-        disp(' ')
-    end
-   
-    
-    if isempty(EEG.reject.gcompreject) 
-        EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2)); 
-        gcompreject_old = EEG.reject.gcompreject;
-    else % if gcompreject present check whether labels differ from MARA
-        if and(length(EEG.reject.gcompreject) == size(EEG.icawinv,2), ...
-            not(isempty(find(EEG.reject.gcompreject))))
-            
-            tmp = zeros(1,size(EEG.icawinv,2));
-            tmp(artcomps) = 1; 
-            if not(isequal(tmp, EEG.reject.gcompreject)) 
-       
-                answer = questdlg(... 
-                    'Some components are already labeled for rejection. What do you want to do?',...
-                    'Labels already present','Merge artifactual labels','Overwrite old labels', 'Cancel','Cancel'); 
-            
-                switch answer,
-                    case 'Overwrite old labels',
-                        gcompreject_old = EEG.reject.gcompreject;
-                        EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2));
-                        disp('Overwrites old labels')
-                    case 'Merge artifactual labels'
-                        disp('Merges MARA''s and old labels')
-                        gcompreject_old = EEG.reject.gcompreject;
-                    case 'Cancel',
-                        return; 
-                end 
-            else
-                gcompreject_old = EEG.reject.gcompreject;
-            end
-        else
-            EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2));
-            gcompreject_old = EEG.reject.gcompreject;
-        end
-    end
-    EEG.reject.gcompreject(artcomps) = 1;     
-    
-    try 
-        EEGLABfig = findall(0, 'tag', 'EEGLAB');
-        MARAvizmenu = findobj(EEGLABfig, 'tag', 'MARAviz'); 
-        set(MARAvizmenu, 'Enable', 'on');
-    catch
-        keyboard
-    end
-
-    
-    %% display components with checkbox to label them for artifact rejection  
-    if options(3) == 1
-        if isempty(artcomps)
-            answer = questdlg2(... 
-                'MARA identied no artifacts. Do you still want to visualize components?',...
-                'No artifacts identified','Yes', 'No', 'No'); 
-            if strcmp(answer,'No')
-                return; 
-            end
-        end
-        [EEG, LASTCOM] = pop_selectcomps_MARA(EEG, gcompreject_old); 
-        eegh(LASTCOM);  
-        if options(4) == 1
-            pop_visualizeMARAfeatures(EEG.reject.gcompreject, EEG.reject.MARAinfo); 
-        end
-    end
-
-    %% automatically remove artifacts
-    if and(and(options(5) == 1, not(options(3) == 1)), not(isempty(artcomps)))
-        try
-            [EEG LASTCOM] = pop_subcomp(EEG, []);
-            eegh(LASTCOM);
-        catch
-            display('WARNING: ICA not possible on this file.');
-        end
-        g.gui = 'off';
-        [ALLEEG EEG CURRENTSET LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, g); 
-        eegh(LASTCOM);
-        disp('Artifact rejection done.');
-    end
-end
