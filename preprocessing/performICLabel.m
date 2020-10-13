@@ -91,49 +91,32 @@ EEG.etc.keep_comps = ~isempty(EEG.etc.keep_comps);
 %% Perform ICA
 display(CSTS.RUN_MESSAGE);
 if( ~isempty(high) ) % temporary high-pass filter
-    EEG_temp = EEG;
-    [~, EEG_temp, ~, b] = evalc('pop_eegfiltnew(EEG_temp, high.freq, 0, high.order)');
+    EEG_orig = EEG;
+    [~, EEG, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
     
-    
-    EEG.automagic.iclabel.highpass.performed = 'yes';
-    EEG.automagic.iclabel.highpass.freq = high.freq;
-    EEG.automagic.iclabel.highpass.order = length(b)-1;
-    EEG.automagic.iclabel.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG.srate;
+    EEG_orig.automagic.iclabel.highpass.performed = 'yes';
+    EEG_orig.automagic.iclabel.highpass.freq = high.freq;
+    EEG_orig.automagic.iclabel.highpass.order = length(b)-1;
+    EEG_orig.automagic.iclabel.highpass.transitionBandWidth = 3.3 / (length(b)-1) * EEG_orig.srate;
 else
-    EEG.automagic.iclabel.highpass.performed = 'no';
-end
-
-if( ~isempty(high) ) % temporary high-pass filter
-    [~, EEG_temp, ~] = evalc('pop_runica(EEG_temp, ''icatype'',''runica'',''chanind'',EEG_temp.icachansind)');
-    
-    % Remember ICA weights & sphering matrix
-    wts = EEG_temp.icaweights;
-    sph = EEG_temp.icasphere;
-    
-    % Remove any existing ICA solutions from your original dataset
-    EEG.icaact      = [];
-    EEG.icasphere   = [];
-    EEG.icaweights  = [];
-    EEG.icachansind = [];
-    EEG.icawinv     = [];
-    
-    EEG.icasphere   = sph;
-    EEG.icaweights  = wts;
-    EEG.icachansind = EEG_temp.icachansind;
-    EEG = eeg_checkset(EEG); % let EEGLAB re-compute EEG.icaact & EEG.icawinv
-    
-else
-    [~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
+    EEG_orig = EEG; % this is only done to keep the the rest of the ICLabel script as it is.
+    EEG_orig.automagic.iclabel.highpass.performed = 'no';
 end
 
 
-if EEG.etc.keep_comps
-    EEG.etc.beforeICremove.icaact = EEG.icaact;
-    EEG.etc.beforeICremove.icawinv = EEG.icawinv;
-    EEG.etc.beforeICremove.icasphere = EEG.icasphere;
-    EEG.etc.beforeICremove.icaweights = EEG.icaweights;
-    EEG.etc.beforeICremove.chanlocs = EEG.chanlocs;
+
+%% Run ICA
+[~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
+    
+if EEG_orig.etc.keep_comps
+    EEG_orig.etc.beforeICremove.icaact = EEG.icaact;
+    EEG_orig.etc.beforeICremove.icawinv = EEG.icawinv;
+    EEG_orig.etc.beforeICremove.icasphere = EEG.icasphere;
+    EEG_orig.etc.beforeICremove.icaweights = EEG.icaweights;
+    EEG_orig.etc.beforeICremove.chanlocs = EEG.chanlocs;
 end
+    
+%% perform IClabel  
 EEG = iclabel(EEG);
 
 brainComponents = [];
@@ -178,18 +161,36 @@ allComps = 1:length(EEG.etc.ic_classification.ICLabel.classifications(:, 1));
 if includeSelected
     components = setdiff(allComps, components);
 end
+
+%% replace the potentially filtered data with the non filtered data 
+% (if no temporary filter option chosen nothing happens)
+EEG.data = EEG_orig.data; 
+
+%% Subtract components from data
 if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), components))
     EEG = pop_subcomp(EEG, components);
 end
-EEG.automagic.iclabel.performed = 'yes';
-EEG.automagic.iclabel.rejectComponents = components;
-EEG.automagic.iclabel.settings = [];
-EEG.automagic.iclabel.settings.brainTher = brainTher;
-EEG.automagic.iclabel.settings.muscleTher = muscleTher;
-EEG.automagic.iclabel.settings.heartTher = heartTher;
-EEG.automagic.iclabel.settings.eyeTher = eyeTher;
-EEG.automagic.iclabel.settings.lineNoiseTher = lineNoiseTher;
-EEG.automagic.iclabel.settings.channelNoiseTher = channelNoiseTher;
-EEG.automagic.iclabel.settings.otherTher = otherTher;
-EEG.automagic.iclabel.settings.includeSelected = includeSelected;
-EEG.automagic.iclabel.settings.high = high;
+
+EEG_orig.automagic.iclabel.performed = 'yes';
+EEG_orig.automagic.iclabel.rejectComponents = components;
+EEG_orig.automagic.iclabel.settings = [];
+EEG_orig.automagic.iclabel.settings.brainTher = brainTher;
+EEG_orig.automagic.iclabel.settings.muscleTher = muscleTher;
+EEG_orig.automagic.iclabel.settings.heartTher = heartTher;
+EEG_orig.automagic.iclabel.settings.eyeTher = eyeTher;
+EEG_orig.automagic.iclabel.settings.lineNoiseTher = lineNoiseTher;
+EEG_orig.automagic.iclabel.settings.channelNoiseTher = channelNoiseTher;
+EEG_orig.automagic.iclabel.settings.otherTher = otherTher;
+EEG_orig.automagic.iclabel.settings.includeSelected = includeSelected;
+EEG_orig.automagic.iclabel.settings.high = high;
+
+% store data in EEG_orig and recompute icaact & icawinv  
+EEG_orig.icasphere   = EEG.icasphere;
+EEG_orig.icaweights  = EEG.icaweights;
+EEG_orig.icachansind = EEG.icachansind;
+EEG_orig = eeg_checkset(EEG_orig); % let EEGLAB re-compute EEG.icaact & EEG.icawinv
+EEG_orig.data = EEG.data; 
+EEG = EEG_orig;
+    
+
+

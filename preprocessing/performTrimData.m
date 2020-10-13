@@ -83,4 +83,13 @@ else
     EEG = pop_select(EEG, 'point', [new_start new_end]);
     
 end
+
+% remove boundaries for PREP            
+eTypes = find(strcmpi({EEG.event.type}, 'boundary'));
+if ~isempty(eTypes)
+    if eTypes(1) == 1
+        EEG.event(1) = [];
+    end
+end
+            
 end

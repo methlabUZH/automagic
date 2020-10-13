@@ -231,6 +231,7 @@ classdef Project < handle
             addParameter(p,'DetrendingParams', defs.DetrendingParams, @isstruct);
             addParameter(p,'Settings', defs.Settings, @isstruct);
             addParameter(p,'TrimDataParams', defs.TrimDataParams, @isstruct);
+            addParameter(p,'TrimOutlierParams', defs.TrimOutlierParams, @isstruct);
             parse(p, params);
             params = p.Results;
             
