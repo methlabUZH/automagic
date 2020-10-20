@@ -968,6 +968,7 @@ classdef Project < handle
             for i = 1:length(files)
                 file = files{i};
                 block = blocks(file);
+                disp(['Applying quality rating to ' files{i}])
                 newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
                 if (keep_old && block.commitedNb > 0)
                     % Do nothing. This block has been already commited and

@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 11-Sep-2020 18:23:47
+% Last Modified by GUIDE v2.5 19-Oct-2020 15:18:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -189,6 +189,15 @@ end
 set(handles.overalledit, 'String', mat2str(CalcQualityParams.overallThresh));
 set(handles.timeedit, 'String', mat2str(CalcQualityParams.timeThresh));
 set(handles.channelthresholdedit, 'String', mat2str(CalcQualityParams.chanThresh));
+
+if CalcQualityParams.checkboxCutoff_CHV
+    set(handles.checkboxCutoff_CHV, 'Value', 1);
+
+    set(handles.editCutoff_CHV, 'String', num2str(CalcQualityParams.Cutoff_CHV));
+    set(handles.editRejRatio_CHV, 'String', num2str(CalcQualityParams.RejRatio_CHV));
+end
+    
+    
 
 set(handles.icacheckbox, 'Value', ~isempty(params.MARAParams));
 if ~isempty(params.MARAParams)
@@ -737,6 +746,21 @@ if ~isnan(chanThresh)
     CalcQualityParams.chanThresh = chanThresh;
 end
 
+% Residual bad channels detection for calculating CHV
+Cutoff_CHV = str2num(get(handles.editCutoff_CHV, 'String'));
+RejRatio_CHV = str2num(get(handles.editRejRatio_CHV, 'String'));
+checkboxCutoff_CHV = get(handles.checkboxCutoff_CHV, 'Value');
+if checkboxCutoff_CHV
+    CalcQualityParams.checkboxCutoff_CHV = checkboxCutoff_CHV;
+    CalcQualityParams.Cutoff_CHV = Cutoff_CHV;
+    CalcQualityParams.RejRatio_CHV = RejRatio_CHV;
+else
+    CalcQualityParams.checkboxCutoff_CHV = 0;
+    CalcQualityParams.Cutoff_CHV = [];
+    CalcQualityParams.RejRatio_CHV = [];
+end
+
+
 CRDParams = params.CRDParams;
 if( get(handles.asrhighcheckbox, 'Value') )
     highpass_val = str2num(get(handles.asrhighedit, 'String'));
@@ -1214,6 +1238,7 @@ else
     set(handles.RejectRatioEdit, 'enable', 'off')    
 end
 
+
 if( get(handles.minvarcheckbox, 'Value'))
     set(handles.minvaredit, 'enable', 'on')
 else
@@ -1231,6 +1256,16 @@ if( get(handles.zaplinecheckbox, 'Value'))
 else
     set(handles.ncomponentsZL, 'Enable', 'off')
 end
+
+% High Variance CHV
+if(get(handles.checkboxCutoff_CHV, 'Value'))
+    set(handles.editCutoff_CHV, 'enable', 'on')
+    set(handles.editRejRatio_CHV, 'enable', 'on')
+else
+    set(handles.editCutoff_CHV, 'enable', 'off')
+    set(handles.editRejRatio_CHV, 'enable', 'off')    
+end
+
 
 % if( get(handles.rarcheckbox, 'Value') || ...
 %         get(handles.notchcheckbox, 'Value'))
@@ -3213,3 +3248,73 @@ handles = switch_components(handles);
 
 % Update handles structure
 guidata(hObject, handles);
+
+
+% --- Executes on button press in .
+function checkboxCutoff_CHV_Callback(hObject, eventdata, handles)
+% hObject    handle to  (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of 
+
+if(get(handles.checkboxCutoff_CHV, 'Value'))
+    set(handles.editCutoff_CHV, 'enable', 'on')
+    set(handles.editRejRatio_CHV, 'enable', 'on')
+else
+    set(handles.editCutoff_CHV, 'enable', 'off')
+    set(handles.editRejRatio_CHV, 'enable', 'off')    
+end
+
+if get(hObject,'Value')
+    recs = handles.CGV.DefaultVisualisationParams.CalcQualityParams;
+    set(handles.editCutoff_CHV, 'String', num2str(recs.Cutoff_CHV))
+    set(handles.editRejRatio_CHV, 'String', num2str(recs.RejRatio_CHV))
+end
+handles = switch_components(handles);
+
+
+
+function editCutoff_CHV_Callback(hObject, eventdata, handles)
+% hObject    handle to editCutoff_CHV (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editCutoff_CHV as text
+%        str2double(get(hObject,'String')) returns contents of editCutoff_CHV as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editCutoff_CHV_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editCutoff_CHV (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function editRejRatio_CHV_Callback(hObject, eventdata, handles)
+% hObject    handle to editRejRatio_CHV (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editRejRatio_CHV as text
+%        str2double(get(hObject,'String')) returns contents of editRejRatio_CHV as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editRejRatio_CHV_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editRejRatio_CHV (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
