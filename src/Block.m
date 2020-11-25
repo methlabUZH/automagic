@@ -388,6 +388,28 @@ classdef Block < handle
                     newQScore.RBC = RBC;
                     self.qualityScores  = newQScore;
                 end
+                
+                % Update also CHV Criterion after excluding channels from
+                % rating calculation
+                try               
+                    to_excl = self.project.manuallyExcludedRBCChans;
+                    preprocessed = matfile(self.resultAddress,'Writable',true);
+                    EEG = preprocessed.EEG;
+                    % exclude channels
+                    EEG.data(to_excl, :) = NaN;
+                    CHV = calcCHV(EEG, self.project.qualityThresholds);
+                    newQScore = self.qualityScores;
+                    if ~isstruct(newQScore)
+                        newQScore = struct();
+                    end
+                    newQScore.CHV = CHV;
+                    self.qualityScores  = newQScore;
+
+                catch 
+                end
+            
+            disp(['Computing rating for ' self.fileName])
+                
             end
             
             if isfield(updates, 'qualityScores')
@@ -645,27 +667,9 @@ classdef Block < handle
                 XTicks = [];
                 set(gca,'XTick',XTicks)
                 XTicketLabels = [];
-                set(gca,'XTickLabel',XTicketLabels)
+                set(gca,'XTickLabel',XTicketLabels);
                 title_text = 'Clean interpolated data';
-
-%                 % select correct title
-%                 if (~isempty(automagic.params.MARAParams))
-%                         if strcmp(automagic.mara.performed, 'FAILED')
-%                             title_text = '\color{red}ICA FAILED';
-%                             cla(ica_subplot)
-%                         else
-%                             title_text = 'ICA corrected clean data';
-%                         end
-%                 elseif (~isempty(automagic.params.RPCAParams))
-%                     title_text = 'RPCA corrected clean data';
-%                 elseif (~isempty(automagic.params.ICLabelParams))
-%                     title_text = 'ICLabel corrected clean data';
-%                 else
-%                     title_text = '';
-%                 end
-
                 title(title_text);
-                disp(title_text);
                 colorbar;
                 % save new figure
                 print(fig, strcat(self.imageAddress), '-djpeg', '-r100');

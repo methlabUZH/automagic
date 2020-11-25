@@ -48,6 +48,10 @@ addParameter(p,'timeThresh', defaults.timeThresh,@isnumeric );
 addParameter(p,'chanThresh', defaults.chanThresh,@isnumeric );
 addParameter(p,'avRef', defaults.avRef,@isnumeric );
 
+addParameter(p,'checkboxCutoff_CHV', defaults.checkboxCutoff_CHV,@isnumeric );
+addParameter(p,'Cutoff_CHV', defaults.Cutoff_CHV,@isnumeric );
+addParameter(p,'RejRatio_CHV', defaults.RejRatio_CHV,@isnumeric );
+
 parse(p, varargin{:});
 settings = p.Results;
 
@@ -78,7 +82,7 @@ THV = nansum(bsxfun(@gt, std(X,[],1)', settings.timeThresh), 1) ./t;
 % ratio of channels that have been interpolated
 RBC = calcRBC(bad_chans, c);
 % get the number of channels above threshold...
-CHV = sum(nanstd(X,[],2) > settings.chanThresh, 1)./c;
+CHV = calcCHV(EEG, settings);
 % unthresholded mean absolute voltage
 MAV = nanmean(abs(X(:)));
 

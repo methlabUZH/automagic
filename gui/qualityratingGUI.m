@@ -22,7 +22,7 @@ function varargout = qualityratingGUI(varargin)
 
 % Edit the above text to modify the response to help qualityratingGUI
 
-% Last Modified by GUIDE v2.5 14-Jun-2020 17:07:41
+% Last Modified by GUIDE v2.5 18-Oct-2020 15:28:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -774,7 +774,7 @@ function applyexcludebutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-to_be_excluded = str2double(get(handles.exclude_edit,'String'));
+to_be_excluded = str2num(get(handles.exclude_edit,'String')); % str2double returns NaN from Matlab 2018 ver7
 handles.project.excludeChannelsFromRBC(to_be_excluded);
 cutoffs = get_gui_values(handles);
 renderChanges(handles, cutoffs);

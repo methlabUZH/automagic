@@ -184,13 +184,18 @@ EEG_orig.automagic.iclabel.settings.otherTher = otherTher;
 EEG_orig.automagic.iclabel.settings.includeSelected = includeSelected;
 EEG_orig.automagic.iclabel.settings.high = high;
 
-% store data in EEG_orig and recompute icaact & icawinv  
+% store data in EEG_orig and recompute icaact
 EEG_orig.icasphere   = EEG.icasphere;
 EEG_orig.icaweights  = EEG.icaweights;
 EEG_orig.icachansind = EEG.icachansind;
-EEG_orig = eeg_checkset(EEG_orig); % let EEGLAB re-compute EEG.icaact & EEG.icawinv
-EEG_orig.data = EEG.data; 
+EEG_orig.icawinv = EEG.icawinv; % computed in pop_subcomp
+EEG_orig = eeg_checkset(EEG_orig); % let EEGLAB re-compute EEG.icaact 
 EEG = EEG_orig;
     
+
+
+
+
+
 
 

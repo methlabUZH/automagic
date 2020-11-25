@@ -968,6 +968,7 @@ classdef Project < handle
             for i = 1:length(files)
                 file = files{i};
                 block = blocks(file);
+                disp(['Applying quality rating to ' files{i}])
                 newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
                 if (keep_old && block.commitedNb > 0)
                     % Do nothing. This block has been already commited and
@@ -1068,12 +1069,12 @@ classdef Project < handle
                     subjectName = ['sub-' block.subject.name];
                 end
                 
-                der_fol = [folder 'derivatives' slash];
-                raw_fol = [folder 'raw' slash];
-                automagic_fol = [der_fol 'automagic-pipeline' slash];
-                code_fol = [folder 'code' slash];
-                newResSubAdd = [automagic_fol subjectName relativeAddress{1}];
-                newRawSubAdd = [raw_fol subjectName relativeAddress{1}];
+                der_fol = fullfile(folder, 'derivatives', slash);
+                raw_fol = fullfile(folder, 'raw', slash);
+                automagic_fol = fullfile(der_fol, 'automagic-pipeline', slash);
+                code_fol = fullfile(folder, 'code', slash);
+                newResSubAdd = fullfile(automagic_fol, subjectName, relativeAddress{1});
+                newRawSubAdd = fullfile(raw_fol, subjectName, relativeAddress{1});
                 
                 if ~ isBIDS
                     newResSubAdd = strcat(newResSubAdd, 'eeg', slash);
@@ -1087,23 +1088,33 @@ classdef Project < handle
                     mkdir(newRawSubAdd);
                 end
                 
-                newResFile = [newResSubAdd 'sub-' block.subject.name '_' block.prefix '_' fileName '_eeg.mat'];
-                newJSONFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_automagic_eeg.json'];
-                newlogFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_log.txt'];
-                newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName]; %#ok<NASGU>
+                if length(block.subject.name) > 4 && strcmp(block.subject.name(1:4), 'sub-') % if already is BIDS
+                    newResFile = [newResSubAdd block.subject.name '_' block.prefix '_' block.fileName];
+                    newJSONFile = [newResSubAdd block.subject.name '_' block.fileName '_automagic_eeg.json'];
+                    newlogFile = [newResSubAdd block.subject.name '_' block.fileName '_log.txt'];
+                    newRawFile = [newRawSubAdd block.subject.name '_' block.fileName]; %#ok<NASGU>
+                else
+                    newResFile = [newResSubAdd 'sub-' block.subject.name '_' block.prefix '_' fileName];
+                    newJSONFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_automagic_eeg.json'];
+                    newlogFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_log.txt'];
+                    newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName];    
+                end
+                
                 datasetDescriptionFile_raw = [raw_fol 'dataset_description.json'];
                 datasetDescriptionFile_deriv = [automagic_fol 'dataset_description.json'];
                 
                 if makeRawSET
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
-                    newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.set'];
-                    [~, ~] = evalc('pop_saveset(EEG, newRawFile)');
+                    % newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.set'];
+                    newRawFile1 = [newRawFile '.set'];
+                    [~, ~] = evalc('pop_saveset(EEG, newRawFile1)');
                 end
                 
                 if makeRawBVA
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
-                    newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.dat']; %#ok<NASGU>
-                    [~, ~] = evalc('pop_writebva(EEG, newRawFile)');
+                    % newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.dat']; %#ok<NASGU>
+                    newRawFile2 = [newRawFile '.dat']; 
+                    [~, ~] = evalc('pop_writebva(EEG, newRawFile2)');
                 end
                 
                 
@@ -1111,14 +1122,15 @@ classdef Project < handle
                 if exist(block.resultAddress, 'file') && makeDerivativesBVA || makeDerivativesSET
                     % Result file
                     if makeDerivativesBVA
-                        copyfile(block.resultAddress, newResFile);
+                        newResFile1 = [newResFile '_eeg.mat'];
+                        copyfile(block.resultAddress, newResFile1);
                     end
                     
                     if makeDerivativesSET
-                        newResFile = [newResSubAdd 'sub-' block.subject.name '_' block.prefix '_' fileName '_eeg.set'];
+                        newResFile2 = [newResFile '_eeg.set'];
                         resFile = load(block.resultAddress);
                         resFile = resFile.EEG;
-                        [~, ~] = evalc('pop_saveset(resFile, newResFile)');
+                        [~, ~] = evalc('pop_saveset(resFile, newResFile2)');
                     end
                     % Automagic field
                     preprocessed = matfile(block.resultAddress,'Writable',true);
@@ -1309,17 +1321,17 @@ classdef Project < handle
                     end
                     
                     % log file
-                    logFile = [block.resultsFolder slash block.fileName '_log.txt'];
+                    logFile = [block.resultFolder slash block.fileName '_log.txt'];
                     copyfile(logFile, newlogFile);
                     
                     % JPEG files
-                    images = dir([block.resultsFolder slash block.fileName '_orig.jpg']);
-                    images = [images dir([block.resultsFolder slash block.fileName '.jpg'])];
+                    images = dir([block.resultFolder slash block.fileName '_orig.jpg']);
+                    images = [images dir([block.resultFolder slash block.fileName '.jpg'])];
                     for imIdx = 1:length(images)
                         image = images(imIdx);
                         imageAddress = [image.folder slash image.name];
                         imageName = image.name;
-                        imageName = ['sub-' block.subject.name '_' imageName];
+                        imageName = [block.subject.name '_' imageName];
                         newImageName = strrep(imageName, '.jpg', '_photo.jpg');
                         newImageAdd = [newResSubAdd newImageName];
                         copyfile(imageAddress, newImageAdd);
@@ -1454,7 +1466,7 @@ classdef Project < handle
                 
                 rawFiles = [];
                 if isBIDS
-                    sessOrEEG = self.listSubjects(subject.dataFolder);
+                    sessOrEEG = self.listSubjects(subject.dataFolder);  
                     if ~isempty(startsWith(sessOrEEG, 'ses-')) && all(startsWith(sessOrEEG, 'ses-'))
                         for sesIdx = 1:length(sessOrEEG)
                             sessFile = sessOrEEG{sesIdx};
