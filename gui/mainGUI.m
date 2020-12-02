@@ -521,7 +521,6 @@ end
 if isBIDS
     for i = 1:nSubject
         subject = subjects{i};
-        
         sessOrEEG = list_subjects([folder subject]);
         if ~isempty(startsWith(sessOrEEG, 'ses-')) && all(startsWith(sessOrEEG, 'ses-'))
             for sesIdx = 1:length(sessOrEEG)
@@ -934,10 +933,27 @@ if ~ get(handles.egiradio, 'Value')
             'Error');
         return;
     elseif(isempty(locFile))
-        popup_msg({'You have provided no channel location file. Please ' ...
-            'make sure the file location is at least provided in the EEG ' ...
-            'structure.'}, 'Channel location');
+%         popup_msg({'You have provided no channel location file. Please ' ...
+%             'make sure the file location is at least provided in the EEG ' ...
+%             'structure.'}, 'Channel location');
+        handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
+        main_pos = get(handle,'position');
+        screen_size = get( groot, 'Screensize' );
+        choice = 'Continue';
+        choice = MFquestdlg([main_pos(3)/2/screen_size(3) main_pos(4)/2/screen_size(4)],['You have provided no channel location file. Please ',...
+        'make sure the file location is at least provided in the EEG structure'], ...
+        'Channel location',...
+        'Continue', 'Abort', 'Continue');
+    
+        switch choice
+            case 'Continue'
+                
+            case 'Abort'
+                return; % stop creatbutton_Callback exec and go back to the mainGUI
+        end
     end
+    
+    
     if ~ isempty(locType)
         if strcmp(locType(1), '.')
             EEGSystem.fileLocType = locType(2:end);

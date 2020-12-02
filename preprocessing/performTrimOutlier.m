@@ -77,7 +77,9 @@ if any(badPoints)
     
     % display log
     badPointsInSec = length(find(badPointsExpanded))*1000/EEG.srate/1000; %#ok<*NASGU>
-    disp(sprintf('\n%2.0fuV threshold with %2.0fms spreading rejected %2.1fsec data, added %1.0f boundaries.', amplitudeThreshold, windowSize, badPointsInSec, size(rejectDataIntervals,1)));
+    m = sprintf('\n%2.0fuV threshold with %2.0fms spreading rejected %2.1fsec data, added %1.0f boundaries.', amplitudeThreshold, windowSize, badPointsInSec, size(rejectDataIntervals,1));
+    disp(m)
+    EEG.etc.trimOutlier.message = m;
 else
     % Save the clean data points.
     EEG.etc.trimOutlier.cleanDatapointMask = logical(ones(EEG.pnts,1));

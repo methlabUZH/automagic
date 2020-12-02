@@ -475,6 +475,7 @@ classdef Block < handle
             
             % Update the rating list structure of the project
             self.project.updateRatingLists(self);
+            
         end
          
         function excludeChannelsFromRBC(self, exclude_chans)
@@ -951,6 +952,30 @@ classdef Block < handle
                     fprintf(fileID, '\n');
                 end
             end
+            % Dawid
+            if(isfield(automagic, 'TrimData'))
+                if strcmp(automagic.TrimData.performed, 'yes')
+                    fprintf(fileID, sprintf(text.TrimData.TrimData_done, ...
+                        automagic.TrimData.message));
+                    fprintf(fileID, '\n');
+                else
+                    fprintf(fileID, sprintf(text.TrimData.TrimData_none));
+                    fprintf(fileID, '\n');
+                end
+            end
+            
+            if(isfield(automagic, 'TrimOutlier'))
+                if strcmp(automagic.TrimOutlier.performed, 'yes')
+                    fprintf(fileID, sprintf(text.TrimOutlier.TrimOutlier_done, ...
+                        automagic.TrimOutlier.message));
+                    fprintf(fileID, '\n');
+                else
+                    fprintf(fileID, sprintf(text.TrimOutlier.TrimOutlier_none));
+                    fprintf(fileID, '\n');
+                end
+            end
+            
+            % Dawid end
             
             if(isfield(automagic, 'mara'))
                 if strcmp(automagic.mara.performed, 'yes')
@@ -1088,13 +1113,15 @@ classdef Block < handle
                 sprintf('%0.0f ', committedCHVThresh),...
                 sprintf('%0.7f ',automagic.selectedQualityScore.CHV),...
                 sprintf('%0.2f ', self.vParams.RateQualityParams.channelGoodCutoff),...
-                sprintf('%0.2f ', self.vParams.RateQualityParams.channelBadCutoff)));
+                sprintf('%0.2f ', self.vParams.RateQualityParams.channelBadCutoff),...
+                sprintf('%d ', self.project.manuallyExcludedRBCChans)));
             fprintf(fileID, '\n');
             fprintf(fileID, sprintf(text.quality.RBC,...
                 sprintf('%0.7f ', automagic.qualityScores.RBC),...
                 sprintf('%0.2f ', self.vParams.RateQualityParams.BadChannelGoodCutoff),...
                 sprintf('%0.2f ', self.vParams.RateQualityParams.BadChannelBadCutoff),...
-                sprintf('%d ', automagic.ratingBadChans)));
+                sprintf('%d ', automagic.ratingBadChans), ...
+                sprintf('%d ', self.project.manuallyExcludedRBCChans)));
             fprintf(fileID, '\n');
             else
                 fprintf(fileID, sprintf(text.quality.OHA,...

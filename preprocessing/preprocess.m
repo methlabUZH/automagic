@@ -143,9 +143,10 @@ if isfield(TrimDataParams, 'changeCheck')
             disp('Trimming data')
             data = performTrimData(data, TrimDataParams);
             if x > data.pnts
-                data.automagic.TrimData.performed = 'Yes';
+                data.automagic.TrimData.performed = 'yes';
+                data.automagic.TrimData.message = sprintf('\nData trimmed before trigger ''%s'' (padding: %s) and after trigger ''%s'' (padding: %s).' , TrimDataParams.edit_firstTrigger, TrimDataParams.edit_paddingFirst, TrimDataParams.edit_lastTrigger, TrimDataParams.edit_paddingLast);
             else
-                data.automagic.TrimData.performed = 'No';
+                data.automagic.TrimData.performed = 'no';
             end
             clear x
         catch ME
@@ -258,15 +259,16 @@ clear toRemove removedMask newToRemove;
 
 EEGforTrimPlot = EEG;
 % trim outliers (datapoints)
-EEG.automagic.TrimOutlier.performed = 'No';
+EEG.automagic.TrimOutlier.performed = 'no';
 if isfield(TrimOutlierParams, 'AmpTresh')
     if ~isempty(TrimOutlierParams.AmpTresh) & ~isempty(TrimOutlierParams.rejRange)
         try
             EEG = performTrimOutlier(EEG, str2double(TrimOutlierParams.AmpTresh), str2double(TrimOutlierParams.rejRange));
-            EEG.automagic.TrimOutlier.performed = 'Yes';
+            EEG.automagic.TrimOutlier.performed = 'yes';
+            EEG.automagic.TrimOutlier.message = EEG.etc.trimOutlier.message;
         catch ME
             ME.message
-            EEG.automagic.TrimOutlier.performed = 'No';
+            EEG.automagic.TrimOutlier.performed = 'no';
         end
     end
 end
