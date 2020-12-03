@@ -87,6 +87,7 @@ classdef RecommendedParameters
                            'powerLineFreq', []);
          
         Settings = struct('trackAllSteps', 0, ...
-                          'pathToSteps', '/allSteps.mat');
+                          'pathToSteps', '/allSteps.mat',...
+                          'colormap','Default');
     end
 end
