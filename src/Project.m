@@ -1353,7 +1353,7 @@ classdef Project < handle
             save([code_fol 'params.mat'], 'params');
             save([code_fol 'vParams.mat'], 'vParams');
             reproduceCode = getCodeHistoryStruct();
-            fid = fopen([code_fol 'automagic-preprocess.m'], 'wt');
+            fid = fopen([code_fol 'automagic_preprocess.m'], 'wt');
             fprintf(fid, reproduceCode.create, self.name, self.dataFolder, self.name, self.fileExtension);
             fprintf(fid, reproduceCode.interpolate);
             fclose(fid);
