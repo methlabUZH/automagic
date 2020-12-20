@@ -31,6 +31,10 @@ function EEG = performTrimData(EEG, TrimDataParams)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+% in case EEG has a 'sample' events instead of 'latency'
+if isfield(EEG.event, 'sample')
+    [EEG.event.latency] = EEG.event.sample;
+end
 
 % extract vars
 firstTrigger = TrimDataParams.edit_firstTrigger;

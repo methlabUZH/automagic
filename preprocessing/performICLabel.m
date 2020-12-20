@@ -190,6 +190,7 @@ EEG_orig.icaweights  = EEG.icaweights;
 EEG_orig.icachansind = EEG.icachansind;
 EEG_orig.icawinv = EEG.icawinv; % computed in pop_subcomp
 EEG_orig = eeg_checkset(EEG_orig); % let EEGLAB re-compute EEG.icaact 
+EEG_orig.data = EEG.data; 
 EEG = EEG_orig;
     
 

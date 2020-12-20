@@ -135,35 +135,37 @@ addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, .
     'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
 
 data_orig = data; % for plot with original data
-% Trim data
-if isfield(TrimDataParams, 'changeCheck')
-    if TrimDataParams.changeCheck
-        try
-            x = data.pnts;
-            disp('Trimming data')
-            data = performTrimData(data, TrimDataParams);
-            if x > data.pnts
-                data.automagic.TrimData.performed = 'Yes';
-            else
-                data.automagic.TrimData.performed = 'No';
-            end
-            clear x
-        catch ME
-            message = ['Trim Data is not done on this subject, continue with the next steps: ' ...
-            ME.message];
-            warning(message)
-            data.automagic.TrimData.performed = 'FAILED';
-        end
-    end
-end
 
-                          
 % Set system dependent parameters and eeparate EEG from EOG
 [EEG, EOG, EEGSystem, MARAParams] = ...
     systemDependentParse(data, EEGSystem, ChannelReductionParams, ...
     MARAParams, ORIGINAL_FILE);
 EEGRef = EEG;
 
+% Trim data
+if isfield(TrimDataParams, 'changeCheck')
+    if TrimDataParams.changeCheck
+        try
+            x = EEG.pnts;
+            disp('Trimming data')
+            EEG = performTrimData(EEG, TrimDataParams);
+            if x > EEG.pnts
+                EEG.automagic.TrimData.performed = 'yes';
+                EEG.automagic.TrimData.message = sprintf('\nData trimmed before trigger ''%s'' (padding: %s) and after trigger ''%s'' (padding: %s).' , TrimDataParams.edit_firstTrigger, TrimDataParams.edit_paddingFirst, TrimDataParams.edit_lastTrigger, TrimDataParams.edit_paddingLast);
+            else
+                EEG.automagic.TrimData.performed = 'no';
+            end
+            clear x
+        catch ME
+            message = ['Trim Data is not done on this subject, continue with the next steps: ' ...
+            ME.message];
+            warning(message)
+            EEG.automagic.TrimData.performed = 'FAILED';
+        end
+    end
+end
+
+                          
 % Remove the reference channel from the rest of preprocessing
 if ~isempty(EEGSystem.refChan)
     [~, EEG] = evalc('pop_select(EEG, ''nochannel'', EEGSystem.refChan.idx)');
@@ -258,15 +260,16 @@ clear toRemove removedMask newToRemove;
 
 EEGforTrimPlot = EEG;
 % trim outliers (datapoints)
-EEG.automagic.TrimOutlier.performed = 'No';
+EEG.automagic.TrimOutlier.performed = 'no';
 if isfield(TrimOutlierParams, 'AmpTresh')
     if ~isempty(TrimOutlierParams.AmpTresh) & ~isempty(TrimOutlierParams.rejRange)
         try
             EEG = performTrimOutlier(EEG, str2double(TrimOutlierParams.AmpTresh), str2double(TrimOutlierParams.rejRange));
-            EEG.automagic.TrimOutlier.performed = 'Yes';
+            EEG.automagic.TrimOutlier.performed = 'yes';
+            EEG.automagic.TrimOutlier.message = EEG.etc.trimOutlier.message;
         catch ME
             ME.message
-            EEG.automagic.TrimOutlier.performed = 'No';
+            EEG.automagic.TrimOutlier.performed = 'no';
         end
     end
 end

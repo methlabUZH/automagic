@@ -463,7 +463,7 @@ classdef Project < handle
             end
             
             fprintf('*******Start preprocessing all dataset*******\n');
-            startTime = cputime;
+            startTime = datetime('now');
             for i = 1:length(self.blockList)
                 uniqueName = self.blockList{i};
                 block = self.blockMap(uniqueName);
@@ -518,9 +518,9 @@ classdef Project < handle
             end
             
             self.updatemainGUI();
-            endTime = cputime - startTime;
-            fprintf(['*******Pre-processing finished. Total elapsed '...
-                'time: ', num2str(endTime),'***************\n'])
+            endTime = datetime('now') - startTime;
+            fprintf(['******* Pre-processing finished. Total elapsed '...
+                'time: ', char(endTime),'*********\n'])
         end
         
         function self = interpolateSelected(self)
@@ -532,7 +532,7 @@ classdef Project < handle
             end
             
             fprintf('*******Start Interpolation**************\n');
-            startTime = cputime;
+            startTime = datetime('now');
             intList = self.interpolateList;
             for i = 1:length(intList)
                 index = intList(i);
@@ -550,10 +550,10 @@ classdef Project < handle
                 self.alreadyInterpolated = [self.alreadyInterpolated index];
                 self.saveProject();
             end
-            endTime = cputime - startTime;
+            endTime = datetime('now') - startTime;
             self.updatemainGUI();
             fprintf(['Interpolation finished. Total elapsed time: ', ...
-                num2str(endTime), '\n'])
+                char(endTime), '\n'])
         end
         
         function self = updateRatingLists(self, block)
@@ -1353,7 +1353,7 @@ classdef Project < handle
             save([code_fol 'params.mat'], 'params');
             save([code_fol 'vParams.mat'], 'vParams');
             reproduceCode = getCodeHistoryStruct();
-            fid = fopen([code_fol 'automagic-preprocess.m'], 'wt');
+            fid = fopen([code_fol 'automagic_preprocess.m'], 'wt');
             fprintf(fid, reproduceCode.create, self.name, self.dataFolder, self.name, self.fileExtension);
             fprintf(fid, reproduceCode.interpolate);
             fclose(fid);

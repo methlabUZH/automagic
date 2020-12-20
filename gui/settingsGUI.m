@@ -362,6 +362,9 @@ if ~isempty(params.PrepParams)
     else
         set(handles.PREPnoNotch, 'Value', 1);
     end
+elseif isempty(params.PrepParams)
+    set(handles.rarcheckbox, 'Value', 0); 
+    set(handles.PREPnoNotch, 'Value', 0);
 end
 
 if ~isempty(params.FilterParams) && ~isempty(params.FilterParams.notch)

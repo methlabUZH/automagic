@@ -56,28 +56,16 @@ movegui(handles.figure1,'center')
 handles.resultsfolder = varargin{1};
 params = varargin{2};
 handles.params = params;
-set(handles.edit_MAD,'enable','off');
-set(handles.edit_IQR,'enable','off');
 set(handles.edit_MAX,'enable','off');
 set(handles.edit_MIN,'enable','off');
 % changing filesizeParams, if already exists
 if isfield(params,'filesizeParams')
-    set(handles.checkbox_MAD, 'Value', params.filesizeParams.checkbox_MAD);
-    set(handles.checkbox_IQR, 'Value', params.filesizeParams.checkbox_IQR);
     set(handles.checkbox_MAX, 'Value', params.filesizeParams.checkbox_MAX);
     set(handles.checkbox_MIN, 'Value', params.filesizeParams.checkbox_MIN);
     
-    set(handles.edit_MAD, 'String', params.filesizeParams.edit_MAD);
-    set(handles.edit_IQR, 'String', params.filesizeParams.edit_IQR);
     set(handles.edit_MAX, 'String', params.filesizeParams.edit_MAX);
     set(handles.edit_MIN, 'String', params.filesizeParams.edit_MIN);
     
-    if params.filesizeParams.checkbox_MAD == 1
-        set(handles.edit_MAD,'enable','on');
-    end
-    if params.filesizeParams.checkbox_IQR == 1
-        set(handles.edit_IQR,'enable','on');
-    end
     if params.filesizeParams.checkbox_MAX == 1
         set(handles.edit_MAX,'enable','on');
     end
@@ -102,41 +90,16 @@ function varargout = fileSizeFilterGUI_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 
 % this values are passed to mainGUI
-varargout{1} = get(handles.checkbox_MAD, 'Value');
-varargout{2} = get(handles.checkbox_IQR, 'Value');
-varargout{3} = get(handles.checkbox_MAX, 'Value');
-varargout{4} = get(handles.checkbox_MIN, 'Value');
+varargout{1} = get(handles.checkbox_MAX, 'Value');
+varargout{2} = get(handles.checkbox_MIN, 'Value');
 
-varargout{5} = (varargout{1}|varargout{2}|varargout{3}|varargout{4});
+varargout{3} = (varargout{1}|varargout{2});
 
-varargout{6} = get(handles.edit_MAD, 'String');
-varargout{7} = get(handles.edit_IQR, 'String');
-varargout{8} = get(handles.edit_MAX, 'String');
-varargout{9} = get(handles.edit_MIN, 'String');
+varargout{4} = get(handles.edit_MAX, 'String');
+varargout{5} = get(handles.edit_MIN, 'String');
 
 guidata(hObject, handles);
 delete(handles.figure1);
-
-function edit_MAD_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_MAD (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_MAD as text
-%        str2double(get(hObject,'String')) returns contents of edit_MAD as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_MAD_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_MAD (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 % --- Executes on button press in boxplotButton.
 function boxplotButton_Callback(hObject, eventdata, handles)
@@ -192,31 +155,6 @@ else
 end
 % Hint: get(hObject,'Value') returns toggle state of checkbox_MAX
 
-% --- Executes on button press in checkbox_MAD.
-function checkbox_MAD_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox_MAD (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if get(handles.checkbox_MAD,'Value')
-    set(handles.edit_MAD,'enable','on');
-else
-    set(handles.edit_MAD,'String', '0');
-    set(handles.edit_MAD,'enable','off');  
-end
-% Hint: get(hObject,'Value') returns toggle state of checkbox_MAD
-
-% --- Executes on button press in derivativesBVAcheckbox.
-function checkbox_IQR_Callback(hObject, eventdata, handles)
-% hObject    handle to derivativesBVAcheckbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if get(handles.checkbox_IQR,'Value')
-    set(handles.edit_IQR,'enable','on');
-else
-    set(handles.edit_IQR,'String', '0');
-    set(handles.edit_IQR,'enable','off');
-end
-% Hint: get(hObject,'Value') returns toggle state of derivativesBVAcheckbox
 
 function percentLost_Callback(hObject, eventdata, handles)
 % hObject    handle to percentLost (see GCBO)
@@ -262,28 +200,17 @@ end
 % round MB
 fileSizeList = round(fileSizeList,3,'significant');
 % get the values and change to double
-MADvalue = str2double(get(handles.edit_MAD, 'String'));
-IQRvalue = str2double(get(handles.edit_IQR, 'String'));
 MAXvalue = str2double(get(handles.edit_MAX, 'String'));
 MINvalue = str2double(get(handles.edit_MIN, 'String'));
 % get the state of the checkboxes
 MAXCase = get(handles.checkbox_MAX, 'Value');
-MADCase = get(handles.checkbox_MAD, 'Value');
-IQRCase = get(handles.checkbox_IQR, 'Value');
 MINCase = get(handles.checkbox_MIN, 'Value');
 % change values to 0, if not selected
-if isempty(MADvalue)
-    MADvalue = 0;
-    set(handles.edit_MAD,'String', '0');
-end
 if isempty(MAXvalue)
     MAXvalue = 0;
     set(handles.edit_MAX,'String', '0');
 end
-if isempty(IQRvalue)
-    IQRvalue = 0;
-    set(handles.edit_IQR,'String', '0');
-end
+
 if isempty(MINvalue)
     MINvalue = 0;
     set(handles.edit_MIN,'String', '0');
@@ -299,28 +226,8 @@ if MAXCase
 else
     MAX_List = zeros(numel(fileSizeList),1);
 end
-if MADCase
-    m = mad(fileSizeList,1,1); % median absolute devations
-    med = median(fileSizeList,1); % median of data
-    MAD_List = fileSizeList <= med - (m * MADvalue) | fileSizeList >= med + (m * MADvalue);
-else
-    MAD_List = zeros(numel(fileSizeList),1);    
-end
-if IQRCase
-    P = IQRvalue/100;
-    M = 0.5;
-    T = M + P/2; % John: my back-of-the-envelope equations. See diary entry date 30/3/2020
-    t = quantile(fileSizeList,T);
-    Q = M - P/2;
-    q = quantile(fileSizeList,Q);
-    iqrThr = [q,t];
-    IQR_List = [fileSizeList <= iqrThr(1),fileSizeList >= iqrThr(2)];
-    IQR_List = IQR_List(:,1) | IQR_List(:,2);
-else
-    IQR_List = zeros(numel(fileSizeList),1);    
-end
 
-exclusionList = MIN_List | MAX_List | MAD_List | IQR_List;
+exclusionList = MIN_List | MAX_List;
 
 percentLost = num2str(100*sum(exclusionList)/length(exclusionList));
 set(handles.percentLost,'String',percentLost);
@@ -413,26 +320,3 @@ else
     set(handles.edit_MIN,'enable','off');
 end
 % Hint: get(hObject,'Value') returns toggle state of checkbox_MIN
-
-
-
-function edit_IQR_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_IQR (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_IQR as text
-%        str2double(get(hObject,'String')) returns contents of edit_IQR as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_IQR_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_IQR (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end

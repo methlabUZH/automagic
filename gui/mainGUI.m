@@ -521,7 +521,6 @@ end
 if isBIDS
     for i = 1:nSubject
         subject = subjects{i};
-        
         sessOrEEG = list_subjects([folder subject]);
         if ~isempty(startsWith(sessOrEEG, 'ses-')) && all(startsWith(sessOrEEG, 'ses-'))
             for sesIdx = 1:length(sessOrEEG)
@@ -934,10 +933,27 @@ if ~ get(handles.egiradio, 'Value')
             'Error');
         return;
     elseif(isempty(locFile))
-        popup_msg({'You have provided no channel location file. Please ' ...
-            'make sure the file location is at least provided in the EEG ' ...
-            'structure.'}, 'Channel location');
+%         popup_msg({'You have provided no channel location file. Please ' ...
+%             'make sure the file location is at least provided in the EEG ' ...
+%             'structure.'}, 'Channel location');
+        handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
+        main_pos = get(handle,'position');
+        screen_size = get( groot, 'Screensize' );
+        choice = 'Continue';
+        choice = MFquestdlg([main_pos(3)/2/screen_size(3) main_pos(4)/2/screen_size(4)],['You have provided no channel location file. Please ',...
+        'make sure the file location is at least provided in the EEG structure'], ...
+        'Channel location',...
+        'Continue', 'Abort', 'Continue');
+    
+        switch choice
+            case 'Continue'
+                
+            case 'Abort'
+                return; % stop creatbutton_Callback exec and go back to the mainGUI
+        end
     end
+    
+    
     if ~ isempty(locType)
         if strcmp(locType(1), '.')
             EEGSystem.fileLocType = locType(2:end);
@@ -1634,13 +1650,9 @@ catch ME
 end
 
 if ~noProject
-[checkbox_MAD,checkbox_IQR,checkbox_MAX,checkbox_MIN,changeCheck,edit_MAD,edit_IQR, edit_MAX, edit_MIN] = fileSizeFilterGUI(datafolder,handles);
-handles.filesizeParams.checkbox_MAD = checkbox_MAD;
-handles.filesizeParams.checkbox_IQR = checkbox_IQR;
+[checkbox_MAX,checkbox_MIN,changeCheck, edit_MAX, edit_MIN] = fileSizeFilterGUI(datafolder,handles);
 handles.filesizeParams.checkbox_MAX = checkbox_MAX;
 handles.filesizeParams.checkbox_MIN = checkbox_MIN;
-handles.filesizeParams.edit_MAD = edit_MAD;
-handles.filesizeParams.edit_IQR = edit_IQR;
 handles.filesizeParams.edit_MAX = edit_MAX;
 handles.filesizeParams.edit_MIN = edit_MIN;
 
@@ -1666,14 +1678,10 @@ end
 fileSizeList = round(fileSizeList,3,'significant');
 
 MAXCase = checkbox_MAX;
-MADCase = checkbox_MAD;
-IQRCase = checkbox_IQR; 
 MINCase = checkbox_MIN;
 
-MADvalue = str2double(edit_MAD);
 MAXvalue = str2double(edit_MAX);
 MINvalue = str2double(edit_MIN);
-IQRvalue = str2double(edit_IQR);
 
 if isempty(MAXvalue)
     MAXCase = 0;
@@ -1688,28 +1696,8 @@ if MAXCase
 else
     MAX_List = zeros(numel(fileSizeList),1);
 end
-if MADCase
-    m = mad(fileSizeList,1,1); % median absolute devations
-    med = median(fileSizeList,1); % median of data
-    MAD_List = fileSizeList <= med - (m * MADvalue) | fileSizeList >= med + (m * MADvalue);
-else
-    MAD_List = zeros(numel(fileSizeList),1);    
-end
-if IQRCase
-    P = IQRvalue/100;
-    M = 0.5;
-    T = M + P/2; % John: my back-of-the-envelope equations. See diary entry date 30/3/2020
-    t = quantile(fileSizeList,T);
-    Q = M - P/2;
-    q = quantile(fileSizeList,Q);
-    iqrThr = [q,t];
-    IQR_List = [fileSizeList <= iqrThr(1),fileSizeList >= iqrThr(2)];
-    IQR_List = IQR_List(:,1) | IQR_List(:,2);
-else
-    IQR_List = zeros(numel(fileSizeList),1);    
-end
 
-exclusionList = MIN_List | MAX_List | MAD_List | IQR_List;
+exclusionList = MIN_List | MAX_List;
 % percentLost = num2str(100*sum(exclusionList)/l% disp(percentExcluded);
 storeSite = projDetails.resultFolder;
 save(strcat(storeSite,'exclusionList.mat'),'exclusionList'); 
@@ -1736,15 +1724,6 @@ if isempty(project)
     return;
 end
 project.exportToBIDS(rootFolder, makeRawBVA, makeDerivativesBVA, makeRawSET, makeDerivativesSET);
-
-% --- Executes on button press in emailpushbutton.
-function emailpushbutton_Callback(hObject, eventdata, handles)
-[tcagree,errorlogattach,emailTextbox] = emailFeatureGUI(handles);
-handles.emailOptions.agree = tcagree;
-handles.emailOptions.errorlog = errorlogattach;
-handles.emailOptions.emailAddress = emailTextbox;
-guidata(hObject,handles);
-
 
 % --- Executes on button press in helpbidspushbutton.
 function helpbidspushbutton_Callback(hObject, eventdata, handles)
@@ -1808,7 +1787,11 @@ function emailPushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to emailPushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+[tcagree,errorlogattach,emailTextbox] = emailFeatureGUI(handles);
+handles.emailOptions.agree = tcagree;
+handles.emailOptions.errorlog = errorlogattach;
+handles.emailOptions.emailAddress = emailTextbox;
+guidata(hObject,handles);
 
 % --- Executes on button press in TrimDataButton.
 function TrimDataButton_Callback(hObject, eventdata, handles)

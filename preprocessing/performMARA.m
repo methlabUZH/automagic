@@ -222,7 +222,7 @@ EEG_orig.automagic.mara.retainedVariance = retVar;
 EEG_orig.automagic.mara.postArtefactProb = MARAinfo.posterior_artefactprob;
 EEG_orig.automagic.mara.MARAinfo = MARAinfo;
 
-%% Recompute icaact          
+%% Recompute icawinv        
 EEG_orig.icasphere   = EEG.icasphere;
 EEG_orig.icaweights  = EEG.icaweights;
 EEG_orig.icachansind = EEG.icachansind;

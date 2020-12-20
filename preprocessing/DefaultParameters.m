@@ -79,6 +79,7 @@ classdef DefaultParameters
                        
         % Additonal parameters of the preprocessing
         Settings = struct('trackAllSteps', 0,...
+                          'pathToSteps', '/allSteps.mat',...
                           'colormap','Default'); 
                       
         
