@@ -26,4 +26,4 @@ t2 = text(80, 520 ,message2);
 t2.FontSize = 13;
 CST = ConstantGlobalValues;
 version = CST.VERSION;set(hFig,'Name',strcat('Automagic v.',version));
-set(hFig,'Name','Automagic v.2.4.3');
+set(hFig,'Name',strcat('Automagic v.', version));
