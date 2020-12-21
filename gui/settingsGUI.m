@@ -361,6 +361,7 @@ if ~isempty(params.PrepParams)
         set(handles.rarcheckbox, 'Value', ~isempty(params.PrepParams));
     else
         set(handles.PREPnoNotch, 'Value', 1);
+        set(handles.rarcheckbox, 'Value', 0);
     end
 elseif isempty(params.PrepParams)
     set(handles.rarcheckbox, 'Value', 0); 
