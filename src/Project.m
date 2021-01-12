@@ -450,7 +450,7 @@ classdef Project < handle
             if ~isempty(self.params.ICLabelParams)
                 parts = addEEGLab();
                 ICLabelFolderIndex = find(~cellfun(@isempty,strfind(parts,'ICLabel')));
-                found = isempty(ICLabelFolderIndex);
+                found = ~isempty(ICLabelFolderIndex);
                 if found == 0
                     disp('Installing ICLabel');
                     evalc('plugin_askinstall(''ICLabel'',[],true)');
