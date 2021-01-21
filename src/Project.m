@@ -968,7 +968,9 @@ classdef Project < handle
             for i = 1:length(files)
                 file = files{i};
                 block = blocks(file);                
-                if block.isInterpolated
+                if block.isInterpolated || isempty(block.tobeInterpolated)
+                    % if the file is interpolated or there are no channels
+                    % to interpolate:
                     disp(['Applying quality rating to ' files{i}])
                     newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
                     if (keep_old && block.commitedNb > 0)
@@ -984,7 +986,7 @@ classdef Project < handle
                         end
                     end
                     
-                elseif ~block.isInterpolated
+                else
                     disp(['File ', files{i}, ' not interpolated yet. Skipping... '])
                 end
                     
