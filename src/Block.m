@@ -650,6 +650,13 @@ classdef Block < handle
                 [~,CT]=evalc('cbrewer(''div'', cm, 64)');
             end
             
+            % sort channels frontal/centro-parietal/occiptial
+            try
+                [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
+            catch
+                final_idx = 1:size(EEG.data, 1);
+            end
+
             % overwirte ICA figure    
             if exist(strcat(self.imageAddress, '.fig'), 'file')
                 
@@ -662,13 +669,25 @@ classdef Block < handle
 
                 ica_subplot = subplot(13,1,10:11);
                 cla(ica_subplot);
-                imagesc(EEG.data);
+                imagesc(EEG.data(final_idx, :));
                 colormap(CT);
                 caxis([-100 100])
                 XTicks = [];
                 set(gca,'XTick',XTicks)
                 XTicketLabels = [];
                 set(gca,'XTickLabel',XTicketLabels);
+                try
+                    YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+                    set(gca, 'YTick', YTick)                    
+                    h1=text(-len/10, length(f_idx)/2,...
+                        'Frontal', 'FontSize', 7);
+                    h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+                        ['Centro-' newline 'parietal'], 'FontSize', 7);
+                    h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+                        'Occipital', 'FontSize', 7);
+                catch
+                end
+
                 title_text = 'Clean interpolated data';
                 title(title_text);
                 colorbar;
@@ -1262,7 +1281,7 @@ classdef Block < handle
             % save results
             set(fig1,'PaperUnits','inches','PaperPosition',[0 0 10 8])
             print(fig1, self.imageAddress, '-djpeg', '-r200'); % as jpg
-            saveas(fig1, strcat(self.imageAddress, '.fig')); % as fig         
+            savefig(fig1, strcat(self.imageAddress, '.fig'), 'compact'); % as fig         
             close(fig1);
             print(fig2, strcat(self.imageAddress, '_orig'), '-djpeg', '-r100');
             close(fig2);
