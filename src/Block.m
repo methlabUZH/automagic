@@ -651,31 +651,32 @@ classdef Block < handle
             end
             
             % sort channels frontal/centro-parietal/occiptial
-            try
-                [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
-            catch
+            if automagic.params.Settings.sortChans
+                try
+                    [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
+                catch
+                    final_idx = 1:size(EEG.data, 1);
+                end
+            else
                 final_idx = 1:size(EEG.data, 1);
             end
 
-            % overwirte ICA figure    
-            if exist(strcat(self.imageAddress, '.fig'), 'file')
-                
-                clear fig;
-                % open figure
-                fig = open(strcat(self.imageAddress, '.fig'));
-                
-                % delete old figure
-                delete(strcat(self.imageAddress, '.jpg'));
+            % open figure
+            fig = openfig(strcat(self.imageAddress, '.fig'));
 
-                ica_subplot = subplot(13,1,10:11);
-                cla(ica_subplot);
-                imagesc(EEG.data(final_idx, :));
-                colormap(CT);
-                caxis([-100 100])
-                XTicks = [];
-                set(gca,'XTick',XTicks)
-                XTicketLabels = [];
-                set(gca,'XTickLabel',XTicketLabels);
+            subplot(13,1,10:11)
+            imagesc(EEG.data(final_idx, :));
+            colormap(CT);
+            caxis([-100 100])
+            XTicks = [];
+            set(gca,'XTick',XTicks)
+            XTicketLabels = [];
+            set(gca,'XTickLabel',XTicketLabels);
+            title_text = 'Clean interpolated data';
+            title(title_text);
+            colorbar;
+
+            if automagic.params.Settings.sortChans
                 try
                     YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
                     set(gca, 'YTick', YTick)                    
@@ -687,21 +688,19 @@ classdef Block < handle
                         'Occipital', 'FontSize', 7);
                 catch
                 end
-
-                title_text = 'Clean interpolated data';
-                title(title_text);
-                colorbar;
-                % save new figure
-                print(fig, strcat(self.imageAddress), '-djpeg', '-r100');
-
-                % delete old figure (.fig)
-                delete(strcat(self.imageAddress, '.fig'));
-
-                close(fig);
-                clear fig;
-            else
-                warning('Interpolated channels were not added to the ICA figure')
             end
+
+            % delete old figure
+            delete(strcat(self.imageAddress, '.jpg'));
+
+            % save new figure
+            print(fig, strcat(self.imageAddress), '-djpeg', '-r100');
+
+            % delete old figure (.fig)
+            delete(strcat(self.imageAddress, '.fig'));
+
+            clear fig;
+            
            
             % Downsample the new file and save it
             PrepCsts = self.CGV.PreprocessingCsts;

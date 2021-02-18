@@ -457,9 +457,13 @@ else
 end
 
 % sort channels frontal/centro-parietal/occiptial
-try
-    [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
-catch
+if Settings.sortChans
+    try
+        [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
+    catch
+        final_idx = 1:size(EEG.data, 1);
+    end
+else
     final_idx = 1:size(EEG.data, 1);
 end
 
@@ -473,17 +477,18 @@ XTicks = [] ;
 XTicketLabels = [];
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
-
-try
-    YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
-    set(gca, 'YTick', YTick)
-    h1=text(-len/10, length(f_idx)/2,...
-        'Frontal', 'FontSize', 7);
-    h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
-        ['Centro-' newline 'parietal'], 'FontSize', 7);
-    h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
-        'Occipital', 'FontSize', 7);
-catch
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
 end
 
 if isempty(FilterParams.high)
@@ -511,24 +516,30 @@ colormap(CT);
 caxis([-100 100])
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
-try
-    YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
-    set(gca, 'YTick', YTick)    
-    h1=text(-len/10, length(f_idx)/2,...
-        'Frontal', 'FontSize', 7);
-    h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
-        ['Centro-' newline 'parietal'], 'FontSize', 7);
-    h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
-        'Occipital', 'FontSize', 7);
-catch
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)    
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
 end
 title('Detected bad channels')
 colorbar;
 
 % subplot, rejected data points
-try
-    [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEGforTrimPlot);
-catch
+if Settings.sortChans
+    try
+        [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEGforTrimPlot);
+    catch
+        final_idx = 1:size(EEGforTrimPlot.data, 1);
+    end
+else
     final_idx = 1:size(EEGforTrimPlot.data, 1);
 end
 trimOutlier_subplot = subplot(13,1,6:7);
@@ -560,16 +571,18 @@ if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes')
             plot(axe, p2, p3, '-black', 'LineWidth', 2)
         end     
         title_text = 'Detected bad datapoints (start: red line, end: black line)';
-        try
-            YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
-            set(gca, 'YTick', YTick)    
-            h1=text(-len/10, length(f_idx)/2,...
-                'Frontal', 'FontSize', 7);
-            h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
-                ['Centro-' newline 'parietal'], 'FontSize', 7);
-            h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
-                'Occipital', 'FontSize', 7);
-        catch
+        if Settings.sortChans
+            try
+                YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+                set(gca, 'YTick', YTick)    
+                h1=text(-len/10, length(f_idx)/2,...
+                    'Frontal', 'FontSize', 7);
+                h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+                    ['Centro-' newline 'parietal'], 'FontSize', 7);
+                h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+                    'Occipital', 'FontSize', 7);
+            catch
+            end
         end
     else
         title_text = 'No bad datapoints selected';
@@ -593,16 +606,18 @@ if strcmp(EEG_regressed.automagic.EOGRegression.performed,'no')
             title_text = '\color{red}No EOG-Regression requested';
             cla(eogRegress_subplot)
 else
-    try
-        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
-        set(gca, 'YTick', YTick)    
-        h1=text(-len/10, length(f_idx)/2,...
-            'Frontal', 'FontSize', 7);
-        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
-            ['Centro-' newline 'parietal'], 'FontSize', 7);
-        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
-            'Occipital', 'FontSize', 7);
-    catch
+    if Settings.sortChans
+        try
+            YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+            set(gca, 'YTick', YTick)    
+            h1=text(-len/10, length(f_idx)/2,...
+                'Frontal', 'FontSize', 7);
+            h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+                ['Centro-' newline 'parietal'], 'FontSize', 7);
+            h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+                'Occipital', 'FontSize', 7);
+        catch
+        end
     end
     title_text = 'EOG regressed out (only good channels)';
 end
@@ -616,16 +631,18 @@ colormap(CT);
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
-try
-    YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
-    set(gca, 'YTick', YTick)    
-    h1=text(-len/10, length(f_idx)/2,...
-        'Frontal', 'FontSize', 7);
-    h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
-        ['Centro-' newline 'parietal'], 'FontSize', 7);
-    h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
-        'Occipital', 'FontSize', 7);
-catch
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)    
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
 end
 if (~isempty(MARAParams))
     if strcmp(EEG.automagic.mara.performed, 'FAILED')
@@ -663,9 +680,13 @@ if isempty(FilterParams.high)
 end
 
 % Pot a seperate figure for only the original filtered data
-try
-    [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
-catch
+if Settings.sortChans
+    try
+        [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
+    catch
+        final_idx = 1:size(EEG.data, 1);
+    end
+else
     final_idx = 1:size(EEG.data, 1);
 end
 fig2 = figure('visible', 'off');
@@ -683,16 +704,18 @@ colormap(CT);
 caxis([-100 100])
 set(ax,'XTick', XTicks)
 set(ax,'XTickLabel', XTicketLabels)
-try
-    YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
-    set(gca, 'YTick', YTick)    
-    h1=text(-len/10, length(f_idx)/2,...
-        'Frontal', 'FontSize', 7);
-    h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
-        ['Centro-' newline 'parietal'], 'FontSize', 7);
-    h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
-        'Occipital', 'FontSize', 7);
-catch
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)    
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
 end
 
 if isfield(plot_FilterParams.high, 'freq')
