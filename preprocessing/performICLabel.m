@@ -183,6 +183,7 @@ EEG_orig.automagic.iclabel.settings.channelNoiseTher = channelNoiseTher;
 EEG_orig.automagic.iclabel.settings.otherTher = otherTher;
 EEG_orig.automagic.iclabel.settings.includeSelected = includeSelected;
 EEG_orig.automagic.iclabel.settings.high = high;
+EEG_orig.etc.ic_classification = EEG.etc.ic_classification;
 
 % store data in EEG_orig and recompute icaact
 EEG_orig.icasphere   = EEG.icasphere;
