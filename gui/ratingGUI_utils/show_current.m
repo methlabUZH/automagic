@@ -27,10 +27,18 @@ if( average_reference && ~isempty(data))
     data = data - repmat(nanmean(data, 1), data_size(1), 1);
 end
 
+% find colormap selected
+if strcmp(project.params.Settings.colormap,'Default')
+    CT = 'jet';
+else
+    cm = project.params.Settings.colormap;
+    [~,CT]=evalc('cbrewer(''div'', cm, 64)');
+end
+
 im = imagesc(data, 'tag', 'im');
 set(im, 'ButtonDownFcn', {@on_selection,handles}, 'AlphaData',~isnan(data))
 set(gcf, 'Color', [0.94,0.94,0.94])
-colormap jet
+colormap(CT)
 caxis([-colorScale colorScale])
 set(handles.titletext, 'String', unique_name) 
 xlabel(axe, 'Time points')
