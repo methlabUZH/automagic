@@ -55,7 +55,7 @@ function viewICsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 movegui(handles.figure_viewIC,'center')
 
 % Change the cursor to a watch while updating...
-set(handles.ratingGUI, 'pointer', 'watch')
+set(handles.figure_viewIC, 'pointer', 'watch')
 drawnow;
     
 project = varargin{1};
@@ -99,7 +99,7 @@ addpath(mexFolder);
 addEEGLab();
 
 % Change back the cursor to an arrow
-set(handles.ratingGUI, 'pointer', 'arrow')
+set(handles.figure_viewIC, 'pointer', 'arrow')
 
 
 % Update handles structure
