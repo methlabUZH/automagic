@@ -77,12 +77,6 @@ other = row((type == 7));
 
 allICs = {brain, muscle, eye, heart, line_n, chan_n, other}';
 
-% Choose default command line output for viewICsGUI
-handles.output = hObject;
-handles.EEG = EEG;
-handles.allICs = allICs;
-clear EEG
-
 % check, if IClabel installed, because pop_vieprops comes with it
 parts = addEEGLab();
 ICLabelFolderIndex = find(~cellfun(@isempty,strfind(parts,'ICLabel')));
@@ -100,6 +94,12 @@ addEEGLab();
 
 % Change back the cursor to an arrow
 set(handles.figure_viewIC, 'pointer', 'arrow')
+
+% Choose default command line output for viewICsGUI
+handles.output = hObject;
+handles.EEG = EEG;
+handles.allICs = allICs;
+clear EEG
 
 
 % Update handles structure
