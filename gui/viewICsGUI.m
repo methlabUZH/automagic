@@ -78,6 +78,21 @@ handles.EEG = EEG;
 handles.allICs = allICs;
 clear EEG
 
+% check, if IClabel installed, because pop_vieprops comes with it
+parts = addEEGLab();
+ICLabelFolderIndex = find(~cellfun(@isempty,strfind(parts,'ICLabel')));
+found = ~isempty(ICLabelFolderIndex);
+if found == 0
+    disp('Installing ICLabel');
+    evalc('plugin_askinstall(''ICLabel'',[],true)');
+    close();
+end
+str = which('vl_nnconv.mexw64');
+mexFolder = strfind(str,filesep);
+mexFolder = str(1:mexFolder(end));
+addpath(mexFolder);
+
+
 % Update handles structure
 guidata(hObject, handles);
 
