@@ -53,6 +53,11 @@ function viewICsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 
 movegui(handles.figure_viewIC,'center')
+
+% Change the cursor to a watch while updating...
+set(handles.ratingGUI, 'pointer', 'watch')
+drawnow;
+    
 project = varargin{1};
 EEG = varargin{2};
 set(handles.edit_numberICs, 'String', size(EEG.etc.ic_classification.ICLabel.classifications, 1))
@@ -91,6 +96,10 @@ str = which('vl_nnconv.mexw64');
 mexFolder = strfind(str,filesep);
 mexFolder = str(1:mexFolder(end));
 addpath(mexFolder);
+addEEGLab();
+
+% Change back the cursor to an arrow
+set(handles.ratingGUI, 'pointer', 'arrow')
 
 
 % Update handles structure
