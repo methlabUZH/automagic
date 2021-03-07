@@ -936,8 +936,9 @@ if(isa(block, 'Block'))
     % load data
     load(block.resultAddress);
 
-    % Change back the cursor to an arrow
-    set(handles.ratingGUI, 'pointer', 'arrow')
+
 end
             
 viewICsGUI(handles, EEG)
+% Change back the cursor to an arrow
+set(handles.ratingGUI, 'pointer', 'arrow')
