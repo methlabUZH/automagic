@@ -22,7 +22,7 @@ function varargout = trimDataGUI(varargin)
 
 % Edit the above text to modify the response to help trimDataGUI
 
-% Last Modified by GUIDE v2.5 15-Sep-2020 11:14:43
+% Last Modified by GUIDE v2.5 21-Dec-2020 11:13:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,10 +55,10 @@ function trimDataGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 movegui(handles.figure1,'center')
 params = varargin{1};
 handles.params = params;
-set(handles.edit_firstTrigger,'enable','off');
-set(handles.edit_lastTrigger,'enable','off');
-set(handles.edit_paddingFirst,'enable','off');
-set(handles.edit_paddingLast,'enable','off');
+set(handles.edit_firstTrigger,'Enable','off');
+set(handles.edit_lastTrigger,'Enable','off');
+set(handles.edit_paddingFirst,'Enable','off');
+set(handles.edit_paddingLast,'Enable','off');
 
 % changing trimDataParams, if already exists
 if isfield(params,'TrimDataParams')
@@ -71,12 +71,12 @@ if isfield(params,'TrimDataParams')
     set(handles.edit_paddingLast, 'String', params.TrimDataParams.edit_paddingLast);
     
     if params.TrimDataParams.checkbox_firstTrigger == 1
-        set(handles.edit_firstTrigger,'enable','on');
-        set(handles.edit_paddingFirst,'enable','on');
+        set(handles.edit_firstTrigger,'Enable','on');
+        set(handles.edit_paddingFirst,'Enable','on');
     end
     if params.TrimDataParams.checkbox_lastTrigger == 1
-        set(handles.edit_lastTrigger,'enable','on');
-        set(handles.edit_paddingLast,'enable','on');
+        set(handles.edit_lastTrigger,'Enable','on');
+        set(handles.edit_paddingLast,'Enable','on');
     end
 end
 
@@ -209,13 +209,13 @@ function checkbox_firstTrigger_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox_firstTrigger
 if get(handles.checkbox_firstTrigger,'Value')
-    set(handles.edit_firstTrigger,'enable','on');
-    set(handles.edit_paddingFirst,'enable','on');
+    set(handles.edit_firstTrigger,'Enable','on');
+    set(handles.edit_paddingFirst,'Enable','on');
 else
     set(handles.edit_firstTrigger,'String', '');
-    set(handles.edit_firstTrigger,'enable','off');
+    set(handles.edit_firstTrigger,'Enable','off');
     set(handles.edit_paddingFirst,'String', '');
-    set(handles.edit_paddingFirst,'enable','off');
+    set(handles.edit_paddingFirst,'Enable','off');
 end
 
 % --- Executes on button press in checkbox_lastTrigger.
@@ -226,13 +226,13 @@ function checkbox_lastTrigger_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox_lastTrigger
 if get(handles.checkbox_lastTrigger,'Value')
-    set(handles.edit_lastTrigger,'enable','on');
-    set(handles.edit_paddingLast,'enable','on');
+    set(handles.edit_lastTrigger,'Enable','on');
+    set(handles.edit_paddingLast,'Enable','on');
 else
     set(handles.edit_lastTrigger,'String', '');
-    set(handles.edit_lastTrigger,'enable','off');
+    set(handles.edit_lastTrigger,'Enable','off');
     set(handles.edit_paddingLast,'String', '');
-    set(handles.edit_paddingLast,'enable','off');
+    set(handles.edit_paddingLast,'Enable','off');
 end
 
 % --- Executes on button press in button_Cancel.

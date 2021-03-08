@@ -215,7 +215,7 @@ project = handles.project;
 
 keep_old = false;
 if project.committed && isequaln(project.committedQualityCutoffs, cutoffs)
-    question = 'This project has been already committed with the same cutoff values. Would you like to commit the recently added files (if any) or abort committing ?';
+    question = 'This project has been already committed with the same cutoff values. Would you like to commit the recently added or interpolated files (if any) or abort committing ?';
     handle = findobj(allchild(0), 'flat', 'Tag', 'qualityrating');
     set(handle, 'units', 'pixels')
     main_pos = get(handle,'position');

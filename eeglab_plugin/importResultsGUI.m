@@ -98,12 +98,12 @@ end
 % (Synchronisation)
 k = handles.projectList.keys;
 v = handles.projectList.values;
-nameList = k(2:end);
-for i = 2:handles.projectList.Count
+nameList = k(1:end);
+for i = 1:handles.projectList.Count
     if( ~ strcmp(k(i), handles.CGV.NEW_PROJECT.LIST_NAME) && ...
             ~ strcmp(k(i), handles.CGV.LOAD_PROJECT.LIST_NAME) )
         name = k{i};
-        nameList{i-1} = name;
+        nameList{i} = name;
         old_project = v{i};
         if( exist(old_project.stateAddress, 'file') )
             load(old_project.stateAddress);
@@ -112,6 +112,8 @@ for i = 2:handles.projectList.Count
     end
 end
 
+i = ismember(nameList, 'Create New Project...');
+nameList(i) = [];
 set(handles.popupmenu1, 'String', nameList, ...
                         'Value', max(handles.currentProject - 1, 1));
 
@@ -146,7 +148,8 @@ function handles = update_selected_project(handles)
 % Find the selected project
 idx = get(handles.popupmenu1, 'Value');
 names = handles.projectList.keys;
-names(1) = []; % remove the Create New Project
+i = ismember(names, 'Create New Project...');
+names(i) = []; % remove the Create New Project
 name = names{idx};
 
 % First update the project from the file (Synchronization with other users)
@@ -186,7 +189,8 @@ function handles = load_selected_project(handles)
 % Find the selected project
 Index = get(handles.popupmenu1, 'Value');
 names = handles.projectList.keys;
-names(1) = []; % remove the Create New Project
+i = ismember(names, 'Create New Project...');
+names(i) = []; % remove the Create New Project
 currentIndex = max(handles.currentProject - 1, 1);
 name = names{Index};
 
@@ -346,9 +350,15 @@ items = get(handles.filelistbox,'String');
 
 idx = get(handles.popupmenu1, 'Value');
 names = handles.projectList.keys;
-names(1) = []; % remove the Create New Project
+i = ismember(names, 'Create New Project...');
+names(i) = []; % remove the Create New Project
 name = names{idx};
 project = handles.projectList(name);
+
+if isempty(items)
+    popup_msg('The project folder is empty.'...
+        , 'Error');
+end
 
 handles.params.selectedList = items(values);
 handles.params.project = project;

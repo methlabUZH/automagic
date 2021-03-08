@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 19-Oct-2020 15:18:36
+% Last Modified by GUIDE v2.5 18-Feb-2021 13:13:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -435,6 +435,7 @@ set(handles.detrendcheckbox, 'Value', ~isempty(params.DetrendingParams))
 if ~isempty(params.Settings)
     set(handles.savestepscheckbox, 'Value', params.Settings.trackAllSteps);
     set(handles.colormapPref, 'Value', find(true==strcmp(params.Settings.colormap,handles.colormapPref.String)));
+    set(handles.checkbox_sortChans, 'Value', params.Settings.sortChans)
 else
     set(handles.savestepscheckbox, 'Value', 0);
 end
@@ -1026,6 +1027,7 @@ Settings = params.Settings;
 Settings.trackAllSteps = get(handles.savestepscheckbox, 'Value');
 colormap = handles.colormapPref.String{handles.colormapPref.Value};
 Settings.colormap = colormap;
+Settings.sortChans = get(handles.checkbox_sortChans, 'Value');
 
 handles.VisualisationParams.dsRate = ds;
 handles.VisualisationParams.CalcQualityParams = CalcQualityParams;
@@ -3322,3 +3324,12 @@ function editRejRatio_CHV_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkbox_sortChans.
+function checkbox_sortChans_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_sortChans (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_sortChans

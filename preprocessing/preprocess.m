@@ -455,27 +455,56 @@ if ~isempty(EOG.data)
 else
     title('No EOG data available');
 end
+
+% sort channels frontal/centro-parietal/occiptial
+if Settings.sortChans
+    try
+        [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
+    catch
+        final_idx = 1:size(EEG.data, 1);
+    end
+else
+    final_idx = 1:size(EEG.data, 1);
+end
+
 %eeg figure
 subplot(13,1,2:3)
-imagesc(EEG_filtered_toplot.data);
+EEG_filtered_toplot.data(end+1,:) = 0;
+imagesc(EEG_filtered_toplot.data(final_idx, :));
 colormap(CT);
 caxis([-100 100])
 XTicks = [] ;
 XTicketLabels = [];
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
+end
+
 if isempty(FilterParams.high)
     title('1Hz Filtered EEG data')
 else
     title('Filtered EEG data')
 end
 colorbar;
-%eeg figure
+
+%eeg figure bad channels
 subplot(13,1,4:5)
-imagesc(EEG_filtered_toplot.data);
+imagesc(EEG_filtered_toplot.data(final_idx, :));
 axe = gca;
 hold on;
-bads = EEG.automagic.autoBadChans;
+[~, idx_bad] = ismember(final_idx, EEG.automagic.autoBadChans);
+bads = EEG.automagic.autoBadChans(nonzeros(idx_bad));
 for i = 1:length(bads)
     y = bads(i);
     p1 = [0, size(EEG_filtered_toplot.data, 2)];
@@ -487,16 +516,39 @@ colormap(CT);
 caxis([-100 100])
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)    
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
+end
 title('Detected bad channels')
 colorbar;
 
 % subplot, rejected data points
+if Settings.sortChans
+    try
+        [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEGforTrimPlot);
+    catch
+        final_idx = 1:size(EEGforTrimPlot.data, 1);
+    end
+else
+    final_idx = 1:size(EEGforTrimPlot.data, 1);
+end
 trimOutlier_subplot = subplot(13,1,6:7);
-imagesc(EEGforTrimPlot.data);
+imagesc(EEGforTrimPlot.data(final_idx, :));
 colormap(CT);
 caxis([-100 100])
 set(gca,'XTick', XTicks)
 set(gca,'XTickLabel', XTicketLabels)
+
 % add vertical lines showing datapoints to trim
 axe = gca;
 hold on;
@@ -519,6 +571,19 @@ if strcmp(EEG.automagic.TrimOutlier.performed, 'Yes')
             plot(axe, p2, p3, '-black', 'LineWidth', 2)
         end     
         title_text = 'Detected bad datapoints (start: red line, end: black line)';
+        if Settings.sortChans
+            try
+                YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+                set(gca, 'YTick', YTick)    
+                h1=text(-len/10, length(f_idx)/2,...
+                    'Frontal', 'FontSize', 7);
+                h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+                    ['Centro-' newline 'parietal'], 'FontSize', 7);
+                h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+                    'Occipital', 'FontSize', 7);
+            catch
+            end
+        end
     else
         title_text = 'No bad datapoints selected';
     end
@@ -532,7 +597,7 @@ colorbar;
 
 % figure;
 eogRegress_subplot=subplot(13,1,8:9);
-imagesc(EEG_regressed.data);
+imagesc(EEG_regressed.data(final_idx, :));
 colormap(CT);
 caxis([-100 100])
 set(gca,'XTick',XTicks)
@@ -541,17 +606,44 @@ if strcmp(EEG_regressed.automagic.EOGRegression.performed,'no')
             title_text = '\color{red}No EOG-Regression requested';
             cla(eogRegress_subplot)
 else
+    if Settings.sortChans
+        try
+            YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+            set(gca, 'YTick', YTick)    
+            h1=text(-len/10, length(f_idx)/2,...
+                'Frontal', 'FontSize', 7);
+            h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+                ['Centro-' newline 'parietal'], 'FontSize', 7);
+            h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+                'Occipital', 'FontSize', 7);
+        catch
+        end
+    end
     title_text = 'EOG regressed out (only good channels)';
 end
 title(title_text);
 colorbar;
-%figure;
+
+% ICA figure;
 ica_subplot = subplot(13,1,10:11);
-imagesc(EEG_cleared.data);
+imagesc(EEG_cleared.data(final_idx, :));
 colormap(CT);
 caxis([-100 100])
 set(gca,'XTick',XTicks)
 set(gca,'XTickLabel',XTicketLabels)
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)    
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
+end
 if (~isempty(MARAParams))
     if strcmp(EEG.automagic.mara.performed, 'FAILED')
         title_text = '\color{red}ICA FAILED';
@@ -568,7 +660,8 @@ else
 end
 title(title_text)
 colorbar;
-%figure;
+
+%PCA noise figure;
 if( ~isempty(fieldnames(RPCAParams)) && (isempty(RPCAParams.lambda) || RPCAParams.lambda ~= -1))
     subplot(13,1,12:13)
     imagesc(pca_noise);
@@ -587,25 +680,48 @@ if isempty(FilterParams.high)
 end
 
 % Pot a seperate figure for only the original filtered data
+if Settings.sortChans
+    try
+        [final_idx,f_idx,cp_idx,o_idx,len]  = performSortChans(EEG);
+    catch
+        final_idx = 1:size(EEG.data, 1);
+    end
+else
+    final_idx = 1:size(EEG.data, 1);
+end
 fig2 = figure('visible', 'off');
 ax = gca;
-outerpos = ax.OuterPosition;
-ti = ax.TightInset; 
-left = outerpos(1) + ti(1) * 1.5;
-bottom = outerpos(2);
-ax_width = outerpos(3) - ti(1) - ti(3) * 1.5;
-ax_height = outerpos(4) - ti(2) * 0.5 - ti(4);
-ax.Position = [left bottom ax_width ax_height];
+% outerpos = ax.OuterPosition;
+% ti = ax.TightInset; 
+% left = outerpos(1) + ti(1) * 4;
+% bottom = outerpos(2) + ti(1) * 1.5;
+% ax_width = outerpos(3) - ti(1) - ti(3) * 1.5;
+% ax_height = outerpos(4) - ti(2) * 0.5 - ti(4);
+% ax.Position = [left bottom ax_width ax_height];
 set(gcf, 'Color', [1,1,1])
-imagesc(EEG_filtered_toplot.data);
+imagesc(EEG_filtered_toplot.data(final_idx, :));
 colormap(CT);
 caxis([-100 100])
 set(ax,'XTick', XTicks)
 set(ax,'XTickLabel', XTicketLabels)
+if Settings.sortChans
+    try
+        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+        set(gca, 'YTick', YTick)    
+        h1=text(-len/10, length(f_idx)/2,...
+            'Frontal', 'FontSize', 7);
+        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+            ['Centro-' newline 'parietal'], 'FontSize', 7);
+        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+            'Occipital', 'FontSize', 7);
+    catch
+    end
+end
+
 if isfield(plot_FilterParams.high, 'freq')
-title_str = [num2str(plot_FilterParams.high.freq) ' Hz High pass filtered EEG data'];
+    title_str = [num2str(plot_FilterParams.high.freq) ' Hz High pass filtered EEG data'];
 else
-title_str = [num2str(EEG_filtered_toplot.automagic.filtering.firws.high.fcutoff) ' Hz High pass filtered EEG data'];
+    title_str = [num2str(EEG_filtered_toplot.automagic.filtering.firws.high.fcutoff) ' Hz High pass filtered EEG data'];
 end
 title(title_str, 'FontSize', 10)
 colorbar;

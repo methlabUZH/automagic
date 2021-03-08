@@ -967,21 +967,29 @@ classdef Project < handle
             blocks = self.blockMap;
             for i = 1:length(files)
                 file = files{i};
-                block = blocks(file);
-                disp(['Applying quality rating to ' files{i}])
-                newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
-                if (keep_old && block.commitedNb > 0)
-                    % Do nothing. This block has been already commited and
-                    % is not required to be commited again
-                else
-                    if (applyToManuallyRated || ~ block.isManuallyRated)
-                        block.setRatingInfoAndUpdate(struct('rate', newRate{:}, 'isManuallyRated', 0, 'commit', 1));
-                        block.saveRatingsToFile();
+                block = blocks(file);                
+                if block.isInterpolated || isempty(block.tobeInterpolated)
+                    % if the file is interpolated or there are no channels
+                    % to interpolate:
+                    disp(['Applying quality rating to ' files{i}])
+                    newRate = rateQuality(block.getCurrentQualityScore(), self.CGV, cutoffs);
+                    if (keep_old && block.commitedNb > 0)
+                        % Do nothing. This block has been already commited and
+                        % is not required to be commited again
                     else
-                        block.setRatingInfoAndUpdate(struct('rate', block.rate, 'isManuallyRated', 1, 'commit', 1));
-                        block.saveRatingsToFile();
+                        if (applyToManuallyRated || ~ block.isManuallyRated)
+                            block.setRatingInfoAndUpdate(struct('rate', newRate{:}, 'isManuallyRated', 0, 'commit', 1));
+                            block.saveRatingsToFile();
+                        else
+                            block.setRatingInfoAndUpdate(struct('rate', block.rate, 'isManuallyRated', 1, 'commit', 1));
+                            block.saveRatingsToFile();
+                        end
                     end
+                    
+                else
+                    disp(['File ', files{i}, ' not interpolated yet. Skipping... '])
                 end
+                    
             end
             
             self.committed = true;

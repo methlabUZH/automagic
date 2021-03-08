@@ -688,6 +688,28 @@ projects = get(handles.existingpopupmenu, 'String');
 name = projects{idx};
 project = handles.projectList(name);
 
+% warninig - not all files interpolated yet
+interpolate_count = project.toBeInterpolatedCount();
+if interpolate_count > 0
+    question = 'There are still some files to be interpolated. Are you sure you want to proceed to rate the aready interpolated files?';
+    handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
+    set(handle, 'units', 'pixels')
+    main_pos = get(handle,'position');
+    set(handle, 'units', 'normalized')
+    screen_size = get( groot, 'Screensize' );
+    choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
+        'There are still some files to be interpolated',...
+        'Continue', 'Cancel','Cancel');
+
+    switch choice
+        case 'Continue'
+        case 'Cancel'
+            return;
+        otherwise
+            return;
+    end
+end
+
 if(isa(project, 'Project'))
     ratingGUI(project, handles.CGV);
     qualityratingGUI(project, handles.CGV);

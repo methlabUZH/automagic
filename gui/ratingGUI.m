@@ -19,7 +19,7 @@ function varargout = ratingGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 24-Feb-2020 13:39:13
+% Last Modified by GUIDE v2.5 06-Mar-2021 12:10:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -787,6 +787,28 @@ function qualitybutton_Callback(hObject, eventdata, handles)
 % hObject    handle to qualitybutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% warninig - not all files interpolated yet
+interpolate_count = handles.project.toBeInterpolatedCount();
+if interpolate_count > 0
+    question = 'There are still some files to be interpolated. Are you sure you want to proceed to rate the aready interpolated files?';
+    handle = findobj(allchild(0), 'flat', 'Tag', 'ratingGUI');
+    set(handle, 'units', 'pixels')
+    main_pos = get(handle,'position');
+    set(handle, 'units', 'normalized')
+    screen_size = get( groot, 'Screensize' );
+    choice = MFquestdlg([main_pos(3)/1.5/screen_size(3) main_pos(4)/1.5/screen_size(4)], question, ...
+        'There are still some files to be interpolated',...
+        'Continue', 'Cancel','Cancel');
+
+    switch choice
+        case 'Continue'
+        case 'Cancel'
+            return;
+        otherwise
+            return;
+    end
+end
 qualityratingGUI(handles.project, handles.CGV);
 
 
@@ -895,3 +917,28 @@ title('Effect of applied quality thresholds');
 xlabel('Time Points');
 ylabel('Channel Indices');
 clear data;
+
+
+% --- Executes on button press in showICpushbutton.
+function showICpushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to showICpushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+project = handles.project;
+block = project.getCurrentBlock();
+if(isa(block, 'Block'))
+    block.updateAddresses(project.dataFolder, project.resultFolder);
+    % Change the cursor to a watch while updating...
+    set(handles.ratingGUI, 'pointer', 'watch')
+    drawnow;
+    
+    % load data
+    load(block.resultAddress);
+
+
+end
+            
+viewICsGUI(handles, EEG)
+% Change back the cursor to an arrow
+set(handles.ratingGUI, 'pointer', 'arrow')
