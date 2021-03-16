@@ -660,46 +660,51 @@ classdef Block < handle
             else
                 final_idx = 1:size(EEG.data, 1);
             end
+            
+            try
+                % open figure
+                fig = openfig(strcat(self.imageAddress, '.fig'));
 
-            % open figure
-            fig = openfig(strcat(self.imageAddress, '.fig'));
+                subplot(13,1,10:11)
+                imagesc(EEG.data(final_idx, :));
+                colormap(CT);
+                caxis([-100 100])
+                XTicks = [];
+                set(gca,'XTick',XTicks)
+                XTicketLabels = [];
+                set(gca,'XTickLabel',XTicketLabels);
+                title_text = 'Clean interpolated data';
+                title(title_text);
+                colorbar;
 
-            subplot(13,1,10:11)
-            imagesc(EEG.data(final_idx, :));
-            colormap(CT);
-            caxis([-100 100])
-            XTicks = [];
-            set(gca,'XTick',XTicks)
-            XTicketLabels = [];
-            set(gca,'XTickLabel',XTicketLabels);
-            title_text = 'Clean interpolated data';
-            title(title_text);
-            colorbar;
-
-            if automagic.params.Settings.sortChans
-                try
-                    YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
-                    set(gca, 'YTick', YTick)                    
-                    h1=text(-len/10, length(f_idx)/2,...
-                        'Frontal', 'FontSize', 7);
-                    h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
-                        ['Centro-' newline 'parietal'], 'FontSize', 7);
-                    h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
-                        'Occipital', 'FontSize', 7);
-                catch
+                if automagic.params.Settings.sortChans
+                    try
+                        YTick = [1 length(f_idx), length(f_idx)+length(cp_idx), length(f_idx)+length(cp_idx)+length(o_idx)];
+                        set(gca, 'YTick', YTick)                    
+                        h1=text(-len/10, length(f_idx)/2,...
+                            'Frontal', 'FontSize', 7);
+                        h2=text(-len/10, length(f_idx)+length(cp_idx)/2 ,...
+                            ['Centro-' newline 'parietal'], 'FontSize', 7);
+                        h3=text(-len/10, length(f_idx)+length(cp_idx)+length(o_idx)/2,...
+                            'Occipital', 'FontSize', 7);
+                    catch
+                    end
                 end
+
+                % delete old figure
+                delete(strcat(self.imageAddress, '.jpg'));
+
+                % save new figure
+                print(fig, strcat(self.imageAddress), '-djpeg', '-r100');
+
+                % delete old figure (.fig)
+                delete(strcat(self.imageAddress, '.fig'));
+
+                clear fig;
+                close all
+            catch ME
+                ME.message
             end
-
-            % delete old figure
-            delete(strcat(self.imageAddress, '.jpg'));
-
-            % save new figure
-            print(fig, strcat(self.imageAddress), '-djpeg', '-r100');
-
-            % delete old figure (.fig)
-            delete(strcat(self.imageAddress, '.fig'));
-
-            clear fig;
             
            
             % Downsample the new file and save it
