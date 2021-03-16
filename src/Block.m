@@ -701,7 +701,7 @@ classdef Block < handle
                 delete(strcat(self.imageAddress, '.fig'));
 
                 clear fig;
-                close fig
+                close all
             catch ME
                 ME.message
             end
