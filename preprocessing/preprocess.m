@@ -434,18 +434,18 @@ EEG_filtered_toplot = performFilter(data_orig, plot_FilterParams);
 
 % downsample, if files too large
 filesize = whos('data');
-filesize = filesize.bytes/1e-6; % Mb
+filesize = filesize.bytes/1024^2; % Mb
 
 if filesize > 350
-    EEG_filtered_toplot.data = downsample(EEG_filtered_toplot.data, 2);
-    EEGforTrimPlot.data = downsample(EEGforTrimPlot.data, 2);
-    EEG_regressed.data = downsample(EEG_regressed.data, 2);
-    EEG_cleared.data = downsample(EEG_cleared.data, 2);
+    EEG_filtered_toplot.data = downsample(EEG_filtered_toplot.data', 2)';
+    EEGforTrimPlot.data = downsample(EEGforTrimPlot.data', 2)';
+    EEG_regressed.data = downsample(EEG_regressed.data', 2)';
+    EEG_cleared.data = downsample(EEG_cleared.data', 2)';
 elseif filesize > 700
-    EEG_filtered_toplot.data = downsample(EEG_filtered_toplot.data, 4);
-    EEGforTrimPlot.data = downsample(EEGforTrimPlot.data, 4);
-    EEG_regressed.data = downsample(EEG_regressed.data, 4);
-    EEG_cleared.data = downsample(EEG_cleared.data, 4);
+    EEG_filtered_toplot.data = downsample(EEG_filtered_toplot.data', 4)';
+    EEGforTrimPlot.data = downsample(EEGforTrimPlot.data', 4)';
+    EEG_regressed.data = downsample(EEG_regressed.data', 4)';
+    EEG_cleared.data = downsample(EEG_cleared.data', 4)';
 end
 
 fig1 = figure('visible', 'off');
