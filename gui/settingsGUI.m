@@ -1251,7 +1251,7 @@ else
     set(handles.minvaredit, 'enable', 'off')
 end
 
-if( get(handles.rarcheckbox, 'Value'))
+if get(handles.rarcheckbox, 'Value') | get(handles.PREPnoNotch, 'Value')
     set(handles.preppushbutton, 'enable', 'on')
 else
     set(handles.preppushbutton, 'enable', 'off')
@@ -3037,6 +3037,8 @@ function PREPnoNotch_Callback(hObject, eventdata, handles)
 if get(handles.rarcheckbox, 'Value') && get(handles.PREPnoNotch, 'Value')
     set(handles.rarcheckbox, 'Value', 0);
 end
+
+handles = switch_components(handles);
 % Hint: get(hObject,'Value') returns toggle state of PREPnoNotch
 
 

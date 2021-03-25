@@ -431,6 +431,23 @@ else
     plot_FilterParams.high.order = [];
 end
 EEG_filtered_toplot = performFilter(data_orig, plot_FilterParams);
+
+% downsample, if files too large
+filesize = whos('data');
+filesize = filesize.bytes/1e-6; % Mb
+
+if filesize > 350
+    EEG_filtered_toplot.data = downsample(EEG_filtered_toplot.data, 2);
+    EEGforTrimPlot.data = downsample(EEGforTrimPlot.data, 2);
+    EEG_regressed.data = downsample(EEG_regressed.data, 2);
+    EEG_cleared.data = downsample(EEG_cleared.data, 2);
+elseif filesize > 700
+    EEG_filtered_toplot.data = downsample(EEG_filtered_toplot.data, 4);
+    EEGforTrimPlot.data = downsample(EEGforTrimPlot.data, 4);
+    EEG_regressed.data = downsample(EEG_regressed.data, 4);
+    EEG_cleared.data = downsample(EEG_cleared.data, 4);
+end
+
 fig1 = figure('visible', 'off');
 set(gcf, 'Color', [1,1,1])
 hold on
@@ -542,6 +559,7 @@ if Settings.sortChans
 else
     final_idx = 1:size(EEGforTrimPlot.data, 1);
 end
+
 trimOutlier_subplot = subplot(13,1,6:7);
 imagesc(EEGforTrimPlot.data(final_idx, :));
 colormap(CT);
