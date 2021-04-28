@@ -662,8 +662,11 @@ classdef Block < handle
             end
             
             try
-                % open figure
-                fig = openfig(strcat(self.imageAddress, '.fig'));
+                
+                % create a new figure
+                fig4 = figure('visible', 'off');
+                set(gcf, 'Color', [1,1,1])
+                hold on
 
                 subplot(13,1,10:11)
                 imagesc(EEG.data(final_idx, :));
@@ -690,18 +693,23 @@ classdef Block < handle
                     catch
                     end
                 end
-
-                % delete old figure
-                delete(strcat(self.imageAddress, '.jpg'));
-
-                % save new figure
-                print(fig, strcat(self.imageAddress), '-djpeg', '-r100');
-
-                % delete old figure (.fig)
-                delete(strcat(self.imageAddress, '.fig'));
-
-                clear fig;
-                close all
+                
+                % save the figure
+                set(fig4,'PaperUnits','inches','PaperPosition',[0 0 10 12])
+                print(fig4, strcat(self.imageAddress, '_temp'), '-djpeg', '-r100'); % as jpg    
+                close(fig4)
+                clear fig4
+                           
+                % concat the figures
+                im1 = imread(strcat(self.imageAddress, '.jpg'));
+                im2 = imread(strcat(self.imageAddress, '_temp.jpg'));
+                                
+                im1(765:915, 1:850, :) = im2(765:915, 1:850, :);       
+                imwrite(im1, strcat(self.imageAddress, '.jpg'))
+              
+                % delete temp file
+                delete(strcat(self.imageAddress, '_temp.jpg'));
+                
             catch ME
                 ME.message
             end
@@ -712,7 +720,7 @@ classdef Block < handle
             reduced.data = (downsample(EEG.data', self.dsRate))'; %#ok<STRNU>
             save(self.reducedAddress, ...
                 PrepCsts ...
-                .GeneralCsts.REDUCED_NAME, '-v6');
+                .GeneralCsts.REDUCED_NAME, '-v7.3');
 
             % Setting the new information
             self.setRatingInfoAndUpdate(struct(...
@@ -1283,9 +1291,8 @@ classdef Block < handle
             end
             
             % save results
-            set(fig1,'PaperUnits','inches','PaperPosition',[0 0 10 8])
-            print(fig1, self.imageAddress, '-djpeg', '-r200'); % as jpg
-            savefig(fig1, strcat(self.imageAddress, '.fig'), 'compact'); % as fig         
+            set(fig1,'PaperUnits','inches','PaperPosition',[0 0 10 12])
+            print(fig1, self.imageAddress, '-djpeg', '-r100'); % as jpg
             close(fig1);
             print(fig2, strcat(self.imageAddress, '_orig'), '-djpeg', '-r100');
             close(fig2);
@@ -1298,7 +1305,7 @@ classdef Block < handle
             PrepCsts = self.CGV.PreprocessingCsts;
             save(self.reducedAddress, ...
                 PrepCsts.GeneralCsts.REDUCED_NAME, ...
-                '-v6');
+                '-v7.3');
             
             [~,gitHashString] = system('git rev-parse HEAD');
             automagic.commitID = gitHashString;
