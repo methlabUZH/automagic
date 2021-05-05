@@ -383,25 +383,23 @@ for chan_idx = 1:length(removedChans)
 end
 
 % Put back refrence channel
-if ~isempty(EEGSystem.refChan)    
-        refChan = EEGSystem.refChan.idx;
-        EEG.data = [EEG.data(1:refChan-1,:); ...
-            zeros(1,size(EEG.data,2));...
-            EEG.data(refChan:end,:)];
-        
-        EEGRef.chanlocs(refChan).maraLabel = [];
-        
-        EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
-            EEG.chanlocs(refChan:end)];
-        EEG.nbchan = size(EEG.data,1);
-        clear chan_nb re_chan;    
+if ~isempty(EEGSystem.refChan)
+    refChan = EEGSystem.refChan.idx;
+    EEG.data = [EEG.data(1:refChan-1,:); ...
+        zeros(1,size(EEG.data,2));...
+        EEG.data(refChan:end,:)];
+    
+    EEGRef.chanlocs(refChan).maraLabel = [];
+    
+    EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
+        EEG.chanlocs(refChan:end)];
+    EEG.nbchan = size(EEG.data,1);
+    clear chan_nb re_chan;
 end
 
 % Write back output
-if ~isempty(EEGSystem.refChan) 
-%     EEG.automagic.autoBadChans = setdiff(removedChans, EEGSystem.refChan.idx);
-removedChans(removedChans > EEGSystem.refChan.idx)=removedChans(removedChans > EEGSystem.refChan.idx)+1;
-EEG.automagic.autoBadChans = removedChans;
+if ~isempty(EEGSystem.refChan)
+    EEG.automagic.autoBadChans = setdiff(removedChans, EEGSystem.refChan.idx);
 else
     EEG.automagic.autoBadChans = removedChans;
 end
@@ -433,6 +431,7 @@ else
     plot_FilterParams.high.order = [];
 end
 EEG_filtered_toplot = performFilter(data_orig, plot_FilterParams);
+
 fig1 = figure('visible', 'off');
 set(gcf, 'Color', [1,1,1])
 hold on
@@ -544,6 +543,7 @@ if Settings.sortChans
 else
     final_idx = 1:size(EEGforTrimPlot.data, 1);
 end
+
 trimOutlier_subplot = subplot(13,1,6:7);
 imagesc(EEGforTrimPlot.data(final_idx, :));
 colormap(CT);

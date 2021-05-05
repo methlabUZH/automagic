@@ -50,47 +50,34 @@ toRemove = EEG_in.automagic.preprocessing.toRemove;
 removedMask = EEG_in.automagic.preprocessing.removedMask;
 [s, ~] = size(EEG_in.data);
 badChansMask = false(1, s); clear s;
-% if ~isempty(refChan)
-%     refChan = refChan.idx;
-% else
-%     refChan = [];
-% end
-
-fprintf(sprintf('Running Prep...\n'));
-
-%%%%%%%%%%%%%%%%%%%%% REF CHANNEL WILL BE REMOVED (or already removed) IN
-%%%%%%%%%%%%%%%%%%%%% preprocess.m
-% % Remove the refChan containing zeros from prep preprocessing
-% eeg_chans = setdiff(1:EEG_in.nbchan, refChan);
-%%%%%%%%%%%%%%%%%%%%%
-
-eeg_chans=1:EEG_in.nbchan;
-
-if ~isempty(EOG_in.data)
-    eog_chans = setdiff(1: EEG_in.nbchan + EOG_in.nbchan, eeg_chans); %#ok<NASGU>
+if ~isempty(refChan)
+    refChan = refChan.idx;
 else
-    eog_chans=[];
+    refChan = [];
 end
 
-
-if ~isfield(prepParams, 'referenceChannels')
-%     prepParams.referenceChannels =  ...
-%         setdiff(prepParams.referenceChannels, refChan);
-% else
+fprintf(sprintf('Running Prep...\n'));
+% Remove the refChan containing zeros from prep preprocessing
+eeg_chans = setdiff(1:EEG_in.nbchan, refChan);
+eog_chans = setdiff(1: EEG_in.nbchan + EOG_in.nbchan, eeg_chans); %#ok<NASGU>
+if isfield(prepParams, 'referenceChannels')
+    prepParams.referenceChannels =  ...
+        setdiff(prepParams.referenceChannels, refChan);
+else
     prepParams.referenceChannels = eeg_chans;
 end
 
-if ~isfield(prepParams, 'evaluationChannels')
-%     prepParams.evaluationChannels =  ...
-%         setdiff(prepParams.evaluationChannels, refChan);
-% else
+if isfield(prepParams, 'evaluationChannels')
+    prepParams.evaluationChannels =  ...
+        setdiff(prepParams.evaluationChannels, refChan);
+else
     prepParams.evaluationChannels = eeg_chans;
 end
 
-if ~isfield(prepParams, 'rereference')
-%     prepParams.rereference =  ...
-%         setdiff(prepParams.rereference, refChan);
-% else
+if isfield(prepParams, 'rereference')
+    prepParams.rereference =  ...
+        setdiff(prepParams.rereference, refChan);
+else
     prepParams.rereference = eeg_chans;
 end
 

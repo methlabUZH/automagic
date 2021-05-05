@@ -121,38 +121,36 @@ EEG = iclabel(EEG);
 
 brainComponents = [];
 if ~ isempty(brainTher)
-    brainComponents = ...
-        find(EEG.etc.ic_classification.ICLabel.classifications(:, 1) > brainTher(1)...
-        & EEG.etc.ic_classification.ICLabel.classifications(:, 1) < brainTher(2));
+    brainComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 1) > brainTher);
 end
 
 muscleComponents = [];
 if ~ isempty(muscleTher)
-    muscleComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 2) > muscleTher(1) & EEG.etc.ic_classification.ICLabel.classifications(:, 2) < muscleTher(2));
+    muscleComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 2) > muscleTher);
 end
 
 eyeComponents = [];
 if ~ isempty(eyeTher)
-    eyeComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 3) > eyeTher(1) & EEG.etc.ic_classification.ICLabel.classifications(:, 3) < eyeTher(2));
+    eyeComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 3) > eyeTher);
 end
 
 heartComponents = [];
 if ~ isempty(heartTher)
-    heartComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 4) > heartTher(1) & EEG.etc.ic_classification.ICLabel.classifications(:, 4) < heartTher(2));
+    heartComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 4) > heartTher);
 end
 
 lineNoiseComponents = [];
 if ~ isempty(lineNoiseTher)
-    lineNoiseComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 5) > lineNoiseTher(1) & EEG.etc.ic_classification.ICLabel.classifications(:, 5) < lineNoiseTher(2));
+    lineNoiseComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 5) > lineNoiseTher);
 end
 channelNoiseComponents = [];
 if ~ isempty(channelNoiseTher)
-    channelNoiseComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 6) > channelNoiseTher(1) & EEG.etc.ic_classification.ICLabel.classifications(:, 6) < channelNoiseTher(2));
+    channelNoiseComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 6) > channelNoiseTher);
 end
 
 otherComponents = [];
 if ~ isempty(otherTher)
-    otherComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 7) > otherTher(1) & EEG.etc.ic_classification.ICLabel.classifications(:, 7) < otherTher(2));
+    otherComponents = find(EEG.etc.ic_classification.ICLabel.classifications(:, 7) > otherTher);
 end
 
 uni_comps = {brainComponents, muscleComponents, eyeComponents, ...

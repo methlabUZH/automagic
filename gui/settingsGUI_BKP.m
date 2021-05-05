@@ -529,44 +529,44 @@ if get(handles.iclabelcheckbox, 'Value')
     end
     
     ICLabelParams.includeSelected = get(handles.includecompradio, 'Value');
-    res = str2num(get(handles.probtheredit, 'String'));
+    res = str2double(get(handles.probtheredit, 'String'));
     if ~isempty(res) && get(handles.icbrainradio, 'Value')
         ICLabelParams.brainTher = res;
     else
         ICLabelParams.brainTher = [];
     end
     
-    res = str2num(get(handles.icmuscleedit, 'String'));
+    res = str2double(get(handles.icmuscleedit, 'String'));
     if ~isempty(res) && get(handles.icmuscleradio, 'Value')
         ICLabelParams.muscleTher = res;
     else
         ICLabelParams.muscleTher = [];
     end
-    res = str2num(get(handles.iceyeedit, 'String'));
+    res = str2double(get(handles.iceyeedit, 'String'));
     if ~isempty(res) && get(handles.iceyeradio, 'Value')
         ICLabelParams.eyeTher = res;
     else
         ICLabelParams.eyeTher = [];
     end
-    res = str2num(get(handles.icheartedit, 'String'));
+    res = str2double(get(handles.icheartedit, 'String'));
     if ~isempty(res) && get(handles.icheartradio, 'Value')
         ICLabelParams.heartTher = res;
     else
         ICLabelParams.heartTher = [];
     end
-    res = str2num(get(handles.iclinenoiseedit, 'String'));
+    res = str2double(get(handles.iclinenoiseedit, 'String'));
     if ~isempty(res) && get(handles.iclinenoiseradio, 'Value')
         ICLabelParams.lineNoiseTher = res;
     else
         ICLabelParams.lineNoiseTher = [];
     end
-    res = str2num(get(handles.icchannelnoiseedit, 'String'));
+    res = str2double(get(handles.icchannelnoiseedit, 'String'));
     if ~isempty(res) && get(handles.icchannelnoiseradio, 'Value')
         ICLabelParams.channelNoiseTher = res;
     else
         ICLabelParams.channelNoiseTher = [];
     end
-    res = str2num(get(handles.icotheredit, 'String'));
+    res = str2double(get(handles.icotheredit, 'String'));
     if ~isempty(res) && get(handles.icotherradio, 'Value')
         ICLabelParams.otherTher = res;
     else
@@ -1251,7 +1251,7 @@ else
     set(handles.minvaredit, 'enable', 'off')
 end
 
-if( get(handles.rarcheckbox, 'Value'))
+if get(handles.rarcheckbox, 'Value') | get(handles.PREPnoNotch, 'Value')
     set(handles.preppushbutton, 'enable', 'on')
 else
     set(handles.preppushbutton, 'enable', 'off')
@@ -3037,6 +3037,8 @@ function PREPnoNotch_Callback(hObject, eventdata, handles)
 if get(handles.rarcheckbox, 'Value') && get(handles.PREPnoNotch, 'Value')
     set(handles.rarcheckbox, 'Value', 0);
 end
+
+handles = switch_components(handles);
 % Hint: get(hObject,'Value') returns toggle state of PREPnoNotch
 
 
