@@ -1115,14 +1115,14 @@ classdef Project < handle
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
                     % newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.set'];
                     newRawFile1 = [newRawFile '.set'];
-                    [~, ~] = evalc('pop_saveset(EEG, newRawFile1)');
+                    [~, ~] = evalc("pop_saveset(EEG,'filename',newRawFile1,'version','7.3')");
                 end
                 
                 if makeRawBVA
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
                     % newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.dat']; %#ok<NASGU>
                     newRawFile2 = [newRawFile '.dat']; 
-                    [~, ~] = evalc('pop_writebva(EEG, newRawFile2)');
+                    [~, ~] = evalc("pop_writebva(EEG,'filename',newRawFile2,'version','7.3')");
                 end
                 
                 
@@ -1138,7 +1138,7 @@ classdef Project < handle
                         newResFile2 = [newResFile '_eeg.set'];
                         resFile = load(block.resultAddress);
                         resFile = resFile.EEG;
-                        [~, ~] = evalc('pop_saveset(resFile, newResFile2)');
+                        [~, ~] = evalc("pop_saveset(resFile,'filename',newResFile2,'version','7.3')");
                     end
                     % Automagic field
                     preprocessed = matfile(block.resultAddress,'Writable',true);
@@ -1279,21 +1279,21 @@ classdef Project < handle
                     end
                     if ~isempty(autStruct.params.EOGRegressionParams)
                         bidsStruct.ArtifactCorrection.EOGRegression.Used = 'Yes';
-                        bidsStruct.ArtifactCorrection.EOGRegression.ToolboxReference = 'Parra, Lucas C., Clay D. Spence, Adam D. Gerson, and Paul Sajda. 2005. “Recipes for the Linear Analysis of EEG.�? NeuroImage 28 (2): 326–41';
+                        bidsStruct.ArtifactCorrection.EOGRegression.ToolboxReference = 'Parra, Lucas C., Clay D. Spence, Adam D. Gerson, and Paul Sajda. 2005. ???Recipes for the Linear Analysis of EEG.???? NeuroImage 28 (2): 326???41';
                     end
                     
                     if ~isempty(autStruct.params.MARAParams) && ~strcmp(autStruct.mara.performed,'FAILED')
                         bidsStruct.ArtifactCorrection.MARA.RemovedBadICs = autStruct.mara.ICARejected;
                         bidsStruct.ArtifactCorrection.MARA.PosteriorArtefactProbability = autStruct.mara.postArtefactProb;
                         bidsStruct.ArtifactCorrection.MARA.RetainedVariance = autStruct.mara.retainedVariance;
-                        bidsStruct.ArtifactCorrection.MARA.ToolboxReference = 'Winkler, Irene, Stefan Haufe, and Michael Tangermann. 2011. “Automatic Classification of Artifactual ICA-Components for Artifact Removal in EEG Signals.�? Behavioral and Brain Functions: BBF 7 (August): 30';
+                        bidsStruct.ArtifactCorrection.MARA.ToolboxReference = 'Winkler, Irene, Stefan Haufe, and Michael Tangermann. 2011. ???Automatic Classification of Artifactual ICA-Components for Artifact Removal in EEG Signals.???? Behavioral and Brain Functions: BBF 7 (August): 30';
                     end
                     
                     if ~isempty(autStruct.params.RPCAParams)
                         bidsStruct.ArtifactCorrection.RPCA.RPCALambda = autStruct.rpca.lambda;
                         bidsStruct.ArtifactCorrection.RPCA.Tolerance = autStruct.rpca.tol;
                         bidsStruct.ArtifactCorrection.RPCA.MaxIterations = autStruct.rpca.maxIter;
-                        bidsStruct.ArtifactCorrection.RPCA.ToolboxReference = 'Lin, Zhouchen, Minming Chen, and Yi Ma. 2010. “The Augmented Lagrange Multiplier Method for Exact Recovery of Corrupted Low-Rank Matrices.�? arXiv [math.OC]. arXiv. http://arxiv.org/abs/1009.5055';
+                        bidsStruct.ArtifactCorrection.RPCA.ToolboxReference = 'Lin, Zhouchen, Minming Chen, and Yi Ma. 2010. ???The Augmented Lagrange Multiplier Method for Exact Recovery of Corrupted Low-Rank Matrices.???? arXiv [math.OC]. arXiv. http://arxiv.org/abs/1009.5055';
                     end
                     bidsStruct.QualityRating.QualityThresholds.OverallHighAmplitudeThreshold = autStruct.qualityThresholds.overallThresh;
                     bidsStruct.QualityRating.QualityThresholds.TimepointsHighVarianceThreshold = autStruct.qualityThresholds.timeThresh;
