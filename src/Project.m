@@ -1056,7 +1056,9 @@ classdef Project < handle
             BIDS_bidsVersion = '1.6.0';
             % get version of automagic pipeline (would be better to fetch it from self!)
             BIDS_pipelineVersion = 'v2.5-development';
-            
+            % the following BIDS files will be searched and copied verbatim
+            BIDS_recommendedFiles = {'*_events.*', '*_channels.*', '*_electrodes.*', '*_coordsystem.json', '*_photo.jpg', '*_scans.tsv'};
+
             % init
             if ~ (makeRawBVA || makeRawSET || makeDerivativesBVA || makeDerivativesSET)
                 return;
@@ -1197,11 +1199,7 @@ classdef Project < handle
 
                 newRawFile = [newRawSubAdd BIDS_fnameRoot '_eeg']; %#ok<NASGU>
                 newRawJSONFile = [newRawSubAdd BIDS_fnameRoot '_eeg.json'];
-                
-                % recommended BIDS files
-                %newResEventFile = [newResSubAdd BIDS_fnameRoot '_desc-' BIDS_desc '_event.tsv'];
-                %newRawEventFile = [newRawSubAdd BIDS_fnameRoot '_event.tsv'];
-
+               
                 % create subject specific folders if not existing
                 if ~ exist(newResSubAdd, 'dir') && (makeDerivativesBVA || makeDerivativesSET)
                     mkdir(newResSubAdd);
@@ -1244,7 +1242,7 @@ classdef Project < handle
                 if makeRawBVA
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
                     newRawFile2 = [newRawFile '.dat']; 
-                    [~, ~] = evalc("pop_writebva(EEG,'filename',newRawFile2,'version','7.3')");
+                    [~, ~] = evalc("pop_writebva(EEG,newRawFile2)");
                 end
                 
                 % save sidecar json for raw file
@@ -1259,7 +1257,10 @@ classdef Project < handle
                     % Result file
                     if makeDerivativesBVA
                         newResFile1 = [newResFile '.dat'];
-                        copyfile(block.resultAddress, newResFile1);
+                        EEG = load(block.resultAddress);
+                        EEG = EEG.EEG;
+                        [~, ~] = evalc("pop_writebva(EEG,newResFile1)");
+
                     end
                     
                     if makeDerivativesSET
@@ -1461,12 +1462,29 @@ classdef Project < handle
                         copyfile(imageAddress, newImageAdd);
                     end
                     
-                    % try copying recommended events.tsv (inheritance prinicple)
-                    BIDS_recommendedFiles = {'_electrodes.tsv', '_events.tsv', '_scans.tsv'};
-                    for BIDS_file = BIDS_recommendedFiles
-                        BIDS_file = BIDS_file{1};
-                        sourcefile = '';
-                        newBIDSfile = '';
+                end
+                
+                % try copying recommended BIDS files (inheritance prinicple)
+                BIDS_folderSource = fileparts(block.sourceAddress);
+                BIDS_filesSource = {dir(BIDS_folderSource).name dir(fileparts(BIDS_folderSource)).name};
+                for BIDS_fileSource = BIDS_filesSource
+                    tmp = regexp(BIDS_fileSource{1}, regexptranslate('wildcard', BIDS_recommendedFiles));
+                    if [tmp{:}]
+                        warning(['copying BIDS file ' BIDS_fileSource{1} ' verbatim - please check whether any of the content needs to be updated!'])
+                        if makeDerivativesBVA || makeDerivativesSET
+                            try
+                                copyfile([BIDS_folderSource slash BIDS_fileSource{1}], [newResSubAdd BIDS_fileSource{1}])
+                            catch % _scans.tsv is one folder level up
+                                copyfile([fileparts(BIDS_folderSource) slash BIDS_fileSource{1}], [fileparts(newResSubAdd(1:end-1)) slash BIDS_fileSource{1}])
+                            end
+                        end
+                        if makeRawBVA || makeRawSET
+                            try
+                                copyfile([BIDS_folderSource slash BIDS_fileSource{1}], [newRawSubAdd BIDS_fileSource{1}])
+                            catch
+                                copyfile([fileparts(BIDS_folderSource) slash BIDS_fileSource{1}], [fileparts(newRawSubAdd(1:end-1)) slash BIDS_fileSource{1}])
+                            end
+                        end
                     end
                 end
             end
@@ -1476,19 +1494,21 @@ classdef Project < handle
             if makeDerivativesBVA || makeDerivativesSET
                 paramsJSON = [code_fol 'automagic_params.json'];
                 jsonwrite(paramsJSON, self.params, struct('indent','  '));
+            
+            
+                params = self.params;
+                vParams = self.vParams;
+                params.samplingrate = block.sRate;
+
+                save([code_fol 'params.mat'], 'params');
+                save([code_fol 'vParams.mat'], 'vParams');
+                reproduceCode = getCodeHistoryStruct();
+                fid = fopen([code_fol 'automagic_preprocess.m'], 'wt');
+                fprintf(fid, reproduceCode.create, self.name, self.dataFolder, self.name, self.fileExtension);
+                fprintf(fid, reproduceCode.interpolate);
+                fclose(fid);
+            
             end
-            
-            params = self.params;
-            vParams = self.vParams;
-            params.samplingrate = block.sRate;
-            
-            save([code_fol 'params.mat'], 'params');
-            save([code_fol 'vParams.mat'], 'vParams');
-            reproduceCode = getCodeHistoryStruct();
-            fid = fopen([code_fol 'automagic_preprocess.m'], 'wt');
-            fprintf(fid, reproduceCode.create, self.name, self.dataFolder, self.name, self.fileExtension);
-            fprintf(fid, reproduceCode.interpolate);
-            fclose(fid);
             
             if(usejava('Desktop') && ishandle(h))
                 waitbar(1)
