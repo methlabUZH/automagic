@@ -1091,7 +1091,7 @@ classdef Project < handle
                 
             % try to load dataset_description.json (inheritance principle), 
             % otherwise start a new file
-            BIDS_minimalDatasetDesc.Name = ['n/a']; % REQUIRED
+            BIDS_minimalDatasetDesc.Name = [self.name]; % REQUIRED
             BIDS_minimalDatasetDesc.BIDSVersion = [BIDS_bidsVersion]; % REQUIRED
             BIDS_minimalDatasetDesc.DatasetType = ['raw']; % RECOMMENDED
             BIDS_minimalDatasetDesc.License = ['n/a']; % RECOMMENDED
