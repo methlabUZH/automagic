@@ -1055,7 +1055,7 @@ classdef Project < handle
             
             BIDS_bidsVersion = '1.6.0';
             % get version of automagic pipeline (would be better to fetch it from self!)
-            BIDS_pipelineVersion = 'v2.5-development';
+            BIDS_pipelineVersion = self.CGV.VERSION;
             % the following BIDS files will be searched and copied verbatim
             BIDS_recommendedFiles = {'*_events.*', '*_channels.*', '*_electrodes.*', '*_coordsystem.json', '*_photo.jpg', '*_scans.tsv'};
 
@@ -1119,13 +1119,13 @@ classdef Project < handle
             % add required fields for BIDS derivatives to dataset_description
             BIDS_dataset_description_der = BIDS_dataset_description_raw;
             BIDS_dataset_description_der.DatasetType = ['derivative'];
-            BIDS_dataset_description_der.GeneratedBy = [struct("Name",'automagic',"Version",BIDS_pipelineVersion)];
+            BIDS_dataset_description_der.GeneratedBy = [struct('Name','automagic','Version',BIDS_pipelineVersion)];
             if (makeRawBVA || makeRawSET)
                 BIDS_sourcedatasetURL = ['file://../'];
             else
                 BIDS_sourcedatasetURL = [self.dataFolder];
             end
-            BIDS_dataset_description_der.SourceDatasets = [struct("URL", BIDS_sourcedatasetURL)];
+            BIDS_dataset_description_der.SourceDatasets = [struct('URL', BIDS_sourcedatasetURL)];
             
             % save dataset_description.json files
             datasetDescriptionFile_raw = [raw_fol 'dataset_description.json'];
@@ -1179,7 +1179,7 @@ classdef Project < handle
                     else
                         BIDS_subjectName = ['sub-' block.subject.name];
                     end
-                    BIDS_taskName = "unspecified"; % default taskName
+                    BIDS_taskName = 'unspecified'; % default taskName
                     BIDS_fnameRoot = [BIDS_subjectName '_task-' BIDS_taskName];
 
                     newResSubAdd = fullfile(automagic_fol, BIDS_subjectName, slash, 'eeg', slash);
@@ -1210,10 +1210,10 @@ classdef Project < handle
                 
                 % define BIDS template for sidecar json (better to load itfrom template?)
                 BIDS_minimalSidecar.TaskName = [BIDS_taskName]; % REQUIRED
-                BIDS_minimalSidecar.EEGReference = 'n/a'; % REQUIRED
+                BIDS_minimalSidecar.EEGReference = []; % REQUIRED
                 BIDS_minimalSidecar.SamplingFrequency = [block.sRate]; % REQUIRED
                 BIDS_minimalSidecar.PowerLineFrequency = block.params.EEGSystem.powerLineFreq; % REQUIRED
-                BIDS_minimalSidecar.SoftwareFilters = 'n/a'; % REQUIRED
+                BIDS_minimalSidecar.SoftwareFilters = []; % REQUIRED
                 
                 BIDS_requiredSidecar = {'TaskName', 'EEGReference', 'SamplingFrequency', 'PowerLineFrequency', 'SoftwareFilters'};
 
@@ -1236,13 +1236,13 @@ classdef Project < handle
                 if makeRawSET
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
                     newRawFile1 = [newRawFile '.set'];
-                    [~, ~] = evalc("pop_saveset(EEG,'filename',newRawFile1,'version','7.3')");
+                    [~, ~] = evalc('pop_saveset(EEG,''filename'',newRawFile1,''version'',''7.3'')');
                 end
                 
                 if makeRawBVA
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
                     newRawFile2 = [newRawFile '.dat']; 
-                    [~, ~] = evalc("pop_writebva(EEG,newRawFile2)");
+                    [~, ~] = evalc('pop_writebva(EEG,newRawFile2)');
                 end
                 
                 % save sidecar json for raw file
@@ -1259,7 +1259,7 @@ classdef Project < handle
                         newResFile1 = [newResFile '.dat'];
                         EEG = load(block.resultAddress);
                         EEG = EEG.EEG;
-                        [~, ~] = evalc("pop_writebva(EEG,newResFile1)");
+                        [~, ~] = evalc('pop_writebva(EEG,newResFile1)');
 
                     end
                     
@@ -1267,7 +1267,7 @@ classdef Project < handle
                         EEG = load(block.resultAddress);
                         EEG = EEG.EEG;
                         newResFile2 = [newResFile '.set'];
-                        [~, ~] = evalc("pop_saveset(EEG,'filename',newResFile2,'version','7.3')");
+                        [~, ~] = evalc('pop_saveset(EEG,''filename'',newResFile2,''version'',''7.3'')');
                     end
                     
                     % inherit data from existing sidecar json (or minimal template)
