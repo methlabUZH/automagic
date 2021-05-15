@@ -1044,6 +1044,22 @@ classdef Project < handle
         end
         
         function exportToBIDS(self, folder, makeRawBVA, makeDerivativesBVA, makeRawSET, makeDerivativesSET)
+            % saves the preprocessed and/or raw eeg data and required 
+            % metadata to a BIDS compatible folder structure.
+            % if the source data is in bids format already, metadata will
+            % be loaded and copied over to the derivatives set 
+            % (inheritance principle).
+            % 
+            % current version: BIDS 1.6.0
+            % link: https://bids-specification.readthedocs.io/en/stable/
+            
+            BIDS_bidsVersion = '1.6.0';
+            % get version of automagic pipeline (would be better to fetch it from self!)
+            BIDS_pipelineVersion = 'v2.5-development';
+            % the following BIDS files will be searched and copied verbatim
+            BIDS_recommendedFiles = {'*_events.*', '*_channels.*', '*_electrodes.*', '*_coordsystem.json', '*_photo.jpg', '*_scans.tsv'};
+
+            % init
             if ~ (makeRawBVA || makeRawSET || makeDerivativesBVA || makeDerivativesSET)
                 return;
             end
@@ -1059,6 +1075,72 @@ classdef Project < handle
                 fprintf('Exporting results folder to BIDS format. Please wait...\n');
             end
             
+            % setup bids compatible folder structure 
+            der_fol = fullfile(folder, 'derivatives', slash);
+            raw_fol = fullfile(folder);
+            automagic_fol = fullfile(der_fol, 'automagic', slash);
+            code_fol = fullfile(automagic_fol, 'code', slash);
+            
+            % create folders if not already existing
+            if ~ exist(code_fol, 'dir') && (makeDerivativesBVA || makeDerivativesSET)
+                mkdir(code_fol);
+            end
+            if ~ exist(folder, 'dir') && (makeRawBVA || makeRawSET)
+                mkdir(folder);
+            end
+                
+            % try to load dataset_description.json (inheritance principle), 
+            % otherwise start a new file
+            BIDS_minimalDatasetDesc.Name = [self.name]; % REQUIRED
+            BIDS_minimalDatasetDesc.BIDSVersion = [BIDS_bidsVersion]; % REQUIRED
+            BIDS_minimalDatasetDesc.DatasetType = ['raw']; % RECOMMENDED
+            BIDS_minimalDatasetDesc.License = ['n/a']; % RECOMMENDED
+            BIDS_minimalDatasetDesc.Authors = ['n/a'];
+            BIDS_minimalDatasetDesc.Acknowledgements = ['n/a'];
+            BIDS_minimalDatasetDesc.HowToAcknowledge = ['n/a'];
+            BIDS_minimalDatasetDesc.Funding = ['n/a'];
+            BIDS_minimalDatasetDesc.ReferencesAndLinks = ['n/a'];
+            BIDS_minimalDatasetDesc.DatasetDOI = ['n/a']; 
+            
+            BIDS_requiredDatasetDesc = {'Name', 'BIDSVersion'};
+            
+            try
+                BIDS_dataset_description_raw = jsonread([self.dataFolder 'dataset_description.json']);
+                for BIDS_required = BIDS_requiredDatasetDesc % check if required fields are present
+                    BIDS_required = BIDS_required{1};
+                    if ~isfield(BIDS_dataset_description_raw, BIDS_required)
+                        BIDS_dataset_description_raw.(BIDS_required) = BIDS_minimalDatasetDesc.(BIDS_required);
+                    end
+                end
+            catch
+                BIDS_dataset_description_raw = BIDS_minimalDatasetDesc;                                              
+            end
+                        
+            % add required fields for BIDS derivatives to dataset_description
+            BIDS_dataset_description_der = BIDS_dataset_description_raw;
+            BIDS_dataset_description_der.DatasetType = ['derivative'];
+            BIDS_dataset_description_der.GeneratedBy = [struct("Name",'automagic',"Version",BIDS_pipelineVersion)];
+            if (makeRawBVA || makeRawSET)
+                BIDS_sourcedatasetURL = ['file://../'];
+            else
+                BIDS_sourcedatasetURL = [self.dataFolder];
+            end
+            BIDS_dataset_description_der.SourceDatasets = [struct("URL", BIDS_sourcedatasetURL)];
+            
+            % save dataset_description.json files
+            datasetDescriptionFile_raw = [raw_fol 'dataset_description.json'];
+            datasetDescriptionFile_deriv = [automagic_fol 'dataset_description.json'];
+            if makeRawBVA || makeRawSET
+                jsonwrite(datasetDescriptionFile_raw, BIDS_dataset_description_raw, struct('indent','  '));
+            end
+            if makeDerivativesSET || makeDerivativesBVA
+                jsonwrite(datasetDescriptionFile_deriv, BIDS_dataset_description_der, struct('indent','  '));
+            end
+            
+         
+            
+            % loop over all subjects/eeg files and create corresponding
+            % files
             fileNames = self.blockMap.keys;
             for i = 1:length(fileNames)
                 if(usejava('Desktop') && ishandle(h))
@@ -1067,28 +1149,58 @@ classdef Project < handle
                 
                 fileName = fileNames{i};
                 block = self.blockMap(fileName);
-                relativeAddress = extractBetween(block.sourceAddress, ...
-                    block.subject.name, [block.fileName block.fileExtension]);
-                isBIDS = (length(relativeAddress{1}) > 2);
                 
-                if length(block.subject.name) > 4 && strcmp(block.subject.name(1:4), 'sub-')
-                    subjectName = block.subject.name;
+                
+                % determine whether original filename is already bids compatible
+                isBIDS = logical(regexp(block.fileName, regexptranslate('wildcard', 'sub-*_task-*_eeg'))); 
+                
+                % setup BIDS compatible filenames
+                if isBIDS
+                    fnameParts = strsplit(block.fileName, '_');
+                    BIDS_subjectName = fnameParts{1};
+                    BIDS_fnameRoot = strjoin(fnameParts(1:length(fnameParts)-1), '_');
+                    for fnamePart = fnameParts
+                        fnamePart = fnamePart{1};
+                        if logical(regexp(fnamePart, regexptranslate('wildcard', 'task-*')))
+                            BIDS_taskName = fnamePart(6:length(fnamePart));
+                        end
+                    end
+                    if strcmp(fnameParts{2}(1:4), 'ses-')
+                        newResSubAdd = fullfile(automagic_fol, BIDS_subjectName, slash, fnameParts{2}, slash, 'eeg', slash);
+                        newRawSubAdd = fullfile(raw_fol, BIDS_subjectName, slash, fnameParts{2}, slash, 'eeg', slash);
+                    else
+                        newResSubAdd = fullfile(automagic_fol, BIDS_subjectName, slash, 'eeg', slash);
+                        newRawSubAdd = fullfile(raw_fol, BIDS_subjectName, slash, 'eeg', slash);
+                    end
                 else
-                    subjectName = ['sub-' block.subject.name];
+                    % no bids compatible filename so far..
+                    if length(block.subject.name) > 4 && strcmp(block.subject.name(1:4), 'sub-')
+                        BIDS_subjectName = block.subject.name;
+                    else
+                        BIDS_subjectName = ['sub-' block.subject.name];
+                    end
+                    BIDS_taskName = "unspecified"; % default taskName
+                    BIDS_fnameRoot = [BIDS_subjectName '_task-' BIDS_taskName];
+
+                    newResSubAdd = fullfile(automagic_fol, BIDS_subjectName, slash, 'eeg', slash);
+                    newRawSubAdd = fullfile(raw_fol, BIDS_subjectName, slash, 'eeg', slash);
                 end
                 
-                der_fol = fullfile(folder, 'derivatives', slash);
-                raw_fol = fullfile(folder, 'raw', slash);
-                automagic_fol = fullfile(der_fol, 'automagic-pipeline', slash);
-                code_fol = fullfile(folder, 'code', slash);
-                newResSubAdd = fullfile(automagic_fol, subjectName, relativeAddress{1});
-                newRawSubAdd = fullfile(raw_fol, subjectName, relativeAddress{1});
+                % add automagic quality rating to optional 'desc' field of the BIDS filename
+                BIDS_desc = block.prefix; 
                 
-                if ~ isBIDS
-                    newResSubAdd = strcat(newResSubAdd, 'eeg', slash);
-                    newRawSubAdd = strcat(newRawSubAdd, 'eeg', slash);
-                end
-                
+                % final filenames for result files
+                newResFile = [newResSubAdd BIDS_fnameRoot '_desc-' BIDS_desc '_eeg'];
+                newResJSONFile = [newResSubAdd BIDS_fnameRoot '_desc-' BIDS_desc '_eeg.json'];
+                newReslogFile = [newResSubAdd BIDS_fnameRoot '_desc-' BIDS_desc '_log.txt'];
+                newResPhotoFiles = {
+                    [newResSubAdd BIDS_fnameRoot '_desc-source_photo.jpg'], [newResSubAdd BIDS_fnameRoot '_desc-' BIDS_desc '_photo.jpg']
+                    };
+
+                newRawFile = [newRawSubAdd BIDS_fnameRoot '_eeg']; %#ok<NASGU>
+                newRawJSONFile = [newRawSubAdd BIDS_fnameRoot '_eeg.json'];
+               
+                % create subject specific folders if not existing
                 if ~ exist(newResSubAdd, 'dir') && (makeDerivativesBVA || makeDerivativesSET)
                     mkdir(newResSubAdd);
                 end
@@ -1096,122 +1208,143 @@ classdef Project < handle
                     mkdir(newRawSubAdd);
                 end
                 
-                if length(block.subject.name) > 4 && strcmp(block.subject.name(1:4), 'sub-') % if already is BIDS
-                    newResFile = [newResSubAdd block.subject.name '_' block.prefix '_' block.fileName];
-                    newJSONFile = [newResSubAdd block.subject.name '_' block.fileName '_automagic_eeg.json'];
-                    newlogFile = [newResSubAdd block.subject.name '_' block.fileName '_log.txt'];
-                    newRawFile = [newRawSubAdd block.subject.name '_' block.fileName]; %#ok<NASGU>
-                else
-                    newResFile = [newResSubAdd 'sub-' block.subject.name '_' block.prefix '_' fileName];
-                    newJSONFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_automagic_eeg.json'];
-                    newlogFile = [newResSubAdd 'sub-' block.subject.name '_' fileName '_log.txt'];
-                    newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName];    
+                % define BIDS template for sidecar json (better to load itfrom template?)
+                BIDS_minimalSidecar.TaskName = [BIDS_taskName]; % REQUIRED
+                BIDS_minimalSidecar.EEGReference = 'n/a'; % REQUIRED
+                BIDS_minimalSidecar.SamplingFrequency = [block.sRate]; % REQUIRED
+                BIDS_minimalSidecar.PowerLineFrequency = block.params.EEGSystem.powerLineFreq; % REQUIRED
+                BIDS_minimalSidecar.SoftwareFilters = 'n/a'; % REQUIRED
+                
+                BIDS_requiredSidecar = {'TaskName', 'EEGReference', 'SamplingFrequency', 'PowerLineFrequency', 'SoftwareFilters'};
+
+                % try to load sidecar json and other required BIDS files from source folder (see BIDS inheritance principle)
+                try
+                    [sourcepath, sourcefile, ~] = fileparts(block.sourceAddress);
+                    BIDS_sidecar_raw = jsonread([sourcepath slash sourcefile '.json']);
+                    % add required fields if missing
+                    for BIDS_required = BIDS_requiredSidecar
+                        BIDS_required = BIDS_required{1};
+                        if ~isfield(BIDS_sidecar_raw, BIDS_required)
+                            BIDS_sidecar_raw.(BIDS_required) = BIDS_minimalSidecar.(BIDS_required);
+                        end
+                    end
+                catch
+                    BIDS_sidecar_raw = BIDS_minimalSidecar;
                 end
                 
-                datasetDescriptionFile_raw = [raw_fol 'dataset_description.json'];
-                datasetDescriptionFile_deriv = [automagic_fol 'dataset_description.json'];
-                
+                % save source EEG data
                 if makeRawSET
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
-                    % newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.set'];
                     newRawFile1 = [newRawFile '.set'];
-                    [~, ~] = evalc('pop_saveset(EEG, newRawFile1)');
+                    [~, ~] = evalc("pop_saveset(EEG,'filename',newRawFile1,'version','7.3')");
                 end
                 
                 if makeRawBVA
                     EEG = block.loadEEGFromFile(); %#ok<NASGU>
-                    % newRawFile = [newRawSubAdd 'sub-' block.subject.name '_' fileName '.dat']; %#ok<NASGU>
                     newRawFile2 = [newRawFile '.dat']; 
-                    [~, ~] = evalc('pop_writebva(EEG, newRawFile2)');
+                    [~, ~] = evalc("pop_writebva(EEG,newRawFile2)");
                 end
                 
+                % save sidecar json for raw file
+                if makeRawBVA || makeRawSET
+                    jsonwrite(newRawJSONFile, BIDS_sidecar_raw, struct('indent','  '));
+                end
                 
-                
+              
+                        
+                % save preprocessed EEG files / derivatives
                 if exist(block.resultAddress, 'file') && makeDerivativesBVA || makeDerivativesSET
                     % Result file
                     if makeDerivativesBVA
-                        newResFile1 = [newResFile '_eeg.mat'];
-                        copyfile(block.resultAddress, newResFile1);
+                        newResFile1 = [newResFile '.dat'];
+                        EEG = load(block.resultAddress);
+                        EEG = EEG.EEG;
+                        [~, ~] = evalc("pop_writebva(EEG,newResFile1)");
+
                     end
                     
                     if makeDerivativesSET
-                        newResFile2 = [newResFile '_eeg.set'];
-                        resFile = load(block.resultAddress);
-                        resFile = resFile.EEG;
-                        [~, ~] = evalc('pop_saveset(resFile, newResFile2)');
+                        EEG = load(block.resultAddress);
+                        EEG = EEG.EEG;
+                        newResFile2 = [newResFile '.set'];
+                        [~, ~] = evalc("pop_saveset(EEG,'filename',newResFile2,'version','7.3')");
                     end
-                    % Automagic field
+                    
+                    % inherit data from existing sidecar json (or minimal template)
+                    BIDS_sidecar_der = BIDS_sidecar_raw;
+
+                    %  update sidecar json with Automagic fields
                     preprocessed = matfile(block.resultAddress,'Writable',true);
                     autStruct = preprocessed.automagic;
                     if ~ strcmp('Others', autStruct.EEGSystem.params.name)
-                        bidsStruct.CapManufacturer = autStruct.EEGSystem.params.name;
+                        BIDS_sidecar_der.CapManufacturer = autStruct.EEGSystem.params.name;
                     end
-                    bidsStruct.EEGChannelCount = autStruct.EEGChannelCount;
-                    bidsStruct.EOGChannelCount = length(autStruct.channelReduction.usedEOGChannels);
-                    bidsStruct.PowerLineFrequency = autStruct.params.EEGSystem.powerLineFreq;
-                    bidsStruct.SamplingFrequency = autStruct.SamplingFrequency;
-                    bidsStruct.RecordingDuration = autStruct.RecordingDuration;
+                    BIDS_sidecar_der.EEGChannelCount = autStruct.EEGChannelCount;
+                    BIDS_sidecar_der.EOGChannelCount = length(autStruct.channelReduction.usedEOGChannels);
+                    BIDS_sidecar_der.PowerLineFrequency = autStruct.params.EEGSystem.powerLineFreq;
+                    BIDS_sidecar_der.SamplingFrequency = autStruct.SamplingFrequency;
+                    BIDS_sidecar_der.RecordingDuration = autStruct.RecordingDuration;
                     if ~ isempty(autStruct.params.DetrendingParams)
-                        bidsStruct.Detrending = 'Constant';
+                        BIDS_sidecar_der.Detrending = 'Constant';
                     else
-                        bidsStruct.Detrending = 'No Detrending';
+                        BIDS_sidecar_der.Detrending = 'No Detrending';
                     end
-                    bidsStruct.EEGReference = autStruct.EEGReference;
-                    bidsStruct.ExcludedChannels = autStruct.channelReduction.excludedChannels;
-                    bidsStruct.EEGChannels = autStruct.channelReduction.usedEEGChannels;
-                    bidsStruct.EOGChannels = autStruct.channelReduction.usedEOGChannels;
-                    bidsStruct.PreprocessingSoftware.Name = ['Automagic ' self.CGV.VERSION];
-                    bidsStruct.PreprocessingSoftware.ToolboxReference = 'Pedroni, Andreas & Bahreini, Amirreza & Langer, Nicolas. (2018). AUTOMAGIC: Standardized Preprocessing of Big EEG Data. 10.1101/460469.';
-                    bidsStruct.BadChannelInterpolation.Method = autStruct.params.InterpolationParams.method;
-                    bidsStruct.BadChannelInterpolation.Performed = 'No';
-                    bidsStruct.BadChannelInterpolation.BadChannels = autStruct.tobeInterpolated;
+                    BIDS_sidecar_der.EEGReference = autStruct.EEGReference;
+                    BIDS_sidecar_der.ExcludedChannels = autStruct.channelReduction.excludedChannels;
+                    BIDS_sidecar_der.EEGChannels = autStruct.channelReduction.usedEEGChannels;
+                    BIDS_sidecar_der.EOGChannels = autStruct.channelReduction.usedEOGChannels;
+                    BIDS_sidecar_der.PreprocessingSoftware.Name = ['Automagic ' self.CGV.VERSION];
+                    BIDS_sidecar_der.PreprocessingSoftware.ToolboxReference = 'Pedroni, Andreas & Bahreini, Amirreza & Langer, Nicolas. (2018). AUTOMAGIC: Standardized Preprocessing of Big EEG Data. 10.1101/460469.';
+                    BIDS_sidecar_der.BadChannelInterpolation.Method = autStruct.params.InterpolationParams.method;
+                    BIDS_sidecar_der.BadChannelInterpolation.Performed = 'No';
+                    BIDS_sidecar_der.BadChannelInterpolation.BadChannels = autStruct.tobeInterpolated;
                     if autStruct.isInterpolated
-                        bidsStruct.BadChannelInterpolation.Performed = 'Yes';
-                        bidsStruct.BadChannelInterpolation.InterpolatedBadChannels = autStruct.finalBadChans;
+                        BIDS_sidecar_der.BadChannelInterpolation.Performed = 'Yes';
+                        BIDS_sidecar_der.BadChannelInterpolation.InterpolatedBadChannels = autStruct.finalBadChans;
                     end
                     
-                    bidsStruct.BadChannelIdentification = struct;
+                    BIDS_sidecar_der.BadChannelIdentification = struct;
                     if ~isempty(autStruct.params.PrepParams)
-                        bidsStruct.BadChannelIdentification.PREP.IdentifcationMethod= 'PREP pipeline';
-                        bidsStruct.BadChannelIdentification.PREP.ToolboxReference = 'Bigdely-Shamlo N, Mullen T, Kothe C, Su K-M and Robbins KA (2015)';
-                        bidsStruct.BadChannelIdentification.PREP.ToolboxVersion = '0.55.3 Released 10/19/2017';
-                        bidsStruct.BadChannelIdentification.PREP.BadChannels = autStruct.prep.badChans;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.ExtremeAmplitudes.RobustDeviationThreshold = autStruct.prep.params.reference.robustDeviationThreshold;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfCorrelation.correlationWindowSeconds = autStruct.prep.params.reference.correlationWindowSeconds;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfCorrelation.correlationThreshold = autStruct.prep.params.reference.correlationThreshold;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacSampleSize = autStruct.prep.params.reference.ransacSampleSize;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacChannelFraction = autStruct.prep.params.reference.ransacChannelFraction;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacUnbrokenTime = autStruct.prep.params.reference.ransacUnbrokenTime;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacWindowSeconds = autStruct.prep.params.reference.ransacWindowSeconds;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacCorrelationThreshold = autStruct.prep.params.reference.ransacCorrelationThreshold;
-                        bidsStruct.BadChannelIdentification.PREP.BadChannelCriteria.HighFrequencyNoise.highFrequencyNoiseThreshold = autStruct.prep.params.reference.highFrequencyNoiseThreshold;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.IdentifcationMethod= 'PREP pipeline';
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.ToolboxReference = 'Bigdely-Shamlo N, Mullen T, Kothe C, Su K-M and Robbins KA (2015)';
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.ToolboxVersion = '0.55.3 Released 10/19/2017';
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannels = autStruct.prep.badChans;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.ExtremeAmplitudes.RobustDeviationThreshold = autStruct.prep.params.reference.robustDeviationThreshold;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.LackOfCorrelation.correlationWindowSeconds = autStruct.prep.params.reference.correlationWindowSeconds;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.LackOfCorrelation.correlationThreshold = autStruct.prep.params.reference.correlationThreshold;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacSampleSize = autStruct.prep.params.reference.ransacSampleSize;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacChannelFraction = autStruct.prep.params.reference.ransacChannelFraction;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacUnbrokenTime = autStruct.prep.params.reference.ransacUnbrokenTime;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacWindowSeconds = autStruct.prep.params.reference.ransacWindowSeconds;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.LackOfPredictability.ransacCorrelationThreshold = autStruct.prep.params.reference.ransacCorrelationThreshold;
+                        BIDS_sidecar_der.BadChannelIdentification.PREP.BadChannelCriteria.HighFrequencyNoise.highFrequencyNoiseThreshold = autStruct.prep.params.reference.highFrequencyNoiseThreshold;
                         
                     end
                     
                     if ~isempty(autStruct.params.CRDParams)
-                        bidsStruct.BadChannelIdentification.CRD.IdentifcationMethod= 'clean_rawdata()';
-                        bidsStruct.BadChannelIdentification.CRD.ToolboxReference = 'Christian Kothe http://sccn.ucsd.edu/wiki/Plugin_list_process';
-                        bidsStruct.BadChannelIdentification.CRD.ToolboxVersion = '0.34';
-                        bidsStruct.BadChannelIdentification.CRD.BadChannels = autStruct.crd.badChans;
+                        BIDS_sidecar_der.BadChannelIdentification.CRD.IdentifcationMethod= 'clean_rawdata()';
+                        BIDS_sidecar_der.BadChannelIdentification.CRD.ToolboxReference = 'Christian Kothe http://sccn.ucsd.edu/wiki/Plugin_list_process';
+                        BIDS_sidecar_der.BadChannelIdentification.CRD.ToolboxVersion = '0.34';
+                        BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannels = autStruct.crd.badChans;
                         if isfield(autStruct.crd.params, 'FlatlineCriterion') && ...
                                 ~ strcmp(pars.FlatlineCriterion , 'off')
                             flatLine = autStruct.crd.params.FlatlineCriterion;
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'Yes';
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.FlatLine = flatLine;
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'Yes';
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.FlatLine = flatLine;
                         elseif isfield(autStruct.crd.params, 'FlatlineCriterion') && ...
                                 strcmp(pars.FlatlineCriterion , 'off')
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'No';
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'No';
                         else
                             flatLine = 5; % the default is HARDCODED
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'Yes';
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.FlatLine = flatLine;
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.Used = 'Yes';
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.FlatChannels.FlatLine = flatLine;
                         end
                         
                         if ~ strcmp(autStruct.crd.params.LineNoiseCriterion, 'off')
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.ExceedingNoise.Used = 'Yes';
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.ExceedingNoise.Criterion = flatLine;
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.ExceedingNoise.Used = 'Yes';
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.ExceedingNoise.Criterion = flatLine;
                         else
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.ExceedingNoise.Used = 'No';
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.ExceedingNoise.Used = 'No';
                         end
                         
                         if ~ strcmp(autStruct.crd.params.ChannelCriterion, 'off')
@@ -1221,150 +1354,161 @@ classdef Project < handle
                                 MaxBrokenTime = 0.4; % the default is HARDCODED
                             end
                             
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.Used = 'Yes';
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.MaxBrokenTime = MaxBrokenTime;
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.ChannelCriterion = autStruct.crd.params.ChannelCriterion;
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.Used = 'Yes';
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.MaxBrokenTime = MaxBrokenTime;
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.ChannelCriterion = autStruct.crd.params.ChannelCriterion;
                         else
-                            bidsStruct.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.Used = 'No';
+                            BIDS_sidecar_der.BadChannelIdentification.CRD.BadChannelCriteria.LackOfPredictability.Used = 'No';
                         end
                     end
                     
                     if ~isempty(autStruct.params.HighvarParams)
-                        bidsStruct.BadChannelIdentification.HighVar.IdentifcationMethod= 'High variance rejection';
-                        bidsStruct.BadChannelIdentification.HighVar.ToolboxReference = '';
-                        bidsStruct.BadChannelIdentification.HighVar.ToolboxVersion = '';
-                        bidsStruct.BadChannelIdentification.HighVar.BadChannels = autStruct.highVarianceRejection.badChans;
-                        bidsStruct.BadChannelIdentification.HighVar.BadChannelCriteria.sd = autStruct.highVarianceRejection.sd;
+                        BIDS_sidecar_der.BadChannelIdentification.HighVar.IdentifcationMethod= 'High variance rejection';
+                        BIDS_sidecar_der.BadChannelIdentification.HighVar.ToolboxReference = '';
+                        BIDS_sidecar_der.BadChannelIdentification.HighVar.ToolboxVersion = '';
+                        BIDS_sidecar_der.BadChannelIdentification.HighVar.BadChannels = autStruct.highVarianceRejection.badChans;
+                        BIDS_sidecar_der.BadChannelIdentification.HighVar.BadChannelCriteria.sd = autStruct.highVarianceRejection.sd;
                     end
                     
                     if ~isempty(autStruct.params.MinvarParams)
-                        bidsStruct.BadChannelIdentification.MinVar.IdentifcationMethod= 'Minimum variance rejection';
-                        bidsStruct.BadChannelIdentification.MinVar.ToolboxReference = '';
-                        bidsStruct.BadChannelIdentification.MinVar.ToolboxVersion = '';
-                        bidsStruct.BadChannelIdentification.MinVar.BadChannels = autStruct.minVarianceRejection.badChans;
-                        bidsStruct.BadChannelIdentification.MinVar.BadChannelCriteria.sd = autStruct.minVarianceRejection.sd;
+                        BIDS_sidecar_der.BadChannelIdentification.MinVar.IdentifcationMethod= 'Minimum variance rejection';
+                        BIDS_sidecar_der.BadChannelIdentification.MinVar.ToolboxReference = '';
+                        BIDS_sidecar_der.BadChannelIdentification.MinVar.ToolboxVersion = '';
+                        BIDS_sidecar_der.BadChannelIdentification.MinVar.BadChannels = autStruct.minVarianceRejection.badChans;
+                        BIDS_sidecar_der.BadChannelIdentification.MinVar.BadChannelCriteria.sd = autStruct.minVarianceRejection.sd;
                     end
                     
                     if ~isempty(autStruct.params.FilterParams)
                         if ~isempty(autStruct.params.FilterParams.high)
-                            bidsStruct.SoftwareFilters.Highpass.FilterType = 'highpass fir using pop_eegfiltnew()';
-                            bidsStruct.SoftwareFilters.Highpass.HighCutoff = autStruct.filtering.highpass.freq;
-                            bidsStruct.SoftwareFilters.Highpass.HighCutoffDefinition = 'half-amplitude (-6dB)';
-                            bidsStruct.SoftwareFilters.Highpass.FilterOrder = autStruct.filtering.highpass.order;
-                            bidsStruct.SoftwareFilters.Highpass.TransitionBandwidth = autStruct.filtering.highpass.transitionBandWidth;
+                            BIDS_sidecar_der.SoftwareFilters.Highpass.FilterType = 'highpass fir using pop_eegfiltnew()';
+                            BIDS_sidecar_der.SoftwareFilters.Highpass.HighCutoff = autStruct.filtering.highpass.freq;
+                            BIDS_sidecar_der.SoftwareFilters.Highpass.HighCutoffDefinition = 'half-amplitude (-6dB)';
+                            BIDS_sidecar_der.SoftwareFilters.Highpass.FilterOrder = autStruct.filtering.highpass.order;
+                            BIDS_sidecar_der.SoftwareFilters.Highpass.TransitionBandwidth = autStruct.filtering.highpass.transitionBandWidth;
                         end
                         
                         if ~isempty(autStruct.params.FilterParams.low)
-                            bidsStruct.SoftwareFilters.Lowpass.FilterType = 'lowpass fir using pop_eegfiltnew()';
-                            bidsStruct.SoftwareFilters.Lowpass.LowCutoff = autStruct.filtering.lowpass.freq;
-                            bidsStruct.SoftwareFilters.Lowpass.LowCutoffDefinition = 'half-amplitude (-6dB)';
-                            bidsStruct.SoftwareFilters.Lowpass.FilterOrder = autStruct.filtering.lowpass.order;
-                            bidsStruct.SoftwareFilters.Lowpass.TransitionBandwidth = autStruct.filtering.lowpass.transitionBandWidth;
+                            BIDS_sidecar_der.SoftwareFilters.Lowpass.FilterType = 'lowpass fir using pop_eegfiltnew()';
+                            BIDS_sidecar_der.SoftwareFilters.Lowpass.LowCutoff = autStruct.filtering.lowpass.freq;
+                            BIDS_sidecar_der.SoftwareFilters.Lowpass.LowCutoffDefinition = 'half-amplitude (-6dB)';
+                            BIDS_sidecar_der.SoftwareFilters.Lowpass.FilterOrder = autStruct.filtering.lowpass.order;
+                            BIDS_sidecar_der.SoftwareFilters.Lowpass.TransitionBandwidth = autStruct.filtering.lowpass.transitionBandWidth;
                         end
                         
                         if ~isempty(autStruct.params.FilterParams.notch)
-                            bidsStruct.SoftwareFilters.Notch.FilterType = 'notch fir using pop_eegfiltnew()';
-                            bidsStruct.SoftwareFilters.Notch.NotchCutoff = autStruct.filtering.notch.freq;
-                            bidsStruct.SoftwareFilters.Notch.NotchCutoffDefinition = 'half-amplitude (-6dB)';
-                            bidsStruct.SoftwareFilters.Notch.FilterOrder = autStruct.filtering.notch.order;
-                            bidsStruct.SoftwareFilters.Notch.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
+                            BIDS_sidecar_der.SoftwareFilters.Notch.FilterType = 'notch fir using pop_eegfiltnew()';
+                            BIDS_sidecar_der.SoftwareFilters.Notch.NotchCutoff = autStruct.filtering.notch.freq;
+                            BIDS_sidecar_der.SoftwareFilters.Notch.NotchCutoffDefinition = 'half-amplitude (-6dB)';
+                            BIDS_sidecar_der.SoftwareFilters.Notch.FilterOrder = autStruct.filtering.notch.order;
+                            BIDS_sidecar_der.SoftwareFilters.Notch.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
                         end
                         if ~isempty(autStruct.params.FilterParams.zapline)
-                            bidsStruct.SoftwareFilters.Zapline.FilterType = 'ZapLine fir using nt_zapline()';
-                            bidsStruct.SoftwareFilters.Zapline.NotchCutoff = autStruct.filtering.zapline.freq;
+                            BIDS_sidecar_der.SoftwareFilters.Zapline.FilterType = 'ZapLine fir using nt_zapline()';
+                            BIDS_sidecar_der.SoftwareFilters.Zapline.NotchCutoff = autStruct.filtering.zapline.freq;
 %                             bidsStruct.SoftwareFilters.Zapline.NotchCutoffDefinition = 'half-amplitude (-6dB)';
 %                             bidsStruct.SoftwareFilters.Zapline.FilterOrder = autStruct.filtering.notch.order;
 %                             bidsStruct.SoftwareFilters.Zapline.TransitionBandwidth = autStruct.filtering.notch.transitionBandWidth;
                         end
                     end
                     if ~isempty(autStruct.params.EOGRegressionParams)
-                        bidsStruct.ArtifactCorrection.EOGRegression.Used = 'Yes';
-                        bidsStruct.ArtifactCorrection.EOGRegression.ToolboxReference = 'Parra, Lucas C., Clay D. Spence, Adam D. Gerson, and Paul Sajda. 2005. “Recipes for the Linear Analysis of EEG.�? NeuroImage 28 (2): 326–41';
+                        BIDS_sidecar_der.ArtifactCorrection.EOGRegression.Used = 'Yes';
+                        BIDS_sidecar_der.ArtifactCorrection.EOGRegression.ToolboxReference = 'Parra, Lucas C., Clay D. Spence, Adam D. Gerson, and Paul Sajda. 2005. ???Recipes for the Linear Analysis of EEG.???? NeuroImage 28 (2): 326???41';
                     end
                     
                     if ~isempty(autStruct.params.MARAParams) && ~strcmp(autStruct.mara.performed,'FAILED')
-                        bidsStruct.ArtifactCorrection.MARA.RemovedBadICs = autStruct.mara.ICARejected;
-                        bidsStruct.ArtifactCorrection.MARA.PosteriorArtefactProbability = autStruct.mara.postArtefactProb;
-                        bidsStruct.ArtifactCorrection.MARA.RetainedVariance = autStruct.mara.retainedVariance;
-                        bidsStruct.ArtifactCorrection.MARA.ToolboxReference = 'Winkler, Irene, Stefan Haufe, and Michael Tangermann. 2011. “Automatic Classification of Artifactual ICA-Components for Artifact Removal in EEG Signals.�? Behavioral and Brain Functions: BBF 7 (August): 30';
+                        BIDS_sidecar_der.ArtifactCorrection.MARA.RemovedBadICs = autStruct.mara.ICARejected;
+                        BIDS_sidecar_der.ArtifactCorrection.MARA.PosteriorArtefactProbability = autStruct.mara.postArtefactProb;
+                        BIDS_sidecar_der.ArtifactCorrection.MARA.RetainedVariance = autStruct.mara.retainedVariance;
+                        BIDS_sidecar_der.ArtifactCorrection.MARA.ToolboxReference = 'Winkler, Irene, Stefan Haufe, and Michael Tangermann. 2011. ???Automatic Classification of Artifactual ICA-Components for Artifact Removal in EEG Signals.???? Behavioral and Brain Functions: BBF 7 (August): 30';
                     end
                     
                     if ~isempty(autStruct.params.RPCAParams)
-                        bidsStruct.ArtifactCorrection.RPCA.RPCALambda = autStruct.rpca.lambda;
-                        bidsStruct.ArtifactCorrection.RPCA.Tolerance = autStruct.rpca.tol;
-                        bidsStruct.ArtifactCorrection.RPCA.MaxIterations = autStruct.rpca.maxIter;
-                        bidsStruct.ArtifactCorrection.RPCA.ToolboxReference = 'Lin, Zhouchen, Minming Chen, and Yi Ma. 2010. “The Augmented Lagrange Multiplier Method for Exact Recovery of Corrupted Low-Rank Matrices.�? arXiv [math.OC]. arXiv. http://arxiv.org/abs/1009.5055';
+                        BIDS_sidecar_der.ArtifactCorrection.RPCA.RPCALambda = autStruct.rpca.lambda;
+                        BIDS_sidecar_der.ArtifactCorrection.RPCA.Tolerance = autStruct.rpca.tol;
+                        BIDS_sidecar_der.ArtifactCorrection.RPCA.MaxIterations = autStruct.rpca.maxIter;
+                        BIDS_sidecar_der.ArtifactCorrection.RPCA.ToolboxReference = 'Lin, Zhouchen, Minming Chen, and Yi Ma. 2010. ???The Augmented Lagrange Multiplier Method for Exact Recovery of Corrupted Low-Rank Matrices.???? arXiv [math.OC]. arXiv. http://arxiv.org/abs/1009.5055';
                     end
-                    bidsStruct.QualityRating.QualityThresholds.OverallHighAmplitudeThreshold = autStruct.qualityThresholds.overallThresh;
-                    bidsStruct.QualityRating.QualityThresholds.TimepointsHighVarianceThreshold = autStruct.qualityThresholds.timeThresh;
-                    bidsStruct.QualityRating.QualityThresholds.ChannelsHighVarianceThreshold = autStruct.qualityThresholds.chanThresh;
-                    bidsStruct.QualityRating.QualityScores.OverallHighAmplitude = autStruct.qualityScores.OHA;
-                    bidsStruct.QualityRating.QualityScores.TimepointsHighVariance = autStruct.qualityScores.THV;
-                    bidsStruct.QualityRating.QualityScores.ChannelsHighVariance = autStruct.qualityScores.CHV;
-                    bidsStruct.QualityRating.QualityScores.MeanAbsoluteVoltage = autStruct.qualityScores.MAV;
-                    bidsStruct.QualityRating.QualityScores.RatioOfBadChannels = autStruct.qualityScores.RBC;
-                    bidsStruct.QualityRating.SelectedQualityScore.OverallHighAmplitude = autStruct.selectedQualityScore.OHA;
-                    bidsStruct.QualityRating.SelectedQualityScore.TimepointsHighVariance = autStruct.selectedQualityScore.THV;
-                    bidsStruct.QualityRating.SelectedQualityScore.ChannelsHighVariance = autStruct.selectedQualityScore.CHV;
-                    bidsStruct.QualityRating.SelectedQualityScore.MeanAbsoluteVoltage = autStruct.selectedQualityScore.MAV;
-                    bidsStruct.QualityRating.SelectedQualityScore.RatioOfBadChannels = autStruct.selectedQualityScore.RBC;
-                    bidsStruct.QualityRating.CurrentRating = autStruct.rate;
-                    bidsStruct.QualityRating.ManuallyRated = autStruct.isManuallyRated;
+                    BIDS_sidecar_der.QualityRating.QualityThresholds.OverallHighAmplitudeThreshold = autStruct.qualityThresholds.overallThresh;
+                    BIDS_sidecar_der.QualityRating.QualityThresholds.TimepointsHighVarianceThreshold = autStruct.qualityThresholds.timeThresh;
+                    BIDS_sidecar_der.QualityRating.QualityThresholds.ChannelsHighVarianceThreshold = autStruct.qualityThresholds.chanThresh;
+                    BIDS_sidecar_der.QualityRating.QualityScores.OverallHighAmplitude = autStruct.qualityScores.OHA;
+                    BIDS_sidecar_der.QualityRating.QualityScores.TimepointsHighVariance = autStruct.qualityScores.THV;
+                    BIDS_sidecar_der.QualityRating.QualityScores.ChannelsHighVariance = autStruct.qualityScores.CHV;
+                    BIDS_sidecar_der.QualityRating.QualityScores.MeanAbsoluteVoltage = autStruct.qualityScores.MAV;
+                    BIDS_sidecar_der.QualityRating.QualityScores.RatioOfBadChannels = autStruct.qualityScores.RBC;
+                    BIDS_sidecar_der.QualityRating.SelectedQualityScore.OverallHighAmplitude = autStruct.selectedQualityScore.OHA;
+                    BIDS_sidecar_der.QualityRating.SelectedQualityScore.TimepointsHighVariance = autStruct.selectedQualityScore.THV;
+                    BIDS_sidecar_der.QualityRating.SelectedQualityScore.ChannelsHighVariance = autStruct.selectedQualityScore.CHV;
+                    BIDS_sidecar_der.QualityRating.SelectedQualityScore.MeanAbsoluteVoltage = autStruct.selectedQualityScore.MAV;
+                    BIDS_sidecar_der.QualityRating.SelectedQualityScore.RatioOfBadChannels = autStruct.selectedQualityScore.RBC;
+                    BIDS_sidecar_der.QualityRating.CurrentRating = autStruct.rate;
+                    BIDS_sidecar_der.QualityRating.ManuallyRated = autStruct.isManuallyRated;
                     
-                    jsonwrite(newJSONFile, bidsStruct, struct('indent','  '));
+                    % save sidecar json
+                    jsonwrite(newResJSONFile, BIDS_sidecar_der, struct('indent','  '));
                     
-                    dataset_description.Name = [''];
-                    dataset_description.BIDSVersion = ['1.2.0'];
-                    dataset_description.License = [''];
-                    dataset_description.Authors = [''];
-                    dataset_description.Acknowledgements = [''];
-                    dataset_description.HowToAcknowledge = [''];
-                    dataset_description.Funding = [''];
-                    dataset_description.ReferencesAndLinks = [''];
-                    dataset_description.DatasetDOI = [''];
-                    
-                    jsonwrite(datasetDescriptionFile_deriv, dataset_description, struct('indent','  '));
-                    if makeRawBVA || makeRawSET
-                        jsonwrite(datasetDescriptionFile_raw, dataset_description, struct('indent','  '));
-                    end
-                    
-                    % log file
+                   
+                    % copy log file
                     logFile = [block.resultFolder slash block.fileName '_log.txt'];
-                    copyfile(logFile, newlogFile);
+                    copyfile(logFile, newReslogFile);
                     
-                    % JPEG files
+                    % copy JPEG files
                     images = dir([block.resultFolder slash block.fileName '_orig.jpg']);
                     images = [images dir([block.resultFolder slash block.fileName '.jpg'])];
                     for imIdx = 1:length(images)
                         image = images(imIdx);
                         imageAddress = [image.folder slash image.name];
-                        imageName = image.name;
-                        imageName = [block.subject.name '_' imageName];
-                        newImageName = strrep(imageName, '.jpg', '_photo.jpg');
-                        newImageAdd = [newResSubAdd newImageName];
+                        newImageAdd = newResPhotoFiles{imIdx};
                         copyfile(imageAddress, newImageAdd);
+                    end
+                    
+                end
+                
+                % try copying recommended BIDS files (inheritance prinicple)
+                BIDS_folderSource = fileparts(block.sourceAddress);
+                BIDS_filesSource = {dir(BIDS_folderSource).name dir(fileparts(BIDS_folderSource)).name};
+                for BIDS_fileSource = BIDS_filesSource
+                    tmp = regexp(BIDS_fileSource{1}, regexptranslate('wildcard', BIDS_recommendedFiles));
+                    if [tmp{:}]
+                        warning(['copying BIDS file ' BIDS_fileSource{1} ' verbatim - please check whether any of the content needs to be updated!'])
+                        if makeDerivativesBVA || makeDerivativesSET
+                            try
+                                copyfile([BIDS_folderSource slash BIDS_fileSource{1}], [newResSubAdd BIDS_fileSource{1}])
+                            catch % _scans.tsv is one folder level up
+                                copyfile([fileparts(BIDS_folderSource) slash BIDS_fileSource{1}], [fileparts(newResSubAdd(1:end-1)) slash BIDS_fileSource{1}])
+                            end
+                        end
+                        if makeRawBVA || makeRawSET
+                            try
+                                copyfile([BIDS_folderSource slash BIDS_fileSource{1}], [newRawSubAdd BIDS_fileSource{1}])
+                            catch
+                                copyfile([fileparts(BIDS_folderSource) slash BIDS_fileSource{1}], [fileparts(newRawSubAdd(1:end-1)) slash BIDS_fileSource{1}])
+                            end
+                        end
                     end
                 end
             end
+            
+            % save pipeline parameter and matlab code to reproduce
+            % preprocessing
             if makeDerivativesBVA || makeDerivativesSET
-                paramsJSON = [der_fol 'automagic_params.json'];
+                paramsJSON = [code_fol 'automagic_params.json'];
                 jsonwrite(paramsJSON, self.params, struct('indent','  '));
-            end
             
-            params = self.params;
-            vParams = self.vParams;
-            params.samplingrate = block.sRate;
             
-            if ~ exist(code_fol, 'dir')
-                mkdir(code_fol);
+                params = self.params;
+                vParams = self.vParams;
+                params.samplingrate = block.sRate;
+
+                save([code_fol 'params.mat'], 'params');
+                save([code_fol 'vParams.mat'], 'vParams');
+                reproduceCode = getCodeHistoryStruct();
+                fid = fopen([code_fol 'automagic_preprocess.m'], 'wt');
+                fprintf(fid, reproduceCode.create, self.name, self.dataFolder, self.name, self.fileExtension);
+                fprintf(fid, reproduceCode.interpolate);
+                fclose(fid);
+            
             end
-            save([code_fol 'params.mat'], 'params');
-            save([code_fol 'vParams.mat'], 'vParams');
-            reproduceCode = getCodeHistoryStruct();
-            fid = fopen([code_fol 'automagic_preprocess.m'], 'wt');
-            fprintf(fid, reproduceCode.create, self.name, self.dataFolder, self.name, self.fileExtension);
-            fprintf(fid, reproduceCode.interpolate);
-            fclose(fid);
             
             if(usejava('Desktop') && ishandle(h))
                 waitbar(1)
