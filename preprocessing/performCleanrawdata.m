@@ -94,29 +94,37 @@ if(isfield(EEGCleaned, 'etc'))
         newToRemove = union(toRemove, badChans);
     end
     EEG_out.etc = etcfield;
-
-    % Remove the same time-windows from the EOG channels
-   if(isfield(EEGCleaned.etc, 'clean_sample_mask'))
-       EEG_out = EEGCleaned;
-
-       if(isfield(EEGCleaned.etc, 'clean_channel_mask'))
-            removedMask = newMask;
-            newToRemove = toRemove;
+    
+    % If ASR or Window criterion is performed, replace EEG_out with EEGCleaned
+    
+    if ~isequal(params.BurstCriterion,'off') || isfield(EEGCleaned.etc, 'clean_sample_mask')
+        EEG_out = EEGCleaned;
+        
+        % If portion of data have been rejected, reject from EOG too
+        
+        if isfield(EEGCleaned.etc, 'clean_sample_mask')
+            
+            % Remove the same time-windows from the EOG channels
+            if(isfield(EEGCleaned.etc, 'clean_channel_mask'))
+                removedMask = newMask;
+                newToRemove = toRemove;
+            end
+            
+            removed = EEGCleaned.etc.clean_sample_mask;
+            firsts = find(diff(removed) == -1) + 1;
+            seconds = find(diff(removed) == 1);
+            if(removed(1) == 0)
+                firsts = [1, firsts];
+            end
+            if(removed(end) == 0)
+                seconds = [seconds, length(removed)];
+            end
+            remove_range = [firsts; seconds]'; %#ok<NASGU>
+            [~, EOG_out] = evalc('pop_select(EOG_in, ''nopoint'', remove_range)');
         end
-
-       removed = EEGCleaned.etc.clean_sample_mask;
-       firsts = find(diff(removed) == -1) + 1;
-       seconds = find(diff(removed) == 1);
-       if(removed(1) == 0)
-           firsts = [1, firsts];
-       end
-       if(removed(end) == 0)
-           seconds = [seconds, length(removed)];
-       end
-       remove_range = [firsts; seconds]'; %#ok<NASGU>
-       [~, EOG_out] = evalc('pop_select(EOG_in, ''nopoint'', remove_range)');
-   end
+    end
 end
+
 
 % Add the info to the output structure
 EEG_out.automagic.crd.performed = 'yes';
