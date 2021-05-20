@@ -1210,7 +1210,7 @@ classdef Project < handle
                 
                 % define BIDS template for sidecar json (better to load itfrom template?)
                 BIDS_minimalSidecar.TaskName = [BIDS_taskName]; % REQUIRED
-                BIDS_minimalSidecar.EEGReference = []; % REQUIRED
+                BIDS_minimalSidecar.EEGReference = ['n/a']; % REQUIRED
                 BIDS_minimalSidecar.SamplingFrequency = [block.sRate]; % REQUIRED
                 BIDS_minimalSidecar.PowerLineFrequency = block.params.EEGSystem.powerLineFreq; % REQUIRED
                 BIDS_minimalSidecar.SoftwareFilters = []; % REQUIRED
@@ -1445,8 +1445,7 @@ classdef Project < handle
                     BIDS_sidecar_der.QualityRating.ManuallyRated = autStruct.isManuallyRated;
                     
                     % save sidecar json
-                    jsonwrite(newResJSONFile, BIDS_sidecar_der, struct('indent','  '));
-                    
+                    jsonwrite(newResJSONFile, BIDS_sidecar_der, struct('indent','  '));                
                    
                     % copy log file
                     logFile = [block.resultFolder slash block.fileName '_log.txt'];
