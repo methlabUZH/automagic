@@ -196,13 +196,13 @@ EOG.chanlocs(1).maraLabel = [];
 
 % Running prep
 try
-[EEG, EOG] = performPrep(EEG, EOG, PrepParams, EEGSystem.refChan);
+    [EEG, EOG] = performPrep(EEG, EOG, PrepParams, EEGSystem.refChan);
 catch ME
     message = ['PREP is not done on this subject, continue with the next steps: ' ...
         ME.message];
-        warning(message)
-        EEG.automagic.PREP.performed = 'FAILED';
-        EEG.automagic.error_msg = message;
+    warning(message)
+    EEG.automagic.PREP.performed = 'FAILED';
+    EEG.automagic.error_msg = message;
 end
 if Settings.trackAllSteps && ~isempty(PrepParams)
    allSteps = matfile(Settings.pathToSteps, 'Writable', true);
@@ -399,7 +399,9 @@ end
 
 % Write back output
 if ~isempty(EEGSystem.refChan)
-    EEG.automagic.autoBadChans = setdiff(removedChans, EEGSystem.refChan.idx);
+    removedChans(removedChans > EEGSystem.refChan.idx)=removedChans(removedChans > EEGSystem.refChan.idx)+1;
+    EEG.automagic.autoBadChans = removedChans;
+    
 else
     EEG.automagic.autoBadChans = removedChans;
 end
@@ -455,6 +457,10 @@ if ~isempty(EOG.data)
     colorbar;
 else
     title('No EOG data available');
+    XTicks = [] ;
+    XTicketLabels = [];
+    set(gca,'XTick', XTicks)
+    set(gca,'XTickLabel', XTicketLabels)
 end
 
 % sort channels frontal/centro-parietal/occiptial
