@@ -1465,7 +1465,8 @@ classdef Project < handle
                 
                 % try copying recommended BIDS files (inheritance prinicple)
                 BIDS_folderSource = fileparts(block.sourceAddress);
-                BIDS_filesSource = {dir(BIDS_folderSource).name dir(fileparts(BIDS_folderSource)).name};
+                BIDS_filesSource = {dir(BIDS_folderSource) dir(fileparts(BIDS_folderSource))};
+                BIDS_filesSource = {BIDS_filesSource{1}.name BIDS_filesSource{2}.name};
                 for BIDS_fileSource = BIDS_filesSource
                     tmp = regexp(BIDS_fileSource{1}, regexptranslate('wildcard', BIDS_recommendedFiles));
                     if [tmp{:}]
