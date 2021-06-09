@@ -100,16 +100,16 @@ if(isfield(EEGCleaned, 'etc'))
     if ~isequal(params.BurstCriterion,'off') || isfield(EEGCleaned.etc, 'clean_sample_mask')
         EEG_out = EEGCleaned;
         
+        if(isfield(EEGCleaned.etc, 'clean_channel_mask'))
+            removedMask = newMask;
+            newToRemove = toRemove;
+        end
+        
         % If portion of data have been rejected, reject from EOG too
         
         if isfield(EEGCleaned.etc, 'clean_sample_mask')
             
-            % Remove the same time-windows from the EOG channels
-            if(isfield(EEGCleaned.etc, 'clean_channel_mask'))
-                removedMask = newMask;
-                newToRemove = toRemove;
-            end
-            
+            % Remove the same time-windows from the EOG channels        
             removed = EEGCleaned.etc.clean_sample_mask;
             firsts = find(diff(removed) == -1) + 1;
             seconds = find(diff(removed) == 1);
