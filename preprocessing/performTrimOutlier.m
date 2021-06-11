@@ -41,7 +41,7 @@
 
 function [EEG, EOG] = performTrimOutlier(EEG, EOG, amplitudeThreshold, pointSpreadWidth)
 
-if ~(nargin==3)
+if ~(nargin==4)
     error('trimOutlier() requires 3 input arguments.')
 end
 
