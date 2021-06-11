@@ -199,7 +199,7 @@ EEG.automagic.TrimOutlier.performed = 'no';
 if isfield(TrimOutlierParams, 'AmpTresh')
     if ~isempty(TrimOutlierParams.AmpTresh) & ~isempty(TrimOutlierParams.rejRange)
         try
-            EEG = performTrimOutlier(EEG, str2double(TrimOutlierParams.AmpTresh), str2double(TrimOutlierParams.rejRange));
+            [EEG, EOG] = performTrimOutlier(EEG, EOG, str2double(TrimOutlierParams.AmpTresh), str2double(TrimOutlierParams.rejRange));
             EEG.automagic.TrimOutlier.performed = 'yes';
             EEG.automagic.TrimOutlier.message = EEG.etc.trimOutlier.message;
         catch ME

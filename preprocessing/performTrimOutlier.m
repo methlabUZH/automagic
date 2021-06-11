@@ -39,7 +39,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function EEG = performTrimOutlier(EEG, amplitudeThreshold, pointSpreadWidth)
+function [EEG, EOG] = performTrimOutlier(EEG, EOG, amplitudeThreshold, pointSpreadWidth)
 
 if ~(nargin==3)
     error('trimOutlier() requires 3 input arguments.')
@@ -88,6 +88,8 @@ if any(badPoints)
     
     % reject them
     EEG = pop_select(EEG, 'nopoint', [rejectDataIntervals(:,1) rejectDataIntervals(:,2)]);
+    % remove also from EOG
+    EOG = pop_select(EOG, 'nopoint', [rejectDataIntervals(:,1) rejectDataIntervals(:,2)]);
     
     % Save the clean data points.
     EEG.etc.trimOutlier.cleanDatapointMask = ~badPointsExpanded;
