@@ -1,4 +1,4 @@
-function EEG = performTrimData(EEG, TrimDataParams)
+function [EEG, EOG] = performTrimData(EEG, EOG, TrimDataParams)
 
 % performTrimData  trims EEG data 
 %
@@ -85,6 +85,7 @@ elseif isempty(firstTrigger) & isempty(lastTrigger)
 % trim data
 else
     EEG = pop_select(EEG, 'point', [new_start new_end]);
+    EOG = pop_select(EOG, 'point', [new_start new_end]);
     
 end
 

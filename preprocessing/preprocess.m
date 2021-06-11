@@ -148,7 +148,7 @@ if isfield(TrimDataParams, 'changeCheck')
         try
             x = EEG.pnts;
             disp('Trimming data')
-            EEG = performTrimData(EEG, TrimDataParams);
+            [EEG, EOG] = performTrimData(EEG, EOG, TrimDataParams);
             if x > EEG.pnts
                 EEG.automagic.TrimData.performed = 'yes';
                 EEG.automagic.TrimData.message = sprintf('\nData trimmed before trigger ''%s'' (padding: %s) and after trigger ''%s'' (padding: %s).' , TrimDataParams.edit_firstTrigger, TrimDataParams.edit_paddingFirst, TrimDataParams.edit_lastTrigger, TrimDataParams.edit_paddingLast);
