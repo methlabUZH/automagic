@@ -70,14 +70,12 @@ high.order = [];
 windowSize = pointSpreadWidth; % millisecond
 windowSizeInFrame = round(windowSize/(1000/EEGtemp.srate)); % frame
 
-% compute bad datapoints
+% compute bad datapoints (old version)
 % absMinMaxAllChan = max([abs(min(EEGtemp.data(:,:))); abs(max(EEGtemp.data(:,:)))],[],1);
 % badPoints  = absMinMaxAllChan > amplitudeThreshold;
 
-windowSizeInFrame = 2000;
-thresh = 100;
 badPoints = 0;
-badPoints = squeeze(sum([(EEGtemp.data(:, :) > thresh) | (EEGtemp.data(:, :) < -thresh)],1) > 0.6 * EEGtemp.nbchan); % EEGtemp.nbchan/3
+badPoints = squeeze(sum([(EEGtemp.data(:, :) > amplitudeThreshold) | (EEGtemp.data(:, :) < -amplitudeThreshold)],1) > 0.5 * EEGtemp.nbchan);
 
 
 if any(badPoints)
