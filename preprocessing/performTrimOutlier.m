@@ -51,15 +51,34 @@ if length(size(EEG.data))==3
     return
 end
 
+
+%% in case EEG has a 'sample' events instead of 'latency'
+if isfield(EEG.event, 'sample')
+    [EEG.event.latency] = EEG.event.sample;
+end
+
+%% temporary HP filter
+high.freq = 0.1;
+high.order = [];
+[~, EEGtemp, ~, b] = evalc('pop_eegfiltnew(EEG, high.freq, 0, high.order)');
+
+
+
 %% remove bad datapoints
 
 % obtain the window size
 windowSize = pointSpreadWidth; % millisecond
-windowSizeInFrame = round(windowSize/(1000/EEG.srate)); % frame
+windowSizeInFrame = round(windowSize/(1000/EEGtemp.srate)); % frame
 
 % compute bad datapoints
-absMinMaxAllChan = max([abs(min(EEG.data(:,:))); abs(max(EEG.data(:,:)))],[],1);
-badPoints  = absMinMaxAllChan > amplitudeThreshold;
+% absMinMaxAllChan = max([abs(min(EEGtemp.data(:,:))); abs(max(EEGtemp.data(:,:)))],[],1);
+% badPoints  = absMinMaxAllChan > amplitudeThreshold;
+
+windowSizeInFrame = 2000;
+thresh = 100;
+badPoints = 0;
+badPoints = squeeze(sum([(EEGtemp.data(:, :) > thresh) | (EEGtemp.data(:, :) < -thresh)],1) > 0.6 * EEGtemp.nbchan); % EEGtemp.nbchan/3
+
 
 if any(badPoints)
     % expand badPoints

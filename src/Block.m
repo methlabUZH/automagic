@@ -1243,7 +1243,7 @@ classdef Block < handle
             
             addEEGLab();
             
-            % Case of .mat file
+            % Case of .mat file  
             if( any(strcmp(self.fileExtension(end-(length(self.fileExtension)-1):end), ...
                     {self.CGV.EXTENSIONS.mat})))
                 data = load(self.sourceAddress);
@@ -1266,6 +1266,13 @@ classdef Block < handle
             elseif(any(strcmp(self.fileExtension, ...
                     {self.CGV.EXTENSIONS.edf})))
                 [~, data] = evalc('pop_biosig(self.sourceAddress)');
+                
+            % case of .dat file
+            elseif (any(strcmp(self.fileExtension, '.dat')))
+                hdr = strcat(self.fileName, '.vhdr');
+                path = self.project.dataFolder;
+                sub = self.subject.name;
+                [~, data] = evalc('pop_loadbv(fullfile(path, sub), hdr)');
                 
             else
                 [~ , data] = evalc('pop_fileio(self.sourceAddress)');
