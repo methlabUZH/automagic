@@ -143,6 +143,8 @@ data_orig = data; % for plot with original data
 EEGRef = EEG;
 
 % Trim data
+
+EEG.automagic.TrimData.performed = 'no';
 if isfield(TrimDataParams, 'changeCheck')
     if TrimDataParams.changeCheck
         try
