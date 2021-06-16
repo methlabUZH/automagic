@@ -1853,11 +1853,12 @@ function TrimOutlierButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 try
-    [edit_AmpTresh, edit_rejRange] = TrimOutlierGUI(handles);
+    [edit_AmpTresh, edit_rejRange, high] = TrimOutlierGUI(handles);
     
 
     handles.params.TrimOutlierParams.rejRange = edit_rejRange;
     handles.params.TrimOutlierParams.AmpTresh = edit_AmpTresh;
+    handles.params.TrimOutlierParams.high = high;
 
         
     % update handles (for 'if isfield(params,'TrimOutlierParams')' in trimOutlierGUI.m) 

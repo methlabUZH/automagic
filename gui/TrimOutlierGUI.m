@@ -22,7 +22,7 @@ function varargout = TrimOutlierGUI(varargin)
 
 % Edit the above text to modify the response to help TrimOutlierGUI
 
-% Last Modified by GUIDE v2.5 05-Oct-2020 08:53:13
+% Last Modified by GUIDE v2.5 16-Jun-2021 10:19:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,7 +59,10 @@ handles.params = params;
 % changing trimDataParams, if already exists
 if isfield(params,'TrimOutlierParams')
     set(handles.edit_AmpTresh, 'String', params.TrimOutlierParams.AmpTresh);
-    set(handles.edit_rejRange, 'String', params.TrimOutlierParams.rejRange);   
+    set(handles.edit_rejRange, 'String', params.TrimOutlierParams.rejRange); 
+    set(handles.checkbox_tempHP, 'Value', params.TrimOutlierParams.high.perform);
+    set(handles.edit_filtCutoff, 'String', params.TrimOutlierParams.high.freq);
+    set(handles.edit_filtOrder, 'String', params.TrimOutlierParams.high.order);
 end
 
 % Choose default command line output for TrimOutlierGUI
@@ -82,6 +85,11 @@ function varargout = TrimOutlierGUI_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = get(handles.edit_AmpTresh, 'String');
 varargout{2} = get(handles.edit_rejRange, 'String');
+
+high.perform = get(handles.checkbox_tempHP, 'Value');
+high.freq = get(handles.edit_filtCutoff, 'String');
+high.order = get(handles.edit_filtOrder, 'String');
+varargout{3} = high;
 
 guidata(hObject, handles);
 delete(handles.figure1);
@@ -162,3 +170,68 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 %delete(hObject);
 guidata(hObject, handles);  % Store the outputs in the GUI
 uiresume()   % resume UI which will trigger the OutputFcn
+
+
+% --- Executes on button press in checkbox_tempHP.
+function checkbox_tempHP_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_tempHP (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_tempHP
+if get(handles.checkbox_tempHP, 'Value')
+    set(handles.edit_filtCutoff, 'Enable', 'on')
+    set(handles.edit_filtOrder, 'Enable', 'on')
+    set(handles.edit_filtCutoff, 'String', '1')
+    set(handles.edit_filtOrder, 'String', 'Default')
+else
+    set(handles.edit_filtCutoff, 'Enable', 'off')
+    set(handles.edit_filtOrder, 'Enable', 'off')
+    set(handles.edit_filtCutoff, 'String', '')
+    set(handles.edit_filtOrder, 'String', '')
+end
+
+
+function edit_filtCutoff_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_filtCutoff (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_filtCutoff as text
+%        str2double(get(hObject,'String')) returns contents of edit_filtCutoff as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_filtCutoff_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_filtCutoff (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_filtOrder_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_filtOrder (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_filtOrder as text
+%        str2double(get(hObject,'String')) returns contents of edit_filtOrder as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_filtOrder_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_filtOrder (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

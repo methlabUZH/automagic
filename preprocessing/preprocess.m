@@ -201,9 +201,8 @@ EEG.automagic.TrimOutlier.performed = 'no';
 if isfield(TrimOutlierParams, 'AmpTresh')
     if ~isempty(TrimOutlierParams.AmpTresh) & ~isempty(TrimOutlierParams.rejRange)
         try
-            [EEG, EOG] = performTrimOutlier(EEG, EOG, str2double(TrimOutlierParams.AmpTresh), str2double(TrimOutlierParams.rejRange));
+            [EEG, EOG] = performTrimOutlier(EEG, EOG, TrimOutlierParams);
             EEG.automagic.TrimOutlier.performed = 'yes';
-            EEG.automagic.TrimOutlier.message = EEG.etc.trimOutlier.message;
         catch ME
             ME.message
             EEG.automagic.TrimOutlier.performed = 'no';
@@ -521,7 +520,7 @@ set(gca,'XTickLabel', XTicketLabels)
 axe = gca;
 hold on;
 if strcmp(EEG.automagic.TrimOutlier.performed, 'yes') 
-    toPlot = EEG.etc.trimOutlier.cleanDatapointMask;
+    toPlot = EEG.automagic.TrimOutlier.cleanDatapointMask;
     zer = find(~toPlot);
     if ~isempty(zer)
         starts = strfind([false, toPlot], [1 0]);
