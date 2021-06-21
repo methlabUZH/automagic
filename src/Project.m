@@ -1131,13 +1131,11 @@ classdef Project < handle
             datasetDescriptionFile_raw = [raw_fol 'dataset_description.json'];
             datasetDescriptionFile_deriv = [automagic_fol 'dataset_description.json'];
             if makeRawBVA || makeRawSET
-                jsonwrite(datasetDescriptionFile_raw, BIDS_dataset_description_raw, struct('indent','  '));
+                jsonwrite_new(datasetDescriptionFile_raw, BIDS_dataset_description_raw, struct('indent','  '));
             end
             if makeDerivativesSET || makeDerivativesBVA
-                jsonwrite(datasetDescriptionFile_deriv, BIDS_dataset_description_der, struct('indent','  '));
+                jsonwrite_new(datasetDescriptionFile_deriv, BIDS_dataset_description_der, struct('indent','  '));
             end
-            
-         
             
             % loop over all subjects/eeg files and create corresponding
             % files
@@ -1247,7 +1245,7 @@ classdef Project < handle
                 
                 % save sidecar json for raw file
                 if makeRawBVA || makeRawSET
-                    jsonwrite(newRawJSONFile, BIDS_sidecar_raw, struct('indent','  '));
+                    jsonwrite_new(newRawJSONFile, BIDS_sidecar_raw, struct('indent','  '));
                 end
                 
               
@@ -1445,8 +1443,8 @@ classdef Project < handle
                     BIDS_sidecar_der.QualityRating.ManuallyRated = autStruct.isManuallyRated;
                     
                     % save sidecar json
-                    jsonwrite(newResJSONFile, BIDS_sidecar_der, struct('indent','  '));                
-                   
+                    jsonwrite_new(newResJSONFile, BIDS_sidecar_der, struct('indent','  '));  
+                             
                     % copy log file
                     logFile = [block.resultFolder slash block.fileName '_log.txt'];
                     copyfile(logFile, newReslogFile);
@@ -1493,7 +1491,7 @@ classdef Project < handle
             % preprocessing
             if makeDerivativesBVA || makeDerivativesSET
                 paramsJSON = [code_fol 'automagic_params.json'];
-                jsonwrite(paramsJSON, self.params, struct('indent','  '));
+                jsonwrite_new(paramsJSON, self.params, struct('indent','  '));
             
             
                 params = self.params;
