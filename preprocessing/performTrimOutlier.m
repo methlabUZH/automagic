@@ -93,7 +93,7 @@ windowSizeInFrame = round(windowSize/(1000/EEGtemp.srate)); % frame
 % badPoints  = absMinMaxAllChan > amplitudeThreshold;
 
 badPoints = 0;
-% remove datapoints, if 50% of the channels exceeds defined threshold (new version)
+% remove datapoints, if 'numChans' of the channels exceeds defined threshold (new version)
 badPoints = squeeze(sum([(EEGtemp.data(:, :) > amplitudeThreshold) | (EEGtemp.data(:, :) < -amplitudeThreshold)],1) > numChans);
 
 
