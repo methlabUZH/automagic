@@ -22,7 +22,7 @@ function varargout = TrimOutlierGUI(varargin)
 
 % Edit the above text to modify the response to help TrimOutlierGUI
 
-% Last Modified by GUIDE v2.5 16-Jun-2021 10:19:39
+% Last Modified by GUIDE v2.5 21-Jun-2021 18:39:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,9 +60,14 @@ handles.params = params;
 if isfield(params,'TrimOutlierParams')
     set(handles.edit_AmpTresh, 'String', params.TrimOutlierParams.AmpTresh);
     set(handles.edit_rejRange, 'String', params.TrimOutlierParams.rejRange); 
+    set(handles.edit_numChans, 'String', params.TrimOutlierParams.numChans); 
     set(handles.checkbox_tempHP, 'Value', params.TrimOutlierParams.high.perform);
     set(handles.edit_filtCutoff, 'String', params.TrimOutlierParams.high.freq);
     set(handles.edit_filtOrder, 'String', params.TrimOutlierParams.high.order);
+else
+    set(handles.edit_AmpTresh, 'String', 100);
+    set(handles.edit_rejRange, 'String', 500); 
+    set(handles.edit_numChans, 'String', 1); 
 end
 
 % Choose default command line output for TrimOutlierGUI
@@ -90,6 +95,8 @@ high.perform = get(handles.checkbox_tempHP, 'Value');
 high.freq = get(handles.edit_filtCutoff, 'String');
 high.order = get(handles.edit_filtOrder, 'String');
 varargout{3} = high;
+
+varargout{4} = get(handles.edit_numChans, 'String');
 
 guidata(hObject, handles);
 delete(handles.figure1);
@@ -227,6 +234,29 @@ function edit_filtOrder_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_filtOrder_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_filtOrder (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_numChans_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_numChans (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_numChans as text
+%        str2double(get(hObject,'String')) returns contents of edit_numChans as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_numChans_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_numChans (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

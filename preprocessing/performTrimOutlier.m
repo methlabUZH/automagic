@@ -54,6 +54,7 @@ end
 %%
 amplitudeThreshold = str2double(TrimOutlierParams.AmpTresh);
 pointSpreadWidth = str2double(TrimOutlierParams.rejRange);
+numChans = str2double(TrimOutlierParams.numChans);
 high = TrimOutlierParams.high;
 high.freq = str2double(high.freq);
 if strcmp(high.order, 'Default')
@@ -92,8 +93,8 @@ windowSizeInFrame = round(windowSize/(1000/EEGtemp.srate)); % frame
 % badPoints  = absMinMaxAllChan > amplitudeThreshold;
 
 badPoints = 0;
-% remove datapoints, if 50% of the channels exceeds defined threshold
-badPoints = squeeze(sum([(EEGtemp.data(:, :) > amplitudeThreshold) | (EEGtemp.data(:, :) < -amplitudeThreshold)],1) > 0.5 * EEGtemp.nbchan);
+% remove datapoints, if 50% of the channels exceeds defined threshold (new version)
+badPoints = squeeze(sum([(EEGtemp.data(:, :) > amplitudeThreshold) | (EEGtemp.data(:, :) < -amplitudeThreshold)],1) > numChans);
 
 
 if any(badPoints)
