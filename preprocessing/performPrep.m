@@ -104,7 +104,7 @@ userData = struct('boundary', [], 'detrend', [], ...
 stepNames = fieldnames(userData);
 for k = 1:length(stepNames)
     defaults = getPrepDefaults(new_EEG, stepNames{k});
-    [theseValues, errors] = checkDefaults(prepParams, prepParams, defaults);
+    [theseValues, errors] = checkPrepDefaults(prepParams, prepParams, defaults);
     if ~isempty(errors)
         popup_msg(['Wrong parameters for prep: ', ...
             sprintf('%s', errors{:})], 'Error');
