@@ -25,7 +25,9 @@ classdef PreprocessingConstants
 %         EEGLabCsts = struct('ZIP', 'eeglab14_1_2b.zip')       
         EEGLabCsts = struct('ZIP', 'eeglab2020_0.zip')
         
-        NoiseToolCsts = struct('ZIP', 'NoiseTools.zip')
+%         NoiseToolCsts = struct('ZIP', 'NoiseTools.zip')
+        NoiseToolCsts = struct('ZIP', 'NoiseTools_12-May-2021.zip')
+        
 
         cbrewerCsts = struct('ZIP', 'cbrewer.zip')
                      
