@@ -16,16 +16,18 @@ function EEG = performICLabel(EEG, varargin)
 %   'channelNoiseTher', 'otherTher', 'includeSelected' and 'high'. An
 %   example of params is given below:
 %
-%   params = struct('brainTher', 0.8, ...
+%   params = struct('brainTher', [0.8, 1], ...
 %                   'muscleTher', [], ...
 %                   'eyeTher', [], ...
 %                   'heartTher', [], ...
 %                   'lineNoiseTher', [], ...
 %                   'channelNoiseTher', [], ...
-%                   'otherTher', 0.8, ...
+%                   'otherTher', [0.8, 1], ...
 %                   'includeSelected', 1, ...
 %                   'high',     struct('freq', 1.0,...
-%                                      'order', []));
+%                                      'order', []), ...
+%                   'ETguidedICA', 0, ...
+%                   'addETdataParams', struct());
 %
 %   Components with more than params.xxxTher probability are either
 %   rejected if params.includeSelected == 0, or kept if
@@ -75,6 +77,8 @@ addParameter(p,'channelNoiseTher', defaults.channelNoiseTher, @isnumeric);
 addParameter(p,'otherTher', defaults.otherTher, @isnumeric);
 addParameter(p,'includeSelected', defaults.includeSelected, @isnumeric);
 addParameter(p,'high', defaults.high, @isstruct);
+addParameter(p,'ETguidedICA', defaults.ETguidedICA, @isnumeric);
+addParameter(p,'addETdataParams', defaults.addETdataParams, @isstruct);
 parse(p, varargin{:});
 brainTher = p.Results.brainTher;
 muscleTher = p.Results.muscleTher;
@@ -85,6 +89,8 @@ channelNoiseTher = p.Results.channelNoiseTher;
 otherTher = p.Results.otherTher;
 includeSelected = p.Results.includeSelected;
 high = p.Results.high;
+ETguidedICA = p.Results.ETguidedICA;
+addETdataParams = p.Results.addETdataParams;
 EEG.etc.keep_comps = p.Results.keep_comps;
 EEG.etc.keep_comps = ~isempty(EEG.etc.keep_comps);
 
@@ -103,7 +109,21 @@ else
     EEG_orig.automagic.iclabel.highpass.performed = 'no';
 end
 
-
+%% check, if  eye-tracking and EEG data should be analyzed combined
+% For details see the underlying publication: Dimigen, 2020, NeuroImage
+EEG_orig.automagic.iclabel.ETguidedICA.performed = 'no';
+try
+    if ETguidedICA 
+        [~, EEG] = evalc('performETguidedICA(EEG, addETdataParams)');
+        EEG.data = EEG.data(1:size(EEG_orig.data, 1), :); % remove ET data
+        EEG.nbchan = EEG_orig.nbchan;
+        EEG.chanlocs = EEG_orig.chanlocs;
+        EEG_orig.automagic.iclabel.ETguidedICA.performed = 'yes';
+    end
+catch ME
+    ME.message
+    fprintf('\n ET guided ICA skipped. Continue with the standard ICA... \n')
+end
 
 %% Run ICA
 [~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
@@ -165,9 +185,24 @@ end
 
 %% replace the potentially filtered data with the non filtered data 
 % (if no temporary filter option chosen nothing happens)
-EEG.data = EEG_orig.data; 
+
+if ETguidedICA % remove the saccade intervals (containing spike potential)
+    EEG.pnts = EEG_orig.pnts;
+    EEG.times = EEG_orig.times;  
+    EEG.icaact = EEG.icaact(:, 1:EEG_orig.pnts);
+    EEG.data = EEG_orig.data;
+else
+    EEG.data = EEG_orig.data; 
+end
+
 
 %% Subtract components from data
+% 10.2021 - pop_subcomp removes now also components from 
+% .etc.ic_classification.ICLabel.classifications. 
+% Saving the original list (e.g. for pop_viewprop)
+EEG.etc.ic_classification.ICLabel.all_classifications = EEG.etc.ic_classification.ICLabel.classifications;
+
+% substract comps
 if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), components))
     EEG = pop_subcomp(EEG, components);
 end

@@ -64,6 +64,8 @@ classdef PreprocessingConstants
         ICLabelCsts = struct('ZIP', 'ICLabel1.6.zip', ...
                              'RUN_MESSAGE', 'Performing ICLabel (this may take a while...)')
                          
+        EYE_EEG_Csts = struct('ZIP', 'eye-eeg-0.99.zip')
+                                         
                     
         EOGRegressionCsts = ...
             struct('RUN_MESSAGE', 'Perform EOG Regression...');

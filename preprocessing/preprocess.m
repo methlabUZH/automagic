@@ -105,6 +105,7 @@ addParameter(p,'DetrendingParams', Defaults.DetrendingParams, @isstruct);
 addParameter(p,'ORIGINAL_FILE', Csts.GeneralCsts.ORIGINAL_FILE, @ischar);
 addParameter(p, 'TrimDataParams', Defaults.TrimDataParams, @isstruct);
 addParameter(p, 'TrimOutlierParams', Defaults.TrimOutlierParams, @isstruct);
+addParameter(p, 'addETdataParams', Defaults.addETdataParams, @isstruct);
 parse(p, varargin{:});
 params = p.Results;
 EEGSystem = p.Results.EEGSystem;
@@ -124,6 +125,8 @@ DetrendingParams = p.Results.DetrendingParams;
 ORIGINAL_FILE = p.Results.ORIGINAL_FILE;
 TrimDataParams = p.Results.TrimDataParams;
 TrimOutlierParams = p.Results.TrimOutlierParams;
+ICLabelParams.addETdataParams = p.Results.addETdataParams;
+
 
 if isempty(Settings)
     Settings = Recs.Settings;

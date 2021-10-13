@@ -232,6 +232,7 @@ classdef Project < handle
             addParameter(p,'Settings', defs.Settings, @isstruct);
             addParameter(p,'TrimDataParams', defs.TrimDataParams, @isstruct);
             addParameter(p,'TrimOutlierParams', defs.TrimOutlierParams, @isstruct);
+            addParameter(p,'addETdataParams', defs.addETdataParams, @isstruct);
             parse(p, params);
             params = p.Results;
             

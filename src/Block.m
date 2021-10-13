@@ -512,6 +512,10 @@ classdef Block < handle
                 end
                 self.params.Settings.pathToSteps = pathToSteps;
             end
+            
+            % add subject folder to the structure (for reading ET data, if needed)
+            data.dataFolder = self.subject.dataFolder;
+            data.fileName = self.fileName;
 
             % Preprocess the file
             [EEG, fig1, fig2, fig3] = preprocess(data, self.params);

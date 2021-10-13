@@ -59,17 +59,17 @@ if ~isempty(CRDParams)
     addCRD();
 end
 
-% Check and unzip if cleanrawdata() does not exist
+% Check and unzip if RPCA() does not exist
 if ~isempty(RPCAParams) 
     addRPCA();
 end
 
-% Check and unzip if cleanrawdata() does not exist
+% Check and unzip if MARA() does not exist
 if ~isempty(MARAParams)
     addMARA();
 end
 
-% Check and unzip if cleanrawdata() does not exist
+% Check and unzip if IClabel() does not exist
 if ~isempty(ICLabelParams)
 %     addICLabel();
 end

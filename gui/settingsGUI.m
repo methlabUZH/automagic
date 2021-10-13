@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 09-Jun-2021 18:40:38
+% Last Modified by GUIDE v2.5 09-Oct-2021 16:44:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -697,6 +697,9 @@ if get(handles.iclabelcheckbox, 'Value')
     else
         ICLabelParams.keep_comps = [];
     end
+    
+    ICLabelParams.ETguidedICA = get(handles.occularETguidedICAcheckbox, 'Value');
+    
 else
     ICLabelParams = struct([]);
 end
@@ -3673,3 +3676,34 @@ function icotheredit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in occularETguidedICAcheckbox.
+function occularETguidedICAcheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to occularETguidedICAcheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of occularETguidedICAcheckbox
+
+
+% --- Executes on button press in ETguidedICApushbutton.
+function ETguidedICApushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to ETguidedICApushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+try
+    addETdataParams = addETdataGUI(handles);
+
+    handles.params.addETdataParams = addETdataParams;
+    % update fields, if  ETguidedICAparams opened again
+    handles.addETdataParams = handles.params.addETdataParams;
+catch ME
+    ME.message
+end
+
+% Update handles structure
+guidata(hObject, handles);
+
+

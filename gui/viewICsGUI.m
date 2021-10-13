@@ -60,12 +60,12 @@ drawnow;
     
 project = varargin{1};
 EEG = varargin{2};
-set(handles.edit_numberICs, 'String', size(EEG.etc.ic_classification.ICLabel.classifications, 1))
+set(handles.edit_numberICs, 'String', size(EEG.etc.ic_classification.ICLabel.all_classifications, 1))
 set(handles.radiobutton_all,'Value', 1);
 
 % find indices of all IC labels
 iclabel = EEG.etc.ic_classification.ICLabel;
-[row, type] = find(ismember(iclabel.classifications, max(iclabel.classifications, [], 2)));
+[row, type] = find(ismember(iclabel.all_classifications, max(iclabel.all_classifications, [], 2)));
 
 brain = row((type == 1));
 muscle = row((type == 2));
@@ -233,6 +233,7 @@ idx = cell2mat(selectedICs);
 
 % before ic removal
 EEG_sancheck = handles.EEG;
+EEG_sancheck.etc.ic_classification.ICLabel.classifications = handles.EEG.etc.ic_classification.ICLabel.all_classifications; % 10.2021 - new, because pop_subcomp removes comps from here. I am saving a copy of original list in 'all_classifications'
 EEG_sancheck.chanlocs = handles.EEG.etc.beforeICremove.chanlocs;
 EEG_sancheck.icaact = handles.EEG.etc.beforeICremove.icaact;
 EEG_sancheck.icawinv = handles.EEG.etc.beforeICremove.icawinv;

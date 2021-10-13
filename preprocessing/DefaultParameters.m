@@ -49,6 +49,8 @@ classdef DefaultParameters
         
         TrimOutlierParams = struct();
         
+        addETdataParams = struct();
+        
         AMICAParams = struct('numprocs', 1, 'max_threads', 1, 'num_models',1, 'max_iter', 2000);
         
         ICLabelParams = struct('brainTher', [], ...
@@ -61,7 +63,9 @@ classdef DefaultParameters
                                'includeSelected', 0, ...
                                'keep_comps', 0, ...
                                'high',     struct('freq', 2.0,...
-                                                  'order', []));
+                                                  'order', []), ...
+                               'ETguidedICA', 0, ...
+                               'addETdataParams', struct());
                     
         EOGRegressionParams = struct();
                         
