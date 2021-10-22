@@ -135,6 +135,23 @@ if EEG_orig.etc.keep_comps
     EEG_orig.etc.beforeICremove.icaweights = EEG.icaweights;
     EEG_orig.etc.beforeICremove.chanlocs = EEG.chanlocs;
 end
+
+%% Auto-flag ocular ICs based on sac/fix variance ratio
+try
+    if ETguidedICA 
+        
+        VARTHRESHOLD    = 1.1; % gave best results in Dimigen, 2020
+        PLOT1 = 0; % do not plot
+        PLOT_TOPO = 4; % do not plot
+        [EEG, vartable, com] = pop_eyetrackerica(EEG,'saccade', 'fixation', [5 0], VARTHRESHOLD, 3, PLOT1, PLOT_TOPO);
+
+        % save the comps to remove
+        eye_comps = find(EEG.reject.gcompreject);
+    end
+catch ME
+    ME.message
+    fprintf('\n ET guided ICA skipped. Continue with the standard ICA... \n')
+end
     
 %% perform IClabel  
 EEG = iclabel(EEG);
@@ -191,6 +208,11 @@ if ETguidedICA % remove the saccade intervals (containing spike potential)
     EEG.times = EEG_orig.times;  
     EEG.icaact = EEG.icaact(:, 1:EEG_orig.pnts);
     EEG.data = EEG_orig.data;
+    
+    % concat comps
+    c = {components, eye_comps'};
+    components = unique(cat(1, c{:}));
+    EEG.reject.gcompreject(components) = 1;
 else
     EEG.data = EEG_orig.data; 
 end

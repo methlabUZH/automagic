@@ -120,8 +120,16 @@ for idx = i
     EEG.event(idx).type = 'saccade';
 end
 
+% find name of fixation event 
+i = find(~cellfun(@isempty, regexp({EEG.event(:).type}, 'fix')));
+for idx = i
+    EEG.event(idx).type = 'fixation';
+end
+
+
 % Overweight saccade intervals (containing spike potential)
 EEG = pop_overweightevents(EEG,'saccade',SACCADE_WINDOW,OW_PROPORTION,REMOVE_EPOCHMEAN);
 
 % Run ICA on optimized training data
 fprintf('\nTraining ICA on the optimized data ...')
+
