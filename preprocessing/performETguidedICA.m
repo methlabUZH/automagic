@@ -45,7 +45,7 @@ else
 end
 
 %% find corresponding et file - tricky, if more ET files in a folder
-d = dir(fullfile(et_datafolder, ['*' , et_namePattern]));
+d = dir(fullfile(dataFolder, ['*' , et_namePattern]));
 
 if length(d) == 1
     et_fileName = d(1).name;   
@@ -58,13 +58,13 @@ end
 
 %% if .txt, convert to .mat and save as a mat file
 if strcmp(et_fileExt, 'txt')
-    ET = parsesmi(fullfile(et_datafolder, et_fileName), et_datafolder);
+    ET = parsesmi(fullfile(dataFolder, et_fileName), dataFolder);
 elseif strcmp(et_fileExt, 'mat')
-    ET = load(fullfile(et_datafolder, et_fileName));
+    ET = load(fullfile(dataFolder, et_fileName));
 end
 
 %% import & synchronize ET data
-EEG = pop_importeyetracker(EEG, fullfile(et_datafolder, et_fileName), ...
+EEG = pop_importeyetracker(EEG, fullfile(dataFolder, et_fileName), ...
     [startTrigger, endTrigger], 1:length( ET.colheader), ET.colheader, 1,1,1,0);
 
 %% Mark intervals with bad eye tracking data
