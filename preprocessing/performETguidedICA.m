@@ -116,7 +116,7 @@ end
 %% Create optimized data for ICA training (OPTICAT, Dimigen, 2018)
 
 OW_PROPORTION    = 1.0          % overweighting proportion
-SACCADE_WINDOW   = [params.from_edit params.to_edit]  % time window to overweight (-20 to 10 ms is default)
+SACCADE_WINDOW   = [str2double(params.from_edit) str2double(params.to_edit)]  % time window to overweight (-20 to 10 ms is default)
 REMOVE_EPOCHMEAN = true         % subtract mean from overweighted epochs? (recommended)
 
 % find name of saccade event 
