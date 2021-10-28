@@ -22,7 +22,7 @@ function varargout = addETdataGUI(varargin)
 
 % Edit the above text to modify the response to help addETdataGUI
 
-% Last Modified by GUIDE v2.5 13-Oct-2021 13:48:25
+% Last Modified by GUIDE v2.5 28-Oct-2021 19:18:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,7 +71,9 @@ if isfield(params,'addETdataParams')
     set(handles.endTrigger_edit, 'String', params.addETdataParams.endTrigger_edit);
     set(handles.screenWidth_edit, 'String', params.addETdataParams.screenWidth_edit);
     set(handles.screenHeight_edit, 'String', params.addETdataParams.screenHeight_edit);
-    
+    set(handles.from_edit, 'String', params.addETdataParams.from_edit);
+    set(handles.to_edit, 'String', params.addETdataParams.to_edit);
+   
 
 end
 
@@ -106,6 +108,8 @@ handles.addETdataParams.startTrigger_edit = get(handles.startTrigger_edit,'Strin
 handles.addETdataParams.endTrigger_edit = get(handles.endTrigger_edit,'String');
 handles.addETdataParams.screenWidth_edit = get(handles.screenWidth_edit,'String');
 handles.addETdataParams.screenHeight_edit = get(handles.screenHeight_edit,'String');
+handles.addETdataParams.from_edit = get(handles.from_edit,'String');
+handles.addETdataParams.to_edit = get(handles.to_edit,'String');
 
 varargout{1} = handles.addETdataParams;
 
@@ -145,7 +149,7 @@ if(folder ~= 0)
     folder = strcat(folder,slash);
     
     d=dir(folder);
-    d=d(~ismember({d.name},{'.','..'}));
+    d=d(~ismember({d.name},{'.','..', '.DS_Store'}));
     nSub = length(d);
     
     d=dir([folder, '*/', '*', et_fileext]);
@@ -387,6 +391,61 @@ function screenHeight_edit_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function screenHeight_edit_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to screenHeight_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in helpButton.
+function helpButton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('https://github.com/methlabUZH/automagic/wiki/', '-browser');
+
+
+
+function from_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to from_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of from_edit as text
+%        str2double(get(hObject,'String')) returns contents of from_edit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function from_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to from_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function to_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to to_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of to_edit as text
+%        str2double(get(hObject,'String')) returns contents of to_edit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function to_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to to_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

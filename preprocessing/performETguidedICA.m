@@ -36,11 +36,16 @@ R_GAZE_Y = params.r_gaze_y_edit;
 SCREEN_X = str2double(params.screenWidth_edit);
 SCREEN_Y = str2double(params.screenHeight_edit);
 
-startTrigger = str2double(EEG.event(1).type);
-endTrigger = str2double(EEG.event(end).type);
+if isempty(params.startTrigger_edit) & isempty(params.endTrigger_edit)
+    startTrigger = str2double(EEG.event(1).type);
+    endTrigger = str2double(EEG.event(end).type);
+else
+    startTrigger = str2double(params.startTrigger_edit);
+    endTrigger = str2double(params.endTrigger_edit);
+end
 
 %% find corresponding et file - tricky, if more ET files in a folder
-d = dir(fullfile(dataFolder, ['*' , et_namePattern]));
+d = dir(fullfile(et_datafolder, ['*' , et_namePattern]));
 
 if length(d) == 1
     et_fileName = d(1).name;   
@@ -53,13 +58,13 @@ end
 
 %% if .txt, convert to .mat and save as a mat file
 if strcmp(et_fileExt, 'txt')
-    ET = parsesmi(fullfile(dataFolder, et_fileName), dataFolder);
+    ET = parsesmi(fullfile(et_datafolder, et_fileName), et_datafolder);
 elseif strcmp(et_fileExt, 'mat')
-    ET = load(fullfile(dataFolder, et_fileName));
+    ET = load(fullfile(et_datafolder, et_fileName));
 end
 
 %% import & synchronize ET data
-EEG = pop_importeyetracker(EEG, fullfile(dataFolder, et_fileName), ...
+EEG = pop_importeyetracker(EEG, fullfile(et_datafolder, et_fileName), ...
     [startTrigger, endTrigger], 1:length( ET.colheader), ET.colheader, 1,1,1,0);
 
 %% Mark intervals with bad eye tracking data
@@ -96,7 +101,7 @@ end
 
 % ### GUI: "Eyetracker" > "Detect saccades & fixations"
 % % see "help pop_detecteyemovements" to see all options
-% 
+% % 
 % DEG_PER_PIXEL = 0.036; % 1 pixel on screen was 0.036 degrees of visual angle
 % THRESH        = 6;     % eye velocity threshold (in median-based SDs)
 % MINDUR        = 4;     % minimum saccade duration (samples)
@@ -105,13 +110,13 @@ end
 % PLOTFIG       = 1;
 % WRITESAC      = 1;     % add saccades as events to EEG.event?
 % WRITEFIX      = 1;     % add fixations as events to EEG.event?
-% 
+% % 
 % EEG = pop_detecteyemovements(EEG,[LX LY],[RX RY],THRESH,MINDUR,DEG_PER_PIXEL,SMOOTH,0,25,2,PLOTFIG,WRITESAC,WRITEFIX);
 
 %% Create optimized data for ICA training (OPTICAT, Dimigen, 2018)
 
 OW_PROPORTION    = 1.0          % overweighting proportion
-SACCADE_WINDOW   = [-0.02 0.01] % time window to overweight (-20 to 10 ms)
+SACCADE_WINDOW   = [params.from_edit params.to_edit]  % time window to overweight (-20 to 10 ms is default)
 REMOVE_EPOCHMEAN = true         % subtract mean from overweighted epochs? (recommended)
 
 % find name of saccade event 
