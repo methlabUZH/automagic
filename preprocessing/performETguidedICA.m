@@ -36,6 +36,8 @@ R_GAZE_Y = params.r_gaze_y_edit;
 SCREEN_X = str2double(params.screenWidth_edit);
 SCREEN_Y = str2double(params.screenHeight_edit);
 
+%%
+
 if isempty(params.startTrigger_edit) & isempty(params.endTrigger_edit)
     startTrigger = str2double(EEG.event(1).type);
     endTrigger = str2double(EEG.event(end).type);
@@ -66,7 +68,8 @@ end
 %% import & synchronize ET data
 EEG = pop_importeyetracker(EEG, fullfile(dataFolder, et_fileName), ...
     [startTrigger, endTrigger], 1:length( ET.colheader), ET.colheader, 1,1,1,0);
-
+        
+        
 %% Mark intervals with bad eye tracking data
 % important, so these intervals will not influence our saccade detection
 % This function is also useful to objectively reject intervals during

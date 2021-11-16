@@ -95,6 +95,7 @@ classdef PreprocessingConstants
             addpath(['.' filesep])
             matlabPaths = matlabpath;
             parts = strsplit(matlabPaths, pathsep);
+            parts(contains(parts,'.git')) = [];
             Index = contains(parts, automagic);
             automagicPath = parts{Index};
             if ~strcmp(automagicPath(end), filesep)
