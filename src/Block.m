@@ -896,6 +896,14 @@ classdef Block < handle
                 end
             end
             
+            if (isfield(automagic,'crd'))
+                if (strcmp(automagic.crd.performed, 'yes'))
+                    fprintf(fileID, sprintf(text.badchans.outlier,...
+                        length(automagic.crd.badChans)));
+                end
+            fprintf(fileID, '\n');
+            end
+            
             if(isfield(automagic, 'filtering'))
                 if strcmp(automagic.filtering.performed, 'yes')
                     pars = automagic.filtering;
@@ -970,13 +978,6 @@ classdef Block < handle
                 end
             end
             
-            if (isfield(automagic,'crd'))
-                if (strcmp(automagic.crd.performed, 'yes'))
-                    fprintf(fileID, sprintf(text.badchans.outlier,...
-                        length(automagic.crd.badChans)));
-                end
-            fprintf(fileID, '\n');
-            end
             
             if(isfield(automagic, 'EOGRegression'))
                 if strcmp(automagic.EOGRegression.performed, 'yes')
@@ -1060,6 +1061,17 @@ classdef Block < handle
                             regexprep(num2str(pars.settings.channelNoiseTher), '\s+','; '), ...
                             regexprep(num2str(pars.settings.otherTher), '\s+','; ')));
                     end                        
+                    fprintf(fileID, '\n');
+                end
+            end
+            
+            if(isfield(automagic.iclabel, 'ETguidedICA'))
+                if strcmp(automagic.iclabel.ETguidedICA.performed, 'yes')           
+                    fprintf(fileID, sprintf(text.ETguidedICA.ETguidedICA_done));
+                    fprintf(fileID, '\n');              
+                    fprintf(fileID, sprintf(text.ETguidedICA.filtering, ...
+                                pars.highpass.freq, pars.highpass.order, ...
+                                pars.highpass.transitionBandWidth)); % the same as for ICA (for now)     
                     fprintf(fileID, '\n');
                 end
             end
