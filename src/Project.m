@@ -515,7 +515,7 @@ classdef Project < handle
                     % init the vars, otherwise error
                     EEG = struct([]);
                     automagic = struct();
-                    automagic.error_msg = ME.Message;      
+                    automagic.error_msg = ME.message;      
                 end
                 
                 if( isempty(EEG) || isfield(automagic, 'error_msg'))
@@ -1842,7 +1842,7 @@ classdef Project < handle
             if isempty(subjectFileName)
                 subjectFileName = find('/'== sourceAddress);
             end
-            subjectFileName = subjectFileName(end);
+            subjectFileName = subjectFileName(end-1);
             subjectFileName = sourceAddress(subjectFileName+1:end);
             fprintf(fileID, [datestr(datetime('now')) ' The data file ' subjectFileName ...
                 ' could not be preprocessed:' msg '\n']);
