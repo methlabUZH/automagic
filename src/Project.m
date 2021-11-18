@@ -498,8 +498,25 @@ classdef Project < handle
                     end
                 end
                 
-                % preprocess the file
-                [EEG, automagic] = block.preprocess();
+                try
+                    % preprocess the file
+                    [EEG, automagic] = block.preprocess();
+                    
+                catch ME
+                    ME.message
+                    
+                    % save the ids to the txt file
+                    if isfile(fullfile(self.resultFolder, 'errors.txt'))
+                        dlmwrite(fullfile(self.resultFolder, 'errors.txt'), uniqueName, '-append', 'delimiter', '')
+                    else
+                        dlmwrite(fullfile(self.resultFolder, 'errors.txt'), uniqueName, 'delimiter', '')
+                    end
+                    
+                    % init the vars, otherwise error
+                    EEG = struct([]);
+                    automagic = struct();
+                    automagic.error_msg = ME.Message;      
+                end
                 
                 if( isempty(EEG) || isfield(automagic, 'error_msg'))
                     message = automagic.error_msg;
