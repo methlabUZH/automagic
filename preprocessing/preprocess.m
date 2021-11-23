@@ -125,7 +125,9 @@ DetrendingParams = p.Results.DetrendingParams;
 ORIGINAL_FILE = p.Results.ORIGINAL_FILE;
 TrimDataParams = p.Results.TrimDataParams;
 TrimOutlierParams = p.Results.TrimOutlierParams;
-ICLabelParams.addETdataParams = p.Results.addETdataParams;
+if ~isempty(ICLabelParams)
+    ICLabelParams.addETdataParams = p.Results.addETdataParams;
+end
 
 
 if isempty(Settings)
