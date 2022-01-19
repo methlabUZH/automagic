@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 09-Oct-2021 16:44:30
+% Last Modified by GUIDE v2.5 16-Nov-2021 14:44:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -2165,7 +2165,7 @@ clear defaults;
 stepNames = fieldnames(userData);
 for k = 1:length(stepNames)
     defaults = getPrepDefaults(EEG, stepNames{k});
-    [theseValues, errors] = checkDefaults(prepParams, prepParams, defaults);
+    [theseValues, errors] = checkPrepDefaults(prepParams, prepParams, defaults);
     if ~isempty(errors)
         popup_msg(['Wrong parameters for prep: ', ...
             sprintf('%s', errors{:})], 'Error');
@@ -3705,5 +3705,3 @@ end
 
 % Update handles structure
 guidata(hObject, handles);
-
-

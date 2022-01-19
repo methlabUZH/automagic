@@ -642,6 +642,12 @@ if isempty(project)
     return;
 end
 
+if project.nProcessedFiles < 1 
+    popup_msg('No subjects to show. Please first preprocess.', ...
+    'Error');
+    return;
+end
+
 % Change the cursor to a watch while updating...
 set(handles.mainGUI, 'pointer', 'watch')
 drawnow;
@@ -673,6 +679,12 @@ project = handles.projectList(name);
 if isempty(project)
     popup_msg('Please first create the Project',...
         'Error');
+    return;
+end
+
+if project.nProcessedFiles < 1 
+    popup_msg('No subjects to show. Please first preprocess.', ...
+    'Error');
     return;
 end
 
@@ -1666,8 +1678,10 @@ projDetails = handles.projectList(projName);
 try 
     datafolder{1} = projDetails.dataFolder;
     noProject = 0;
-catch ME
-    warning('You must first create the project')
+catch 
+    popup_msg('You must first create the project', ...
+    'Error');
+    warning()
     noProject = 1;
 end
 

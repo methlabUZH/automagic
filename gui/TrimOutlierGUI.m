@@ -68,6 +68,9 @@ else
     set(handles.edit_AmpTresh, 'String', 100);
     set(handles.edit_rejRange, 'String', 500); 
     set(handles.edit_numChans, 'String', 1); 
+    
+    set(handles.edit_filtCutoff, 'Enable', 'off')
+    set(handles.edit_filtOrder, 'Enable', 'off')
 end
 
 % Choose default command line output for TrimOutlierGUI
