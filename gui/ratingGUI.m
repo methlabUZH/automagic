@@ -19,7 +19,7 @@ function varargout = ratingGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 06-Mar-2021 12:10:28
+% Last Modified by GUIDE v2.5 20-Mar-2021 11:39:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -938,7 +938,15 @@ if(isa(block, 'Block'))
 
 
 end
-            
-viewICsGUI(handles, EEG)
+ 
+if ~isempty(EEG.icaact)
+    viewICsGUI(handles, EEG)
+else
+    popup_msg('ICA not performed on this subject...',...
+        'Error');
+    % set cursor back to arrow
+    set(handles.ratingGUI, 'pointer', 'arrow')
+    return; 
+end
 % Change back the cursor to an arrow
 set(handles.ratingGUI, 'pointer', 'arrow')
