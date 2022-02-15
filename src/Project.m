@@ -1809,18 +1809,21 @@ classdef Project < handle
                 
                 handle = findobj(allchild(0), 'flat', 'Tag', 'mainGUI');
                 main_pos = get(handle,'position');
-                screen_size = get( groot, 'Screensize' );
-                choice = MFquestdlg(...
-                    [main_pos(3)/2/screen_size(3) main_pos(4)/2/screen_size(4)], ...
-                    ['Some files are already processed. Would ',...
-                    'you like to overwrite them or skip them ?'], ...
-                    'Pre-existing files in the project folder.',...
-                    'Over Write', 'Skip','Over Write');
-                switch choice
-                    case 'Over Write'
-                        skip = 0;
-                    case 'Skip'
-                        skip = 1;
+
+                if ~isempty(main_pos)
+                    screen_size = get( groot, 'Screensize' );
+                    choice = MFquestdlg(...
+                        [main_pos(3)/2/screen_size(3) main_pos(4)/2/screen_size(4)], ...
+                        ['Some files are already processed. Would ',...
+                        'you like to overwrite them or skip them ?'], ...
+                        'Pre-existing files in the project folder.',...
+                        'Over Write', 'Skip','Over Write');
+                    switch choice
+                        case 'Over Write'
+                            skip = 0;
+                        case 'Skip'
+                            skip = 1;
+                    end
                 end
             end
         end
