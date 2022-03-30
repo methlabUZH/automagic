@@ -1259,8 +1259,12 @@ classdef Block < handle
             
             addEEGLab();
             
+            % Case of BIDS format (beta version: 03.2022)
+            if self.params.Settings.isBIDSformat_value == 1
+                [~, data] = evalc('import_bids(self.project.dataFolder, self)');
+                        
             % Case of .mat file  
-            if( any(strcmp(self.fileExtension(end-(length(self.fileExtension)-1):end), ...
+            elseif( any(strcmp(self.fileExtension(end-(length(self.fileExtension)-1):end), ...
                     {self.CGV.EXTENSIONS.mat})))
                 data = load(self.sourceAddress);
                 data = data.EEG;

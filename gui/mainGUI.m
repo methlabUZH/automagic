@@ -41,7 +41,7 @@ function varargout = mainGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 02-Oct-2020 18:00:00
+% Last Modified by GUIDE v2.5 29-Mar-2022 15:10:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -240,6 +240,7 @@ if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     set(handles.projectname, 'String', handles.CGV.NEW_PROJECT.NAME);
     set(handles.datafoldershow, 'String', handles.CGV.NEW_PROJECT.DATA_FOLDER);
     set(handles.projectfoldershow, 'String', handles.CGV.NEW_PROJECT.FOLDER);
+    set(handles.isBIDSformat, 'Value', 0);
     
     set(handles.subjectnumber, 'String', '')
     set(handles.filenumber, 'String', '')
@@ -382,6 +383,8 @@ set(handles.preprocessednumber, 'String', ...
     [num2str(project.nProcessedSubjects), ' subjects already done'])
 set(handles.fpreprocessednumber, 'String', ...
     [num2str(project.nProcessedFiles), ' files already done'])
+set(handles.isBIDSformat, 'Value', ...
+    handles.params.Settings.isBIDSformat_value)
 
 % Set the file extension
 set(handles.extedit, 'String', project.mask);
@@ -427,6 +430,7 @@ set(handles.projectfoldershow, 'enable', mode);
 set(handles.extedit, 'enable', mode);
 set(handles.choosedata, 'enable', mode);
 set(handles.chooseproject, 'enable', mode);
+set(handles.isBIDSformat, 'enable', mode);
 set(handles.createbutton, 'visible', mode)
 set(handles.deleteprojectbutton, 'visible', visibility)
 set(handles.excludecheckbox, 'enable', mode);
@@ -916,7 +920,6 @@ if(any(strcmp(ext, {handles.CGV.EXTENSIONS.text})) && isempty(sRate))
         'Error');
     return;
 end
-
 
 % Get reduce checkbox
 if get(handles.excludecheckbox, 'Value')
@@ -1883,4 +1886,15 @@ catch ME
     warning(ME.message)
 end
 
+guidata(hObject,handles);
+
+
+% --- Executes on button press in isBIDSformat.
+function isBIDSformat_Callback(hObject, eventdata, handles)
+% hObject    handle to isBIDSformat (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of isBIDSformat
+handles.params.Settings.isBIDSformat_value = get(hObject,'Value');
 guidata(hObject,handles);

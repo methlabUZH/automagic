@@ -77,4 +77,8 @@ end
 addNoiseTools();
 
 addCbrewer();
+
+addBidsTools();
+
+addBrainVision();
 end

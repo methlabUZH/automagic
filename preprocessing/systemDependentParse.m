@@ -119,6 +119,25 @@ if (~isempty(EEGSystem.name) && ...
             EEG.chanlocs(size(EEG.data,1)) = EEG.chanlocs(end);
             EEG.chanlocs(end).labels = 'REF';
         end
+        
+        % If the added electrode should be Cz, but no chanloc file will be
+        % provided (e.g. in BIDS format, .tsv file does not come with
+        % coordinates for Cz).
+        if isfield(EEG, 'BIDS') && isfield(EEG.BIDS,'tInfo') && ...
+            isfield(EEG.BIDS.tInfo,'EEGReference')
+            
+            if strcmp(EEG.BIDS.tInfo.EEGReference, 'Cz')
+                EEG.chanlocs(end).labels = 'Cz';                
+                EEG.chanlocs(end).X = 0.00000;
+                EEG.chanlocs(end).Y = 0.00000;
+                EEG.chanlocs(end).Z = 9.68308;    
+                
+                % recompute sph_theta, ..
+                EEG.chanlocs(end).sph_theta = [];               
+                EEG = eeg_checkset(EEG, 'chanlocs_homogeneous');
+            end
+        end
+        
     end
     all_chans = 1:EEG.nbchan;
     eeg_channels = setdiff(all_chans, union(eog_channels, tobeExcludedChans));

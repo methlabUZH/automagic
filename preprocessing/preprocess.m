@@ -137,7 +137,10 @@ clear p varargin;
 
 % Add and download necessary paths
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
-    'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
+    'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams))
+
+%%% ACHTUNG
+data = pop_select(data, 'point', [0, 5000]);
 
 data_orig = data; % for plot with original data
 
@@ -148,7 +151,6 @@ data_orig = data; % for plot with original data
 EEGRef = EEG;
 
 % Trim data
-
 EEG.automagic.TrimData.performed = 'no';
 if isfield(TrimDataParams, 'changeCheck')
     if TrimDataParams.changeCheck
