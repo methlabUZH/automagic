@@ -4,7 +4,7 @@ tmpData = EEG.data;
 
 % if average reference
 if settings.avRef 
-    tmpData = tmpData - repmat(nanmean(tmpData,1), size(tmpData, 1),1);
+    tmpData = tmpData - repmat(mean(tmpData,1,'omitnan'), size(tmpData, 1),1);
 end
 
 % remove timepoints of very high variance from channels (if this timepoints pose proportionally 

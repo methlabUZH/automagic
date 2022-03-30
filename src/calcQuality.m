@@ -69,7 +69,7 @@ c = size(X,1);
 
 % average reference
 if settings.avRef 
-X = X - repmat(nanmean(X,1),c,1);
+X = X - repmat(mean(X,1,'omitnan'),c,1);
 end
 %% Calculate the quality metrics
 
@@ -84,7 +84,7 @@ RBC = calcRBC(bad_chans, c);
 % get the number of channels above threshold...
 CHV = calcCHV(EEG, settings);
 % unthresholded mean absolute voltage
-MAV = nanmean(abs(X(:)));
+MAV = mean(abs(X(:)),'omitnan');
 
 %% for future versions: calculate the crosss correlation between interpolated and original template maps
 % apply the interpolation of the bad channels to a set of templates
