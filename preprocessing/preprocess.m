@@ -139,8 +139,8 @@ clear p varargin;
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
     'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams))
 
-%%% ACHTUNG
-data = pop_select(data, 'point', [0, 5000]);
+% %%% ACHTUNG: testing
+% data = pop_select(data, 'point', [0, 5000]);
 
 data_orig = data; % for plot with original data
 
