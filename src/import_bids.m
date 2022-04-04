@@ -1,6 +1,10 @@
 % import_bids() - Import BIDS format folder structure into an EEGLAB
 %                    study.
-% Modified version of the pop_importbids.
+%
+% Modified version of the pop_importbids. If the reference channel is not
+% provided in the .tsv file, Automagic search for reference in
+% '..._eeg.json' file. If the reference is 'Cz', Automagic will add it
+% together with the coordinates to EEG.chanlocs (see systemDependentParse.m).
 %
 %
 % Usage of import_bids:
@@ -189,7 +193,6 @@ inconsistentEvents   = 0;
 %% load the data, chanlocs, events 
 
 parentSubjectFolder = fullfile(bidsFolder   , self.subject.name);
-outputSubjectFolder = fullfile(opt.outputdir, self.subject.name);
 
 % find folder containing eeg
 if exist(fullfile(parentSubjectFolder, 'eeg'),'dir')
