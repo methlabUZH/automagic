@@ -137,7 +137,7 @@ clear p varargin;
 
 % Add and download necessary paths
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
-    'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams))
+    'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
 
 % %%% ACHTUNG: testing
 % data = pop_select(data, 'point', [0, 5000]);
