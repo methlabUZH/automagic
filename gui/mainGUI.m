@@ -41,7 +41,7 @@ function varargout = mainGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 29-Mar-2022 15:10:49
+% Last Modified by GUIDE v2.5 04-Apr-2022 15:22:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1898,3 +1898,11 @@ function isBIDSformat_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of isBIDSformat
 handles.params.Settings.isBIDSformat_value = get(hObject,'Value');
 guidata(hObject,handles);
+
+
+% --- Executes on button press in helpisbidspushbutton.
+function helpisbidspushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to helpisbidspushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('https://github.com/methlabUZH/automagic/wiki/BIDS-integration#read-from-bids-folder-structure', '-browser');
