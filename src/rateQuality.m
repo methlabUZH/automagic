@@ -101,7 +101,7 @@ if any(strfind(settings.Qmeasure,'CHV'))
     CHVBadIdx = ~(CHVGoodIdx | CHVOKIdx);
 end
 
-% Categorize wrt CHV
+% Categorize wrt RBC
 RBCGoodIdx = zeros(1, length(Qs));
 RBCOKIdx = zeros(1, length(Qs));
 RBCBadIdx = zeros(1, length(Qs));

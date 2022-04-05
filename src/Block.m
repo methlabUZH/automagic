@@ -947,6 +947,13 @@ classdef Block < handle
                             pars.zapline.freq));
                     end
                     
+                    if (isfield(pars, 'zaplineplus') && ...
+                            strcmp(pars.zaplineplus.performed, 'yes'))
+                        
+                        fprintf(fileID, sprintf(text.filtering.ZapLinePlus, ...
+                            pars.zaplineplus.zaplineConfig.noisefreqs));
+                    end
+                    
                     if filtnew
                         fprintf(fileID, '\n');
                     end

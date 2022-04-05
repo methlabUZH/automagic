@@ -81,4 +81,6 @@ addCbrewer();
 addBidsTools();
 
 addBrainVision();
+
+addZapLinePlus();
 end

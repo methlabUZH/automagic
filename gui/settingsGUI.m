@@ -35,7 +35,7 @@ function varargout = settingsGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 16-Nov-2021 14:44:47
+% Last Modified by GUIDE v2.5 04-Apr-2022 17:00:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -169,6 +169,7 @@ if ~isempty(params.FilterParams)
     end
     set(handles.notchcheckbox, 'Value', ~isempty(params.FilterParams.notch));
     set(handles.zaplinecheckbox, 'Value', ~isempty(params.FilterParams.zapline));
+    set(handles.zaplinepluscheckbox, 'Value', ~isempty(params.FilterParams.zaplineplus));
     if ~isempty(params.FilterParams.zapline)
         set(handles.ncomponentsZL, 'String', params.FilterParams.zapline.ncomps)
     end
@@ -824,6 +825,15 @@ else
     zapline = struct([]);
 end
 
+zaplineplus = params.FilterParams.zapline;
+if( get(handles.zaplinepluscheckbox, 'Value'))
+    if isempty(zaplineplus)
+        zaplineplus = struct();
+    end
+else
+    zaplineplus = struct([]);
+end
+
 % Get Quality Rating Parameters.
 CalcQualityParams = VisualisationParams.CalcQualityParams;
 overallThresh = str2num(get(handles.overalledit, 'String'));
@@ -1124,6 +1134,7 @@ handles.params.FilterParams.high = high;
 handles.params.FilterParams.low = low;
 handles.params.FilterParams.notch = notch;
 handles.params.FilterParams.zapline = zapline;
+handles.params.FilterParams.zaplineplus = zaplineplus;
 handles.params.CRDParams = CRDParams;
 handles.params.EOGRegressionParams = EOGRegressionParams;
 handles.params.DetrendingParams = DetrendingParams;
@@ -1366,6 +1377,7 @@ if( get(handles.zaplinecheckbox, 'Value'))
 else
     set(handles.ncomponentsZL, 'Enable', 'off')
 end
+
 
 % High Variance CHV
 if(get(handles.checkboxCutoff_CHV, 'Value'))
@@ -1893,7 +1905,7 @@ if( get(handles.notchcheckbox, 'Value') && ...
             'about to do'], 'WARNING')
 end
 
-if( get(handles.zaplinecheckbox, 'Value') && ...
+if( (get(handles.zaplinecheckbox, 'Value') | get(handles.zaplinepluscheckbox, 'Value')) && ...
         get(handles.rarcheckbox, 'Value') )
         popup_msg(['Warning! This will make the preprocessing apply two notch ',...
             'filtering on your data. This is due to the PREP default ', ...
@@ -2653,7 +2665,7 @@ if( get(handles.notchcheckbox, 'Value') && ...
 end
 
 if( get(handles.notchcheckbox, 'Value') && ...
-        get(handles.zaplinecheckbox, 'Value') )
+        (get(handles.zaplinecheckbox, 'Value') | get(handles.zaplinepluscheckbox, 'Value')) )
         popup_msg(['Warning! This will make the preprocessing apply two notch ',...
             'filters to your data. It is recommended to select either ',...
             'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
@@ -3124,6 +3136,14 @@ if( get(handles.zaplinecheckbox, 'Value') && ...
             'filters to your data. It is recommended to select either ',...
             'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
 end
+
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.zaplinepluscheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filters to your data. It is recommended to select either ',...
+            'ZapLine OR ZapLinePlus filter.'], 'WARNING')
+end
+
 if( get(handles.zaplinecheckbox, 'Value'))
     set(handles.ncomponentsZL, 'Enable', 'on')
 else
@@ -3702,6 +3722,41 @@ try
 catch ME
     ME.message
 end
+
+% Update handles structure
+guidata(hObject, handles);
+
+
+% --- Executes on button press in zaplinepluscheckbox.
+function zaplinepluscheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to zaplinepluscheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of zaplinepluscheckbox
+if( get(handles.zaplinepluscheckbox, 'Value') && ...
+        get(handles.rarcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filtering on your data. This is due to the PREP default ', ...
+            'notch filter. Please make sure you know what you are ',...
+            'about to do'], 'WARNING')
+end
+
+if( get(handles.zaplinepluscheckbox, 'Value') && ...
+        get(handles.notchcheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filters to your data. It is recommended to select either ',...
+            'Notch OR ZapLine filter, and ZapLine is the recommended option.'], 'WARNING')
+end
+
+if( get(handles.zaplinecheckbox, 'Value') && ...
+        get(handles.zaplinepluscheckbox, 'Value') )
+        popup_msg(['Warning! This will make the preprocessing apply two notch ',...
+            'filters to your data. It is recommended to select either ',...
+            'ZapLine OR ZapLinePlus filter.'], 'WARNING')
+end
+
+handles = switch_components(handles);
 
 % Update handles structure
 guidata(hObject, handles);

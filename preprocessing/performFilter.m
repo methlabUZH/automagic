@@ -73,12 +73,14 @@ addParameter(p,'firws', defaults.firws, @isstruct);
 addParameter(p,'high', defaults.high, @isstruct);
 addParameter(p,'low', defaults.low, @isstruct);
 addParameter(p,'zapline', defaults.zapline, @isstruct);
+addParameter(p,'zaplineplus', defaults.zaplineplus, @isstruct);
 parse(p, varargin{:});
 notch = p.Results.notch;
 high = p.Results.high;
 low = p.Results.low;
 firws = p.Results.firws;
 zapline = p.Results.zapline;
+zaplineplus = p.Results.zaplineplus;
 
 if( ~isempty(high) )
     if ~isfield(high, 'freq')
@@ -113,7 +115,7 @@ if( ~isempty(zapline) && ~isfield(zapline, 'freq'))
 end
 %% Perform filtering
 EEG.automagic.filtering.performed = 'no';
-if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~isempty(firws))
+if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~isempty(zaplineplus) || ~isempty(firws))
     EEG.automagic.filtering.performed = 'yes';
     
     if ~isempty(firws) && ~isempty(firws.high) 
@@ -155,6 +157,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         EEG.automagic.filtering.notch.performed = 'no';
     end
     
+    % ZapLine
     if( ~isempty(zapline) )
         x = EEG.data';
         fline = zapline.freq / EEG.srate; % line frequency normalised to srate
@@ -169,11 +172,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
             set(gcf, 'Color', [1,1,1])
             hold on
             y=clean;
-            % disp('proportion of non-DC power removed:');
-            % disp(nt_wpwr(x-y)/nt_wpwr(nt_demean(x)));
-            fig2 = 101;
             nfft = 1024;
-            %         figure(fig2); clf;
             subplot 121
             [pxx,f]=nt_spect_plot(x/sqrt(mean(x(:).^2)),nfft,[],[],1/fline);
             divisor=sum(pxx);
@@ -208,6 +207,68 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         EEG.automagic.filtering.zapline.performed = 'no';
     end
     
+    % ZapLine Plus - here no need to transpose the data
+    if( ~isempty(zaplineplus))
+        
+        % ZaplinePlus automatically finds the fline and num comps to
+        % remove.
+        % We changed the 'clean_data_with_zapline_plus' slitghly by adding
+        % a cfg as an output. The cfg contains all variables requiered for
+        % plotting (see the next few lines).
+        [~, clean, zaplineConfig, analyticsResults, plothandles, cfg] = ... 
+                evalc('clean_data_with_zapline_plus(EEG.data, EEG.srate, ''plotResults'', 0)');
+            
+        % replace data
+        EEG.data = clean;
+        
+        % plot - during only the first call of performFilter
+        if ~isfield(zaplineplus,'finalPlot')
+            EEG.automagic.filtering.zaplineplus.performed = 'yes';
+            EEG.automagic.filtering.zaplineplus.analyticsResults = analyticsResults;
+            EEG.automagic.filtering.zaplineplus.zaplineConfig = zaplineConfig;
+            disp('Generating ZapLinePlus figure');
+            
+            fig1 = figure('visible', 'off');
+            set(gcf, 'Color', [1,1,1])
+            
+            ax1 = subplot(1, 2, 1);
+            meanhandles = plot(cfg.f,mean(cfg.pxx_raw_log,2),'color','black','linewidth',1.5);
+            set(gca,'ygrid','on','xgrid','on');
+            set(gca,'yminorgrid','on')
+            set(gca,'fontsize',12)
+            xlabel('frequency [Hz]');
+            ylabel('Power [10*log10 \muV^2/Hz]');
+            title({['noise frequency: ' num2str(cfg.noisefreq,'%4.2f') 'Hz'],['raw ratio of noise to surroundings: ' num2str(cfg.ratioNoiseRaw,'%4.2f')]})
+
+                     
+            ax2 = subplot(1, 2, 2);
+            removedhandle = plot(cfg.f/(cfg.f_noise*cfg.srate),mean(cfg.pxx_removed_log,2),'color','red','linewidth',1.5);
+            hold on
+            cleanhandle = plot(cfg.f/(cfg.f_noise*cfg.srate),mean(cfg.pxx_clean_log,2),'color','green','linewidth',1.5);
+            % adjust plot
+            set(gca,'ygrid','on','xgrid','on');
+            set(gca,'yminorgrid','on')
+            set(gca,'fontsize',12)
+            set(gca,'yticklabel',[]); ylabel([]);
+            xlabel('frequency relative to noise [Hz]');
+            title({['removed power at ' num2str(cfg.noisefreq,'%4.2f') 'Hz: ' num2str(cfg.proportionRemovedNoise*100,'%4.2f') '%']
+                ['cleaned ratio of noise to surroundings: ' num2str(cfg.ratioNoiseClean,'%4.2f')]}) 
+            xlim([min(cfg.f)-max(cfg.f)*0.0032 max(cfg.f)]);
+            xlim([min(cfg.f/(cfg.f_noise*cfg.srate))-max(cfg.f/(cfg.f_noise*cfg.srate))*0.003 max(cfg.f/(cfg.f_noise*cfg.srate))]);
+        
+            legend(ax1,[meanhandles],{'raw data'},'edgecolor',[0.8 0.8 0.8]);     
+            legend(ax2, [cleanhandle,removedhandle],{'clean data','removed data'},'edgecolor',[0.8 0.8 0.8]);      
+            fig1.Position = [10 10 640 400];
+            
+            EEG.automagic.ZapFigPlus = fig1;  
+            disp('Finished generating ZapLinePlus figure');
+        end
+
+    else
+        EEG.automagic.filtering.zaplineplus.performed = 'no';
+    end
+    
+    % 
     if ~isempty(firws) && ~isempty(firws.low)
         EEG.automagic.filtering.firws.low.performed = 'yes';
 

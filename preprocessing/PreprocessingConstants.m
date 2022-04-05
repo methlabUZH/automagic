@@ -26,6 +26,8 @@ classdef PreprocessingConstants
         
         NoiseToolCsts = struct('ZIP', 'NoiseTools_12-May-2021.zip')
         
+        ZapLinePlusCsts = struct('ZIP', 'zapline-plus-main.zip')
+        
 
         cbrewerCsts = struct('ZIP', 'cbrewer.zip')
                      

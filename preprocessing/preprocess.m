@@ -259,6 +259,14 @@ else
     fig3 = [];
 end
 
+if isfield(EEG.automagic,'ZapFigPlus')
+    fig3 = EEG.automagic.ZapFigPlus;
+    EEG.automagic = rmfield(EEG.automagic,'ZapFigPlus');
+    FilterParams.zaplineplus.finalPlot = 1;
+else
+    fig3 = [];
+end
+
 if ~isempty(EOG.data)
     EOG = performFilter(EOG, FilterParams);
     if isfield(EEG.automagic,'ZapFig')

@@ -14,7 +14,7 @@ else
     data = [];
     unique_name = 'no image';
     defVis = handles.CGV.DefaultVisualisationParams;
-    colorScale = defVis.COLOR_SCALE;
+    colorScale = defVis.COLOR_SCALE; 
 end
 
 
