@@ -504,6 +504,8 @@ classdef Project < handle
                     
                 catch ME
                     ME.message
+                    warning(['Error in file: ', ME.stack(1).file, ' (Line: ',  num2str(ME.stack(1).line), ') ...'])
+
                     
                     % save the ids to the txt file
                     if isfile(fullfile(self.resultFolder, 'errors.txt'))
