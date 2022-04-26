@@ -124,7 +124,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         [~, EEG, com, ~] = evalc(firws.high.com(7:end));
         args = strsplit(erase(com, ['''', ';', '(', ')']), ',');
         for i = 2:2:(length(args)-1)
-            EEG.automagic.filtering.firws.high.(strtrim(args{i})) = strtrim(args{i+1});
+            EEG.automagic.filtering.firws.high.(strtrim(erase(args{i}, "'"))) = strtrim(erase(args{i+1}, "'"));
         end
     else
         EEG.automagic.filtering.firws.high.performed = 'no';
@@ -275,7 +275,7 @@ if( ~isempty(high) || ~isempty(low) || ~isempty(notch) || ~isempty(zapline) || ~
         [~, EEG, com, ~] = evalc(firws.low.com(7:end));
         args = strsplit(erase(com, ['''', ';', '(', ')']), ',');
         for i = 2:2:(length(args)-1)
-            EEG.automagic.filtering.firws.low.(strtrim(args{i})) = strtrim(args{i+1});
+            EEG.automagic.filtering.firws.low.(strtrim(erase(args{i}, "'"))) = strtrim(erase(args{i+1}, "'"));
         end
     else
         EEG.automagic.filtering.firws.low.performed = 'no';

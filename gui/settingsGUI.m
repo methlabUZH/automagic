@@ -3338,13 +3338,14 @@ if get(hObject,'Value')
         firws_exception = [];
         [~] = evalc('try, [~, com, ~] = pop_firws(EEG); catch E, firws_exception = E; end');
         args = strsplit(erase(com, ['''', ';', '(', ')']), ',');
-        if ~isempty(com) && strcmp(strtrim(args{5}), 'highpass')
+
+        if ~isempty(com) && strcmp(strtrim(erase(args{5}, "'")), 'highpass')
             firws.high.com = com;
             handles.params.FilterParams.firws = firws;
         else
             if ~isempty(firws_exception)
                 popup_msg(firws_exception.message, 'Error')
-            elseif ~ strcmp(strtrim(args{5}), 'highpass')
+            elseif ~ strcmp(strtrim(erase(args{5}, "'")), 'highpass')
                    popup_msg('This filter must be a high pass filter',...
                     'Error'); 
             end
@@ -3426,13 +3427,13 @@ if get(hObject,'Value')
         firws_exception = [];
         [~] = evalc('try, [~, com, ~] = pop_firws(EEG); catch E, firws_exception = E; end');
         args = strsplit(erase(com, ['''', ';', '(', ')']), ',');
-        if ~isempty(com) && strcmp(strtrim(args{5}), 'lowpass')
+        if ~isempty(com) && strcmp(strtrim(erase(args{5}, "'")), 'lowpass')
             firws.low.com = com;
             handles.params.FilterParams.firws = firws;
         else
             if ~isempty(firws_exception)
                 popup_msg(firws_exception.message, 'Error')
-            elseif ~ strcmp(strtrim(args{5}), 'lowpass')
+            elseif ~ strcmp(strtrim(erase(args{5}, "'")), 'lowpass')
                    popup_msg('This filter must be a low pass filter',...
                     'Error'); 
             end
