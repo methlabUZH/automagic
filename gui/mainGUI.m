@@ -142,6 +142,7 @@ end
 % (Synchronisation)
 k = handles.projectList.keys;
 v = handles.projectList.values;
+
 for i = 1:handles.projectList.Count
     if( ~ strcmp(k(i), handles.CGV.NEW_PROJECT.LIST_NAME) && ...
             ~ strcmp(k(i), handles.CGV.LOAD_PROJECT.LIST_NAME) )
@@ -153,6 +154,7 @@ for i = 1:handles.projectList.Count
         end
     end
 end
+
 
 set(handles.existingpopupmenu,...
     'String', handles.projectList.keys, ...

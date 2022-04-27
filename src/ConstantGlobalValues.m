@@ -19,7 +19,7 @@ classdef ConstantGlobalValues
     properties(Constant)
 
         % Current version of Automagic. Just change this for new versions
-        VERSION = '2.6'; 
+        VERSION = '2.6.1'; 
             
         DEFAULT_KEYWORD = 'Default';
                 
@@ -90,6 +90,13 @@ classdef ConstantGlobalValues
             matlabPaths = matlabpath;
             parts = strsplit(matlabPaths, pathsep);
             Index = contains(parts, automagic);
+            
+%             for i = 1 : length(find(Index))  
+%                 if ~isempty(regexp(parts{i}, ['.*' automagic '.*?' filesep guiFolder], 'match'))
+%                     automagicPath = parts{i};
+%                 end
+%             end
+
             automagicPath = parts{Index};
             if ~strcmp(automagicPath(end), filesep)
                 automagicPath = strcat(automagicPath, filesep);
