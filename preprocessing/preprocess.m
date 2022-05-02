@@ -692,7 +692,8 @@ elseif (~isempty(RPCAParams))
 elseif (~isempty(ICLabelParams))
     title_text = 'ICLabel corrected clean data (only good channels)';
 else
-    title_text = '';
+    title_text = '\color{red}No ICA or RPCA requested';
+    cla(ica_subplot)
 end
 title(title_text)
 colorbar;
