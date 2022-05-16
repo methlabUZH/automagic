@@ -262,7 +262,7 @@ classdef Project < handle
             
             self.committed = false;
             self.committedQualityCutoffs = struct([]);
-            if ~ isempty(varargin{:})
+            if ~ isempty(varargin)
                 self.sRate = varargin{1};
             else
                 if(any(strcmp(self.fileExtension, {self.CGV.EXTENSIONS.text})))
