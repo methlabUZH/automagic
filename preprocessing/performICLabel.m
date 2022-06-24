@@ -216,6 +216,7 @@ if ETguidedICA % remove the saccade intervals (containing spike potential)
     EEG_orig.automagic.iclabel.ETguidedICA.eye_comps = eye_comps'; % store marked components
 else
     EEG.data = EEG_orig.data; 
+    EEG.reject.gcompreject(components) = 1;
 end
 
 
