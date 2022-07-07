@@ -155,6 +155,12 @@ data_orig = data; % for plot with original data
     MARAParams, ORIGINAL_FILE);
 EEGRef = EEG;
 
+% free memory if EXCLUDED channel data is not supposed to be reattached
+% later
+if ~ChannelReductionParams.readdExcludedChans
+    clear EXCLUDED
+end
+
 % Trim data
 EEG.automagic.TrimData.performed = 'no';
 if isfield(TrimDataParams, 'changeCheck')
