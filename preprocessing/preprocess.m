@@ -432,6 +432,36 @@ if ~isempty(EEGSystem.refChan)
 else
     EEG.automagic.autoBadChans = removedChans;
 end
+
+% Put back excluded channels (only if wanted)
+if (EEG.automagic.channelReduction.params.readdExcludedChans && ...
+        ~isempty(EEG.automagic.channelReduction.excludedChannels))
+    excludedChans = sort(EEG.automagic.channelReduction.excludedChannels); % should be ordered (for step below)
+    for i_ch_excl = 1:length(excludedChans)
+        excluded_chan = excludedChans(i_ch_excl);
+        EEG.data = [EEG.data(1:excluded_chan-1,:); ...
+            EXCLUDED.data(i_ch_excl,:);...
+            EEG.data(excluded_chan:end,:)];
+        EXCLUDED.chanlocs(i_ch_excl).maraLabel = [];
+        EEG.chanlocs = [EEG.chanlocs(1:excluded_chan-1), ...
+            EXCLUDED.chanlocs(i_ch_excl), ...
+            EEG.chanlocs(excluded_chan:end)];
+    end
+    EEG.nbchan = size(EEG.data,1);
+    clear excluded_chan i_ch_excl
+end
+
+% Write back output (excluded channels)
+if (EEG.automagic.channelReduction.params.readdExcludedChans && ...
+        ~isempty(EEG.automagic.channelReduction.excludedChannels))
+    for excluded_chan = excludedChans
+        removedChans(removedChans >= excluded_chan)=removedChans(removedChans >= excluded_chan)+1;
+    end
+    EEG.automagic.autoBadChans = removedChans;
+else
+    EEG.automagic.autoBadChans = removedChans;
+end
+
 EEG.automagic.params = params;
 EEG.automagic = rmfield(EEG.automagic, 'preprocessing');
 
