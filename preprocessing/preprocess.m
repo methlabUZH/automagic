@@ -137,8 +137,10 @@ clear p varargin;
 % add settings parameter for readding excluded channels - 
 % i am setting this manually for now, but should be taken from gui or defaults
 addBackExcluded = true;
-params.ChannelReductionParams.readdExcludedChans = addBackExcluded;
-ChannelReductionParams.readdExcludedChans = addBackExcluded;
+if ~isempty(params.ChannelReductionParams)
+    params.ChannelReductionParams.readdExcludedChans = addBackExcluded;
+    ChannelReductionParams.readdExcludedChans = addBackExcluded;
+end
 
 % Add and download necessary paths
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
@@ -157,8 +159,10 @@ EEGRef = EEG;
 
 % free memory if EXCLUDED channel data is not supposed to be reattached
 % later
-if ~ChannelReductionParams.readdExcludedChans
-    clear EXCLUDED
+if ~isempty(ChannelReductionParams)
+    if ~ChannelReductionParams.readdExcludedChans
+        clear EXCLUDED
+    end
 end
 
 % Trim data
@@ -434,33 +438,30 @@ else
 end
 
 % Put back excluded channels (only if wanted)
-if (EEG.automagic.channelReduction.params.readdExcludedChans && ...
-        ~isempty(EEG.automagic.channelReduction.excludedChannels))
-    excludedChans = sort(EEG.automagic.channelReduction.excludedChannels); % should be ordered (for step below)
-    for i_ch_excl = 1:length(excludedChans)
-        excluded_chan = excludedChans(i_ch_excl);
-        EEG.data = [EEG.data(1:excluded_chan-1,:); ...
-            EXCLUDED.data(i_ch_excl,:);...
-            EEG.data(excluded_chan:end,:)];
-        EXCLUDED.chanlocs(i_ch_excl).maraLabel = [];
-        EEG.chanlocs = [EEG.chanlocs(1:excluded_chan-1), ...
-            EXCLUDED.chanlocs(i_ch_excl), ...
-            EEG.chanlocs(excluded_chan:end)];
-    end
-    EEG.nbchan = size(EEG.data,1);
-    clear excluded_chan i_ch_excl
-end
+if ~isempty(EEG.automagic.channelReduction.params)
+    if (EEG.automagic.channelReduction.params.readdExcludedChans && ...
+            ~isempty(EEG.automagic.channelReduction.excludedChannels))
+        excludedChans = sort(EEG.automagic.channelReduction.excludedChannels); % should be ordered (for step below)
+        for i_ch_excl = 1:length(excludedChans)
+            excluded_chan = excludedChans(i_ch_excl);
+            EEG.data = [EEG.data(1:excluded_chan-1,:); ...
+                EXCLUDED.data(i_ch_excl,:);...
+                EEG.data(excluded_chan:end,:)];
+            EXCLUDED.chanlocs(i_ch_excl).maraLabel = [];
+            EEG.chanlocs = [EEG.chanlocs(1:excluded_chan-1), ...
+                EXCLUDED.chanlocs(i_ch_excl), ...
+                EEG.chanlocs(excluded_chan:end)];
+        end
+        EEG.nbchan = size(EEG.data,1);
+        clear excluded_chan i_ch_excl
 
-% Write back output (excluded channels)
-if (EEG.automagic.channelReduction.params.readdExcludedChans && ...
-        ~isempty(EEG.automagic.channelReduction.excludedChannels))
-    for excluded_chan = excludedChans
-        removedChans(removedChans >= excluded_chan)=removedChans(removedChans >= excluded_chan)+1;
+        % Write back output (excluded channels)
+        for excluded_chan = excludedChans
+            removedChans(removedChans >= excluded_chan)=removedChans(removedChans >= excluded_chan)+1;
+        end
     end
-    EEG.automagic.autoBadChans = removedChans;
-else
-    EEG.automagic.autoBadChans = removedChans;
 end
+EEG.automagic.autoBadChans = removedChans;
 
 EEG.automagic.params = params;
 EEG.automagic = rmfield(EEG.automagic, 'preprocessing');
