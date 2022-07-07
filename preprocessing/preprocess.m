@@ -144,8 +144,8 @@ addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, .
 
 data_orig = data; % for plot with original data
 
-% Set system dependent parameters and eeparate EEG from EOG
-[EEG, EOG, EEGSystem, MARAParams] = ...
+% Set system dependent parameters and separate EEG from EOG
+[EEG, EOG, EXCLUDED, EEGSystem, MARAParams] = ...
     systemDependentParse(data, EEGSystem, ChannelReductionParams, ...
     MARAParams, ORIGINAL_FILE);
 EEGRef = EEG;
@@ -413,7 +413,7 @@ if ~isempty(EEGSystem.refChan)
     clear chan_nb re_chan;
 end
 
-% Write back output
+% Write back output (ref channel)
 if ~isempty(EEGSystem.refChan)
     removedChans(removedChans >= EEGSystem.refChan.idx)=removedChans(removedChans >= EEGSystem.refChan.idx)+1;
     EEG.automagic.autoBadChans = removedChans;
