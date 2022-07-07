@@ -1,4 +1,4 @@
-function [EEG, EOG, EEGSystem, MARAParams] = ...
+function [EEG, EOG, EXCLUDED, EEGSystem, MARAParams] = ...
                         systemDependentParse(EEG, EEGSystem, ...
                         ChannelReductionParams, MARAParams, ORIGINAL_FILE) %#ok<INUSD>
 % systemDependentParse parse EEG input depending on the EEG system.
@@ -449,9 +449,13 @@ else
     clear all_chans;
 end
 
+% Store excluded channel data for later retrieval
+[~, EXCLUDED] = evalc('pop_select( EEG , ''channel'', tobeExcludedChans)');
+
 % Seperate EEG channels from EOG channels
 [~, EOG] = evalc('pop_select( EEG , ''channel'', eog_channels)');
 [~, EEG] = evalc('pop_select( EEG , ''channel'', eeg_channels)');
+
 % Map original channel lists to new ones after the above separation
 if ~isempty(EEGSystem.refChan)
     [~, idx] = ismember(EEGSystem.refChan.idx, eeg_channels);
@@ -463,6 +467,7 @@ chanSize = size(EEG.chanlocs);
 if chanSize(2) == 1
     EEG.chanlocs = EEG.chanlocs';
     EOG.chanlocs = EOG.chanlocs';
+    EXCLUDED.chanlocs = EXCLUDED.chanlocs';
 end
 clear chanSize;
 
