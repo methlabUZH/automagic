@@ -64,10 +64,11 @@ end
 % Data
 % only rate data that was actually prepocessed (without excluded and
 % readded channels)
-if EEG.automagic.channelReduction.params.readdExcludedChans
-    X = EEG.data(EEG.automagic.channelReduction.usedEEGChannels,:);
-else
-    X = EEG.data;
+X = EEG.data;
+if ~isempty(EEG.automagic.channelReduction.params)
+    if EEG.automagic.channelReduction.params.readdExcludedChans
+        X = EEG.data(EEG.automagic.channelReduction.usedEEGChannels,:);
+    end
 end
 % Get dimensions of data
 t = size(X,2);
