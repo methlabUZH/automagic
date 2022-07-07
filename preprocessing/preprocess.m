@@ -136,7 +136,7 @@ clear p varargin;
 
 % add settings parameter for readding excluded channels - 
 % i am setting this manually for now, but should be taken from gui or defaults
-addBackExcluded = false;
+addBackExcluded = true;
 params.ChannelReductionParams.readdExcludedChans = addBackExcluded;
 ChannelReductionParams.readdExcludedChans = addBackExcluded;
 
