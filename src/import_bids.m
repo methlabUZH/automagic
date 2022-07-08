@@ -350,6 +350,7 @@ for iFold = 1:length(subjectFolder) % scan sessions
                 channelData = loadfile([ eegFileRaw(1:end-8) '_channels.tsv' ], channelFile);
                 elecData    = loadfile([ eegFileRaw(1:end-8) '_electrodes.tsv' ], elecFile);
                 if strcmpi(opt.bidschanloc, 'on')
+                    indStatus = strmatch('status', lower(channelData(1,:)), 'exact');
                     chanlocs = [];
                     for iChan = 2:size(channelData,1)
                         % the fields below are all required
@@ -357,7 +358,7 @@ for iFold = 1:length(subjectFolder) % scan sessions
                         chanlocs(iChan-1).type   = channelData{iChan,2};
                         chanlocs(iChan-1).unit   = channelData{iChan,3};
                         if size(channelData,2) > 3
-                            chanlocs(iChan-1).status = channelData{iChan,4};
+                            chanlocs(iChan-1).status = channelData{iChan,indStatus};
                         end
 
                         if ~isempty(elecData) && iChan <= size(elecData,1)
