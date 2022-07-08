@@ -424,7 +424,7 @@ for iFold = 1:length(subjectFolder) % scan sessions
                             events(end).sample = eventData{iEvent,indSample} + 1;
                             bids.eventInfo(end+1,:) = {'sample' 'sample'};
                         end
-                        for iField = 1:length(eventData(1,:))
+                        for iField = 3:length(eventData(1,:)) % 'onset', 'duration' have to be in columns 1,2 - this avoids error due to strcmpi() and special characters in the column header
                             if ~any(strcmpi(eventData{1,iField}, {'onset', 'duration', 'sample', opt.eventtype}))
                                 events(end).(eventData{1,iField}) = eventData{iEvent,iField};
                                 bids.eventInfo(end+1,:) = { eventData{1,iField} eventData{1,iField} };
