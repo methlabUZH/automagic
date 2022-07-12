@@ -414,18 +414,20 @@ for iFold = 1:length(subjectFolder) % scan sessions
                     end
                     indTrial = strmatch( opt.eventtype, lower(eventData(1,:)), 'exact');
                     for iEvent = 2:size(eventData,1)
-                        events(end+1).latency  = eventData{iEvent,1}; % convert to samples
+                        tmpOnset = eventData{iEvent,1}; % convert to samples - Event latencies are stored in units of data sample points relative to the beginning of the continuous data matrix (EEG.data), while BIDS onset is in seconds relative to the first data point
+                        events(end+1).latency  = round(tmpOnset * infoData.SamplingFrequency);
                         if EEG.trials > 1
                             events(end).epoch = floor(events(end).latency/EEG.pnts)+1;
                         end
-                        events(end).duration   = eventData{iEvent,2};   % convert to samples
+                        tmpDuration = eventData{iEvent,2};   % convert to samples
+                        events(end).duration   = round(tmpDuration * infoData.SamplingFrequency);
                         bids.eventInfo = {'onset' 'latency'; 'duration' 'duration'}; % order in events.tsv: onset duration
                         if ~isempty(indSample)
                             events(end).sample = eventData{iEvent,indSample} + 1;
                             bids.eventInfo(end+1,:) = {'sample' 'sample'};
                         end
                         for iField = 3:length(eventData(1,:)) % 'onset', 'duration' have to be in columns 1,2 - this avoids error due to strcmpi() and special characters in the column header
-                            if ~any(strcmpi(eventData{1,iField}, {'onset', 'duration', 'sample', opt.eventtype}))
+                            if ~any(strcmpi(eventData{1,iField}, {'sample', opt.eventtype}))
                                 events(end).(eventData{1,iField}) = eventData{iEvent,iField};
                                 bids.eventInfo(end+1,:) = { eventData{1,iField} eventData{1,iField} };
                             end
