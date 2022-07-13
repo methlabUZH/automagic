@@ -441,8 +441,10 @@ for iFold = 1:length(subjectFolder) % scan sessions
                             events(end).latency  = (eventData{iEvent,1}+eventData{iEvent,4}); % convert to samples
                             events(end).duration = 0;
                         end
+                        events(end).urevent  =  iEvent-1; % has to be present
                     end
                     EEG.event = events;
+                    EEG.urevent = rmfield(events, 'urevent');
                     
                     % check consistency
                     EEG = eeg_checkset(EEG, 'eventconsistency');
