@@ -320,7 +320,7 @@ EEG.automagic.rpca.performed = 'no';
 EEG.automagic.iclabel.performed = 'no';
 if ( ~isempty(ICLabelParams) )
     try
-        EEG = performICLabel(EEG, ICLabelParams);
+        [EEG, ET] = performICLabel(EEG, ICLabelParams);
         EEG.icachansind = find(~EEG.automagic.preprocessing.removedMask);
     catch ME
         message = ['ICLabel is not done on this subject, continue with the next steps: ' ...
@@ -469,6 +469,22 @@ EEG.automagic = rmfield(EEG.automagic, 'preprocessing');
 if Settings.trackAllSteps
    allSteps = matfile(Settings.pathToSteps, 'Writable', true);
    allSteps.EEGFinal = EEG;
+end
+
+% attach Eyetracker data (if wanted)
+addETdata = true;
+addETevents = true;
+if exist('ET', 'var')
+    if ~isempty(ET) && addETdata
+        EEG.data = [EEG.data; ET.data]; % add to the very end, such that it doesnt affect any index
+        EEG.chanlocs = [EEG.chanlocs; ET.chanlocs];
+        EEG.nbchan = size(EEG.data,1);
+    end
+    if ~isempty(ET) && addETevents
+        EEG.event = ET.event;
+        EEG.urevent = ET.urevent;
+        %EEG.eventdescription = ET.eventdescription;
+    end
 end
 
 %% Creating the final figure to save
