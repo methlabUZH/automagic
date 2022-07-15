@@ -541,6 +541,8 @@ if Settings.sortChans
 else
     final_idx = 1:size(EEG.data, 1);
 end
+% only keep original EEG channels (no ET, no excluded channels)
+final_idx = final_idx(ismember(final_idx, EEG.automagic.channelReduction.usedEEGChannels));
 
 %eeg figure
 subplot(13,1,2:3)
@@ -776,6 +778,9 @@ if Settings.sortChans
 else
     final_idx = 1:size(EEG.data, 1);
 end
+% only keep original EEG channels (no ET, no excluded channels)
+final_idx = final_idx(ismember(final_idx, EEG.automagic.channelReduction.usedEEGChannels));
+
 fig2 = figure('visible', 'off');
 ax = gca;
 % outerpos = ax.OuterPosition;
