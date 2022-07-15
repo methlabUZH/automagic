@@ -134,14 +134,6 @@ if isempty(Settings)
 end
 clear p varargin;
 
-% add settings parameter for readding excluded channels - 
-% i am setting this manually for now, but should be taken from gui or defaults
-addBackExcluded = true;
-if ~isempty(params.ChannelReductionParams)
-    params.ChannelReductionParams.readdExcludedChans = addBackExcluded;
-    ChannelReductionParams.readdExcludedChans = addBackExcluded;
-end
-
 % Add and download necessary paths
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
     'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
