@@ -63,10 +63,10 @@ end
 %% Data preparation
 % Data
 % only rate data that was actually prepocessed (without excluded and
-% readded channels)
+% readded channels, or added ET channels)
 X = EEG.data;
 if ~isempty(EEG.automagic.channelReduction.params)
-    if EEG.automagic.channelReduction.params.readdExcludedChans
+    if EEG.automagic.channelReduction.params.readdExcludedChans || EEG.automagic.channelReduction.params.addETdata
         X = EEG.data(EEG.automagic.channelReduction.usedEEGChannels,:);
     end
 end

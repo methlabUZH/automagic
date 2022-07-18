@@ -465,17 +465,18 @@ end
 
 % attach Eyetracker data (if wanted)
 addETdata = true;
-addETevents = true;
+EEG.automagic.channelReduction.params.addETdata = addETdata; % hard coded for now
+%addETevents = true; % might be seperately set, if preferred
 if exist('ET', 'var')
-    if ~isempty(ET) && addETdata
+    if ~isempty(ET) && EEG.automagic.channelReduction.params.addETdata
         EEG.data = [EEG.data; ET.data]; % add to the very end, such that it doesnt affect any index
         f = fieldnames(ET.chanlocs);
         toKeep = fieldnames(EEG.chanlocs);
         toRemove = f(~ismember(f,toKeep));
         EEG.chanlocs = [EEG.chanlocs, rmfield(ET.chanlocs, toRemove)];
         EEG.nbchan = size(EEG.data,1);
-    end
-    if ~isempty(ET) && addETevents
+%    end
+%    if ~isempty(ET) && addETevents
         EEG.event = ET.event;
         EEG.urevent = ET.urevent;
         %EEG.eventdescription = ET.eventdescription;
