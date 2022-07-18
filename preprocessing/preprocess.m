@@ -469,7 +469,10 @@ addETevents = true;
 if exist('ET', 'var')
     if ~isempty(ET) && addETdata
         EEG.data = [EEG.data; ET.data]; % add to the very end, such that it doesnt affect any index
-        EEG.chanlocs = [EEG.chanlocs; ET.chanlocs];
+        f = fieldnames(ET.chanlocs);
+        toKeep = fieldnames(EEG.chanlocs);
+        toRemove = f(~ismember(f,toKeep));
+        EEG.chanlocs = [EEG.chanlocs, rmfield(ET.chanlocs, toRemove)];
         EEG.nbchan = size(EEG.data,1);
     end
     if ~isempty(ET) && addETevents
