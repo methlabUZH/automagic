@@ -414,8 +414,12 @@ for iFold = 1:length(subjectFolder) % scan sessions
                     end
                     indTrial = strmatch( opt.eventtype, lower(eventData(1,:)), 'exact');
                     for iEvent = 2:size(eventData,1)
-                        tmpOnset = eventData{iEvent,1}; % convert to samples - Event latencies are stored in units of data sample points relative to the beginning of the continuous data matrix (EEG.data), while BIDS onset is in seconds relative to the first data point
-                        events(end+1).latency  = round(tmpOnset * infoData.SamplingFrequency);
+                        if ~isempty(indSample) % if present, trust the "sample" field from events.tsv
+                            events(end+1).latency  = eventData{iEvent,indSample};
+                        else % ..otherwise take the onset field (in seconds) and convert it to samples
+                            tmpOnset = eventData{iEvent,1}; % Event latencies are stored in units of data sample points relative to the beginning of the continuous data matrix (EEG.data), while BIDS onset is in seconds relative to the first data point
+                            events(end+1).latency  = round(tmpOnset * infoData.SamplingFrequency);
+                        end
                         if EEG.trials > 1
                             events(end).epoch = floor(events(end).latency/EEG.pnts)+1;
                         end
