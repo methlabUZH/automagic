@@ -528,8 +528,17 @@ classdef Block < handle
             if(isempty(EEG))
                 return;
             end
+            % index EEG channels for quality asssessment
+            eeg_chans = 1:EEG.nbchan;
+            if isfield(EEG.automagic, 'channelReduction')
+                if EEG.automagic.channelReduction.params.readdExcludedChans % in this case take original eeg indices. ET is also excluded by default
+                    eeg_chans = EEG.automagic.channelReduction.usedEEGChannels;
+                elseif EEG.automagic.channelReduction.params.addETdata % in this case, original eeg indices dont work, but we have to excluce the ET channels at the end
+                    eeg_chans = 1:EEG.nbchan-6; % hard coded for now
+                end
+            end
             rating_badchans = [];
-            qScore  = calcQuality(EEG, rating_badchans, ...
+            qScore  = calcQuality(EEG, eeg_chans, rating_badchans, ...
                 self.project.qualityThresholds); 
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
             qScoreIdx.THV = arrayfun(@(x) ceil(length(x.THV)/2), qScore);
@@ -632,7 +641,16 @@ classdef Block < handle
             rating_badchans = unique([self.finalBadChans interpolate_chans]);
             rating_badchans = setdiff(rating_badchans, ...
                                 self.project.manuallyExcludedRBCChans);
-            qScore  = calcQuality(EEG, rating_badchans, ...
+            % index EEG channels for quality asssessment
+            eeg_chans = 1:EEG.nbchan;
+            if isfield(automagic, 'channelReduction')
+                if automagic.channelReduction.params.readdExcludedChans % in this case take original eeg indices. ET is also excluded by default
+                    eeg_chans = automagic.channelReduction.usedEEGChannels;
+                elseif automagic.channelReduction.params.addETdata % in this case, original eeg indices dont work, but we have to excluce the ET channels at the end
+                    eeg_chans = [1:EEG.nbchan-6]; % hard coded for now
+                end
+            end
+            qScore  = calcQuality(EEG, eeg_chans, rating_badchans, ...
                 self.project.qualityThresholds);
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
             qScoreIdx.THV = arrayfun(@(x) ceil(length(x.THV)/2), qScore);

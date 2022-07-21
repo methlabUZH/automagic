@@ -1,4 +1,4 @@
-function Q = calcQuality(EEG, bad_chans, varargin)
+function Q = calcQuality(EEG, eeg_chans, bad_chans, varargin)
 % Calculates quality measures of a dataset based on the following metrics:
 %
 % -  The ratio of data points that exceed the absolute value a certain
@@ -61,15 +61,13 @@ elseif nargin < 2
     disp('No bad channel information...')
 end
 %% Data preparation
-% Data
 % only rate data that was actually prepocessed (without excluded and
 % readded channels, or added ET channels)
+
+% remove readded EXCLUDED and ET channels from data (have to remove it from EEG, as calcCHV uses it)
+EEG.data = EEG.data(eeg_chans,:); % i think its not necessary to shift around bad_chans indices, as they are not used specifically?!
 X = EEG.data;
-if ~isempty(EEG.automagic.channelReduction.params)
-    if EEG.automagic.channelReduction.params.readdExcludedChans || EEG.automagic.channelReduction.params.addETdata
-        X = EEG.data(EEG.automagic.channelReduction.usedEEGChannels,:);
-    end
-end
+
 % Get dimensions of data
 t = size(X,2);
 c = size(X,1);
