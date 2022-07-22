@@ -148,12 +148,60 @@ if(folder ~= 0)
     slash = filesep;
     folder = strcat(folder,slash);
     
+    % if not in BIDS format
     d=dir(folder);
     d=d(~ismember({d.name},{'.','..', '.DS_Store'}));
     nSub = length(d);
     
-    d=dir([folder, '*/', '*', et_fileext]);
-    nETfiles = length(d);
+    d_et=dir([folder, '*', filesep, '*', et_fileext]);
+    nETfiles = length(d_et);
+    
+    % check, if data in BIDS format
+    if startsWith(d(1).name, 'sub-')
+        isBIDS = 1;
+    else
+        isBIDS = 0;
+    end
+    
+    % if data is in BIDS format, search for number of sessions, blocks, etc
+    if isBIDS
+        nETfiles = 0;
+        subjects = list_subjects(folder);
+        nSubject = length(subjects);
+        ext = split(et_fileext, '.');
+        ext = ext{end};
+       
+        for i = 1:nSubject
+            subject = subjects{i};
+            sessOrET = list_subjects([folder subject]);
+            if ~isempty(startsWith(sessOrET, 'ses-')) && all(startsWith(sessOrET, 'ses-'))
+                for sesIdx = 1:length(sessOrET)
+                    sessFile = sessOrET{sesIdx};
+                    etFold = [folder subject slash sessFile slash 'et' slash];
+                    if exist(etFold, 'dir')
+                        raw_files = dir([etFold '*' ext]);
+                        idx = ~startsWith({raw_files.name}, '.');
+                        raw_files = raw_files(idx);
+                        nETfiles = nETfiles + length(raw_files);
+                    end
+                end
+            elseif ~isempty(startsWith(sessOrET, 'ses-')) && any(startsWith(sessOrET, 'eeg'))
+                etFold = [folder subject slash 'et' slash];
+                if exist(etFold, 'dir')
+                    raw_files = dir([etFold '*' ext]);
+                    idx = ~startsWith({raw_files.name}, '.');
+                    raw_files = raw_files(idx);
+                    nETfiles = nETfiles + length(raw_files);
+                end
+            else
+                raw_files = dir([folder subject slash '*' ext]);
+                idx = ~startsWith({raw_files.name}, '.');
+                raw_files = raw_files(idx);
+                nETfiles = nETfiles + length(raw_files);
+            end
+        end
+    end
+
 
     set(handles.datafolder_edit, 'String', folder)
     set(handles.numSubFiles, 'String', [num2str(nSub) ' Subjects and ' num2str(nETfiles) ' ET Files found'])
@@ -407,7 +455,7 @@ function helpButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-web('https://github.com/methlabUZH/automagic/wiki/', '-browser');
+web('https://github.com/methlabUZH/automagic/wiki/Configurations#artifact-removal', '-browser');
 
 
 
@@ -454,3 +502,11 @@ function to_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% --- return the list of subjects in the folder
+function subjects = list_subjects(rootFolder)
+% root_folder       the folder in which subjects are looked for
+subs = dir(rootFolder);
+isub = [subs(:).isdir];
+subjects = {subs(isub).name}';
+subjects(ismember(subjects,{'.','..'})) = [];
