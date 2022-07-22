@@ -92,7 +92,7 @@ else
     if length(d) == 1
         et_fileName = d(1).name;   
     else % assume that that the filenames for EEG and ET are identical up to _EEG.mat 
-        i = regexp(eegFileName, 'EEG');
+        i = regexpi(eegFileName, 'EEG');
         patt = eegFileName(1:i-2); % remove _EEG from the name
         et_fileName = [patt, '_ET.', ext];
     end
