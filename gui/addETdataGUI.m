@@ -58,21 +58,21 @@ handles.params = params;
 
 
 % changing ETguidedICAparams, if already exists
-if isfield(params,'addETdataParams')
+if isfield(params.params,'addETdataParams')
     % set(handles.checkbox_firstTrigger, 'Value', params.addETdataParams.checkbox_firstTrigger);
 
-    set(handles.fileext_edit, 'String', params.addETdataParams.fileext_edit);
-    set(handles.datafolder_edit, 'String', params.addETdataParams.datafolder_edit);
-    set(handles.l_gaze_x_edit, 'String', params.addETdataParams.l_gaze_x_edit);
-    set(handles.l_gaze_y_edit, 'String', params.addETdataParams.l_gaze_y_edit);
-    set(handles.r_gaze_x_edit, 'String', params.addETdataParams.r_gaze_x_edit);
-    set(handles.r_gaze_y_edit, 'String', params.addETdataParams.r_gaze_y_edit);
-    set(handles.startTrigger_edit, 'String', params.addETdataParams.startTrigger_edit);
-    set(handles.endTrigger_edit, 'String', params.addETdataParams.endTrigger_edit);
-    set(handles.screenWidth_edit, 'String', params.addETdataParams.screenWidth_edit);
-    set(handles.screenHeight_edit, 'String', params.addETdataParams.screenHeight_edit);
-    set(handles.from_edit, 'String', params.addETdataParams.from_edit);
-    set(handles.to_edit, 'String', params.addETdataParams.to_edit);
+    set(handles.fileext_edit, 'String', params.params.addETdataParams.fileext_edit);
+    set(handles.datafolder_edit, 'String', params.params.addETdataParams.datafolder_edit);
+    set(handles.l_gaze_x_edit, 'String', params.params.addETdataParams.l_gaze_x_edit);
+    set(handles.l_gaze_y_edit, 'String', params.params.addETdataParams.l_gaze_y_edit);
+    set(handles.r_gaze_x_edit, 'String', params.params.addETdataParams.r_gaze_x_edit);
+    set(handles.r_gaze_y_edit, 'String', params.params.addETdataParams.r_gaze_y_edit);
+    set(handles.startTrigger_edit, 'String', params.params.addETdataParams.startTrigger_edit);
+    set(handles.endTrigger_edit, 'String', params.params.addETdataParams.endTrigger_edit);
+    set(handles.screenWidth_edit, 'String', params.params.addETdataParams.screenWidth_edit);
+    set(handles.screenHeight_edit, 'String', params.params.addETdataParams.screenHeight_edit);
+    set(handles.from_edit, 'String', params.params.addETdataParams.from_edit);
+    set(handles.to_edit, 'String', params.params.addETdataParams.to_edit);
    
 
 end

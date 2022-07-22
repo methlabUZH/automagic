@@ -329,6 +329,11 @@ if ~isempty(params.ICLabelParams)
         set(handles.icahighpassorderedit, 'String', '')
         set(handles.icahighpassedit, 'String', '');
     end
+    
+    % ETguidedICA: OPTICAT
+    set(handles.occularETguidedICAcheckbox, 'Value', params.ICLabelParams.ETguidedICA);
+        
+    
 else
 %     set(handles.savecomponents, 'Value', 0)
     set(handles.probtheredit, 'String', '')
