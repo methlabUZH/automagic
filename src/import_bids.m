@@ -350,6 +350,7 @@ for iFold = 1:length(subjectFolder) % scan sessions
                 channelData = loadfile([ eegFileRaw(1:end-8) '_channels.tsv' ], channelFile);
                 elecData    = loadfile([ eegFileRaw(1:end-8) '_electrodes.tsv' ], elecFile);
                 if strcmpi(opt.bidschanloc, 'on')
+                    indStatus = strmatch('status', lower(channelData(1,:)), 'exact');
                     chanlocs = [];
                     for iChan = 2:size(channelData,1)
                         % the fields below are all required
@@ -357,7 +358,7 @@ for iFold = 1:length(subjectFolder) % scan sessions
                         chanlocs(iChan-1).type   = channelData{iChan,2};
                         chanlocs(iChan-1).unit   = channelData{iChan,3};
                         if size(channelData,2) > 3
-                            chanlocs(iChan-1).status = channelData{iChan,4};
+                            chanlocs(iChan-1).status = channelData{iChan,indStatus};
                         end
 
                         if ~isempty(elecData) && iChan <= size(elecData,1)
@@ -413,18 +414,24 @@ for iFold = 1:length(subjectFolder) % scan sessions
                     end
                     indTrial = strmatch( opt.eventtype, lower(eventData(1,:)), 'exact');
                     for iEvent = 2:size(eventData,1)
-                        events(end+1).latency  = eventData{iEvent,1}; % convert to samples
+                        if ~isempty(indSample) % if present, trust the "sample" field from events.tsv
+                            events(end+1).latency  = eventData{iEvent,indSample};
+                        else % ..otherwise take the onset field (in seconds) and convert it to samples
+                            tmpOnset = eventData{iEvent,1}; % Event latencies are stored in units of data sample points relative to the beginning of the continuous data matrix (EEG.data), while BIDS onset is in seconds relative to the first data point
+                            events(end+1).latency  = round(tmpOnset * infoData.SamplingFrequency);
+                        end
                         if EEG.trials > 1
                             events(end).epoch = floor(events(end).latency/EEG.pnts)+1;
                         end
-                        events(end).duration   = eventData{iEvent,2};   % convert to samples
+                        tmpDuration = eventData{iEvent,2};   % convert to samples
+                        events(end).duration   = round(tmpDuration * infoData.SamplingFrequency);
                         bids.eventInfo = {'onset' 'latency'; 'duration' 'duration'}; % order in events.tsv: onset duration
                         if ~isempty(indSample)
                             events(end).sample = eventData{iEvent,indSample} + 1;
                             bids.eventInfo(end+1,:) = {'sample' 'sample'};
                         end
-                        for iField = 1:length(eventData(1,:))
-                            if ~any(strcmpi(eventData{1,iField}, {'onset', 'duration', 'sample', opt.eventtype}))
+                        for iField = 3:length(eventData(1,:)) % 'onset', 'duration' have to be in columns 1,2 - this avoids error due to strcmpi() and special characters in the column header
+                            if ~any(strcmpi(eventData{1,iField}, {'sample', opt.eventtype}))
                                 events(end).(eventData{1,iField}) = eventData{iEvent,iField};
                                 bids.eventInfo(end+1,:) = { eventData{1,iField} eventData{1,iField} };
                             end
@@ -438,8 +445,10 @@ for iFold = 1:length(subjectFolder) % scan sessions
                             events(end).latency  = (eventData{iEvent,1}+eventData{iEvent,4}); % convert to samples
                             events(end).duration = 0;
                         end
+                        events(end).urevent  =  iEvent-1; % has to be present
                     end
                     EEG.event = events;
+                    EEG.urevent = rmfield(events, 'urevent');
                     
                     % check consistency
                     EEG = eeg_checkset(EEG, 'eventconsistency');
