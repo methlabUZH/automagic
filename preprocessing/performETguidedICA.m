@@ -60,7 +60,7 @@ end
 if isBIDS
     
     % split the name to get all informations
-    parts = split(eegFileName, '-');
+    parts = strsplit(eegFileName, {'-', '_'});
     
     flag = 1;
     % find out session and run 
