@@ -137,6 +137,7 @@ if EEG_orig.etc.keep_comps
 end
 
 %% Auto-flag ocular ICs based on sac/fix variance ratio
+eye_comps = [];
 try
     if ETguidedICA 
         
