@@ -102,6 +102,11 @@ if(~isempty(parts))
     Index = not(~contains(parts, 'BESA'));
     EEGSystem.sys10_20_file = strcat(parts{Index}, slash, ...
              Csts.EEGSystemCsts.sys10_20_file);
+
+    % eeglab does not work with 'ced' files
+    if strcmp(EEGSystem.fileLocType, 'ced')
+        EEGSystem.fileLocType = 'chanedit';
+    end
 end
 
 % Case of others where the location file must have been provided
