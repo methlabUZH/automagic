@@ -63,56 +63,13 @@
 
 function EEG = import_bids(bidsFolder, self, varargin)
 
-STUDY = [];
-ALLEEG = [];
+
 bids = [];
 stats = [];
 commands = '';
-if nargin < 1
-    bidsFolder = uigetdir('Pick a BIDS folder');
-    if isequal(bidsFolder,0), return; end
-    
-    cb_select = [ 'tmpfolder = uigetdir;' ...
-        'if ~isequal(tmpfolder, 0)' ...
-        '   set(findobj(gcbf, ''tag'', ''folder''), ''string'', tmpfolder);' ...
-        'end;' ...
-        'clear tmpfolder;' ];
-    type_fields = { 'value' 'trial_type' 'event_kind' };
-    
-    % scan if multiple tasks are present
-    disp('Scanning folders...');
-    tasklist = bids_gettaskfromfolder(bidsFolder);
-    
-    cb_event = 'set(findobj(gcbf, ''userdata'', ''bidstype''), ''enable'', fastif(get(gcbo, ''value''), ''on'', ''off''));';
-    cb_task  = 'set(findobj(gcbf, ''userdata'', ''task''), ''enable'', fastif(get(gcbo, ''value''), ''on'', ''off''));';
-    promptstr    = { ...
-        { 'style'  'text'       'string' 'Enter study name (default is BIDS folder name)' } ...
-        { 'style'  'edit'       'string' '' 'tag' 'studyName' } ...
-        {} ...
-        { 'style'  'checkbox'   'string' 'Use BIDS electrode.tsv files (when present) for channel locations; off: look up locations using channel labels' 'tag' 'chanlocs' 'value' 1 } ...
-        { 'style'  'checkbox'   'string' 'Use BIDS event.tsv files for events and use the following BIDS field for event type' 'tag' 'events' 'value' 1 'callback' cb_event } ...
-        { 'style'  'popupmenu'  'string' type_fields 'tag' 'typefield' 'value' 1 'userdata' 'bidstype'  'enable' 'on' } ...
-        { 'style'  'checkbox'   'string' 'Import only the following BIDS task from the BIDS archive' 'tag' 'bidstask' 'value' 0 'callback' cb_task } ...
-        { 'style'  'popupmenu'  'string' tasklist 'tag' 'bidstaskstr' 'value' 1 'userdata' 'task'  'enable' 'off' } ...
-        {} ...
-        { 'style'  'text'       'string' 'Study output folder' } ...
-        { 'style'  'edit'       'string' fullfile(bidsFolder, 'derivatives') 'tag' 'folder' 'HorizontalAlignment' 'left' } ...
-        { 'style'  'pushbutton' 'string' '...' 'callback' cb_select } ...
-        };
-    geometry = {[2 1.5], 1, 1,[1 0.25],[1 0.25],1,[1 2 0.5]};
-    
-    [~,~,~,res] = inputgui( 'geometry', geometry, 'geomvert', [1 0.5, 1 1 1 0.5 1], 'uilist', promptstr, 'helpcom', 'pophelp(''pop_importbids'')', 'title', 'Import BIDS data -- pop_importbids()');
-    if isempty(res), return; end
-    
-    options = { 'eventtype' type_fields{res.typefield} };
-    if res.events,    options = { options{:} 'bidsevent' 'on' };   else options = { options{:} 'bidsevent' 'off' }; end
-    if res.chanlocs,  options = { options{:} 'bidschanloc' 'on' }; else options = { options{:} 'bidschanloc' 'off' }; end
-    if ~isempty(res.folder),  options = { options{:} 'outputdir' res.folder }; end
-    if ~isempty(res.studyName),  options = { options{:} 'studyName' res.studyName }; end
-    if res.bidstask,  options = { options{:} 'bidstask' tasklist{res.bidstaskstr} }; end
-else
-    options = varargin;
-end
+
+options = varargin;
+
 
 [~,defaultStudyName] = fileparts(bidsFolder);
 opt = finputcheck(options, { ...
@@ -349,6 +306,12 @@ for iFold = 1:length(subjectFolder) % scan sessions
                 % ---------------------
                 channelData = loadfile([ eegFileRaw(1:end-8) '_channels.tsv' ], channelFile);
                 elecData    = loadfile([ eegFileRaw(1:end-8) '_electrodes.tsv' ], elecFile);
+                
+                if isempty(channelData) || isempty(elecData)
+                    opt.bidschanloc = 'off';
+                    fprintf('Channel location data not provided... Skiping...\n')
+                end
+                
                 if strcmpi(opt.bidschanloc, 'on')
                     indStatus = strmatch('status', lower(channelData(1,:)), 'exact');
                     chanlocs = [];
@@ -390,6 +353,8 @@ for iFold = 1:length(subjectFolder) % scan sessions
                     end
                 else
                     if isempty(EEG.chanlocs(1).theta) || isempty(EEG.chanlocs(1).X) || isempty(EEG.chanlocs(1).sph_theta)
+                        % if you provide a channel location file to the GUI, automagic
+                        % will load it later (systemDependentParse.m) and overwrite the chanlocs from template models
                         dipfitdefs;
                         EEG = pop_chanedit(EEG, 'lookup', template_models(2).chanfile);
                     else
@@ -400,10 +365,14 @@ for iFold = 1:length(subjectFolder) % scan sessions
                 % event data
                 % ----------
                 eventData = loadfile( [ eegFileRaw(1:end-8) '_events.tsv' ], eventFile);
-%                 bids.data = setallfields(bids.data, [iSubject-1,iFold,iFile], struct('eventinfo', {eventData}));
                 eventDesc = loadfile( [ eegFileRaw(1:end-8) '_events.json' ], eventDescFile);
-%                 bids.data = setallfields(bids.data, [iSubject-1,iFold,iFile], struct('eventdesc', {eventDesc}));
                 bids.eventInfo = {}; % for eInfo. Default is empty. If replacing EEG.event with events.tsv, match field names accordingly
+                
+                if isempty(eventData)
+                    opt.bidsevent = 'off';
+                    fprintf('Event data not provided... Skiping...\n')
+                end
+                
                 if strcmpi(opt.bidsevent, 'on')                        
                     events = struct([]);
                     indSample = strmatch('sample', lower(eventData(1,:)), 'exact');
@@ -452,7 +421,6 @@ for iFold = 1:length(subjectFolder) % scan sessions
                     
                     % check consistency
                     EEG = eeg_checkset(EEG, 'eventconsistency');
-
 
                 end
 

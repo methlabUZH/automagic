@@ -484,7 +484,7 @@ classdef Project < handle
                 % Don't preprocess the file if skip
                 if skip && exist(block.potentialResultAddress, 'file')
                     fprintf(['Results already exits. Skipping '...
-                        'prerocessing for this subject...\n']);
+                        'preprocessing for this subject...\n']);
                     continue;
                 end
                 
@@ -503,15 +503,18 @@ classdef Project < handle
                     [EEG, automagic] = block.preprocess();
                     
                 catch ME
-                    ME.message
-                    warning(['Error in file: ', ME.stack(1).file, ' (Line: ',  num2str(ME.stack(1).line), ') ...'])
+                    disp(ME.message)
+                    file = ME.stack(1).file; 
+                    line = ME.stack(1).line; 
+                    hotlinkcode = sprintf('Error in <a href="matlab: matlab.desktop.editor.openAndGoToLine(which(''%s''), %d) ">%s (line %d)</a>', file, line, file, line);
+                    warning(hotlinkcode)
+                    disp(['Skipping preprocessing for this file... '])
 
-                    
                     % save the ids to the txt file
-                    if isfile(fullfile(self.resultFolder, 'errors.txt'))
-                        dlmwrite(fullfile(self.resultFolder, 'errors.txt'), uniqueName, '-append', 'delimiter', '')
+                    if isfile(fullfile(self.resultFolder, 'allErrorsID.txt'))
+                        dlmwrite(fullfile(self.resultFolder, 'allErrorsID.txt'), uniqueName, '-append', 'delimiter', '')
                     else
-                        dlmwrite(fullfile(self.resultFolder, 'errors.txt'), uniqueName, 'delimiter', '')
+                        dlmwrite(fullfile(self.resultFolder, 'allErrorsID.txt'), uniqueName, 'delimiter', '')
                     end
                     
                     % init the vars, otherwise error
