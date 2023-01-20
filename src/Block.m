@@ -1294,12 +1294,13 @@ classdef Block < handle
                     {self.CGV.EXTENSIONS.edf})))
                 [~, data] = evalc('pop_biosig(self.sourceAddress)');
                 
-            % case of .dat file
-            elseif (any(strcmp(self.fileExtension, '.dat')))
-                hdr = strcat(self.fileName, '.vhdr');
-                path = self.project.dataFolder;
-                sub = self.subject.name;
-                [~, data] = evalc('pop_loadbv(fullfile(path, sub), hdr)');
+            % case of .dat or .vhdr file  
+            elseif (any(strcmp(self.fileExtension, '.dat'))) || (any(strcmp(self.fileExtension, '.vhdr')))
+                parts = strsplit(self.sourceAddress, filesep);
+                hdr = parts{end};
+                parts = parts(1:end-1);
+                path = strjoin(parts, filesep);
+                [~, data] = evalc('pop_loadbv(path, hdr)');
                 
             else
                 [~ , data] = evalc('pop_fileio(self.sourceAddress)');
@@ -1440,11 +1441,15 @@ classdef Block < handle
             % Return the address of the reduced file
             
             pattern = '[gobni]+i?p_';
+            % reducedAddress = regexprep(resultAddress,pattern,...
+            %    strcat('reduced', int2str(dsRate), '_'));
             parts = split(resultAddress, filesep);
             parts{end} = regexprep(parts{end},pattern,...
-                strcat('reduced', int2str(dsRate), '_'));
+                 strcat('reduced', int2str(dsRate), '_'));
             reducedAddress = join(parts, filesep);
             reducedAddress = reducedAddress{1};
+             
+
         end
         
         function uniqueName = extractUniqueName(address, subject, fileName)
