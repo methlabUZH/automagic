@@ -251,20 +251,17 @@ end
 % Filtering on the whole dataset
 display(PreprocessingConstants.FilterCsts.RUN_MESSAGE);
 EEG = performFilter(EEG, FilterParams);
+fig3 = [];
 if isfield(EEG.automagic,'ZapFig')
     fig3 = EEG.automagic.ZapFig;
     EEG.automagic = rmfield(EEG.automagic,'ZapFig');
     FilterParams.zapline.finalPlot = 1;
-else
-    fig3 = [];
 end
 
 if isfield(EEG.automagic,'ZapFigPlus')
     fig3 = EEG.automagic.ZapFigPlus;
     EEG.automagic = rmfield(EEG.automagic,'ZapFigPlus');
     FilterParams.zaplineplus.finalPlot = 1;
-else
-    fig3 = [];
 end
 
 if ~isempty(EOG.data)
