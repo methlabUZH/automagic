@@ -503,12 +503,14 @@ classdef Project < handle
                     [EEG, automagic] = block.preprocess();
                     
                 catch ME
-                    disp(ME.message)
-                    file = ME.stack(1).file; 
-                    line = ME.stack(1).line; 
-                    hotlinkcode = sprintf('Error in <a href="matlab: matlab.desktop.editor.openAndGoToLine(which(''%s''), %d) ">%s (line %d)</a>', file, line, file, line);
-                    warning(hotlinkcode)
-                    disp(['Skipping preprocessing for this file... '])
+                    for me = 1 : size(ME.stack, 1)
+                        file = ME.stack(me).file; 
+                        line = ME.stack(me).line; 
+                        hotlinkcode = sprintf('Error in <a href="matlab: matlab.desktop.editor.openAndGoToLine(which(''%s''), %d) ">%s (line %d)</a>', file, line, file, line);
+                        fprintf([hotlinkcode, '\n'])
+                    end
+                    warning(ME.message)
+                    fprintf('Skipping preprocessing for this file... \n')
 
                     % save the ids to the txt file
                     if isfile(fullfile(self.resultFolder, 'allErrorsID.txt'))
@@ -523,6 +525,7 @@ classdef Project < handle
                     automagic.error_msg = ME.message;      
                 end
                 
+                % write to log file
                 if( isempty(EEG) || isfield(automagic, 'error_msg'))
                     message = automagic.error_msg;
                     self.writeToLog(block.sourceAddress, message);

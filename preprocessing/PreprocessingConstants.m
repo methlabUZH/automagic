@@ -22,7 +22,7 @@ classdef PreprocessingConstants
                             'NOTCH_OTHER',   [], ...
                             'RUN_MESSAGE', 'Perform Filtering...')
             
-        EEGLabCsts = struct('ZIP', 'eeglab2020_0.zip')
+        EEGLabCsts = struct('ZIP', 'eeglab2023.0.zip')
         
         NoiseToolCsts = struct('ZIP', 'NoiseTools_12-May-2021.zip')
         
