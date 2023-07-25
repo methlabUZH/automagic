@@ -1,4 +1,4 @@
-function [EEG] = performETguidedICA(EEG, params)
+function [EEG, ET] = performETguidedICA(EEG, params)
 
 % For details see the underlying publication: Dimigen, 2020, NeuroImage
 
@@ -156,7 +156,12 @@ end
 % % 
 % EEG = pop_detecteyemovements(EEG,[LX LY],[RX RY],THRESH,MINDUR,DEG_PER_PIXEL,SMOOTH,0,25,2,PLOTFIG,WRITESAC,WRITEFIX);
 
-%% Create optimized data for ICA training (OPTICAT, Dimigen, 2018)
+%% keep ET data for reattaching it at the end of the preprocessing stream
+nbchan = length(ETparams.sync.importColumns);
+ET = EEG;
+ET.data = ET.data(end-nbchan+1:end, :); % keep only ET data
+ET.nbchan = nbchan;
+ET.chanlocs = ET.chanlocs(end-nbchan+1:end);
 
 OW_PROPORTION    = 1.0;          % overweighting proportion
 SACCADE_WINDOW   = [str2double(params.from_edit) str2double(params.to_edit)];  % time window to overweight (-20 to 10 ms is default)

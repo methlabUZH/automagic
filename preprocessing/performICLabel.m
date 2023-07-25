@@ -1,4 +1,4 @@
-function EEG = performICLabel(EEG, varargin)
+function [EEG, ET] = performICLabel(EEG, varargin)
 % performICLabel  perform Independent Component Analysis (ICA) on the high
 %   passsed EEG and classifies bad components using ICLabel.
 %   This function applies a high pass filter before the ICA. But the output
@@ -114,8 +114,9 @@ end
 EEG_orig.automagic.iclabel.ETguidedICA.performed = 'no';
 try
     if ETguidedICA 
-        [~, EEG] = evalc('performETguidedICA(EEG, addETdataParams)');
-        EEG.data = EEG.data(1:size(EEG_orig.data, 1), :); % remove ET data
+        [~, EEG, ET] = evalc('performETguidedICA(EEG, addETdataParams)');
+        % remove ET data
+        EEG.data = EEG.data(1:size(EEG_orig.data, 1), :);
         EEG.nbchan = EEG_orig.nbchan;
         EEG.chanlocs = EEG_orig.chanlocs;
         EEG_orig.automagic.iclabel.ETguidedICA.performed = 'yes';
@@ -123,6 +124,10 @@ try
 catch ME
     ME.message
     fprintf('\n ET guided ICA skipped. Continue with the standard ICA... \n')
+end
+
+if ~exist('ET','var')
+    ET = [];
 end
 
 %% Run ICA

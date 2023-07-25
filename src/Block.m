@@ -528,8 +528,17 @@ classdef Block < handle
             if(isempty(EEG))
                 return;
             end
+            % index EEG channels for quality asssessment
+            eeg_chans = 1:EEG.nbchan;
+            if isfield(EEG.automagic, 'channelReduction')
+                if EEG.automagic.channelReduction.params.readdExcludedChans % in this case take original eeg indices. ET is also excluded by default
+                    eeg_chans = EEG.automagic.channelReduction.usedEEGChannels;
+                elseif EEG.automagic.channelReduction.params.addETdata % in this case, original eeg indices dont work, but we have to excluce the ET channels at the end
+                    eeg_chans = 1:EEG.nbchan-6; % hard coded for now
+                end
+            end
             rating_badchans = [];
-            qScore  = calcQuality(EEG, rating_badchans, ...
+            qScore  = calcQuality(EEG, eeg_chans, rating_badchans, ...
                 self.project.qualityThresholds); 
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
             qScoreIdx.THV = arrayfun(@(x) ceil(length(x.THV)/2), qScore);
@@ -610,29 +619,43 @@ classdef Block < handle
                 InterpolationParams = self.params.InterpolationParams;
             end
 			
-            %save old ica data which gets corrupted in eeg_interp method:
-            orig_icasphere=EEG.icasphere;
-            orig_icachansind=EEG.icachansind;
-            orig_icaweights=EEG.icaweights;
-            orig_icawinv=EEG.icawinv;
+            % to avoid excluded misc and ET channels going into the interpolation,
+            % we also let the misc channels be interpolated (temporarily).
+            % draw info from automagic params
+            EEGtoInterp = EEG;
+            misc_chans = [];
+            if isfield(automagic, 'channelReduction')
+                usedEEGChannels = automagic.channelReduction.usedEEGChannels;
+                %misc_chans = [1:EEG.nbchan];
+                misc_chans = find(~cellfun('isempty', { EEGtoInterp.chanlocs.theta })); % only those with loc info, as others are ignored by interpolation function anyway..
+                misc_chans = misc_chans(~ismember(misc_chans, usedEEGChannels));
+            end
+
+            % do interpolation
             if size(EEG.data,1)==length(interpolate_chans)
                 disp('All channels are bad. Skipping interpolation...');
                 filenamE = strsplit(EEG.comments,filesep);
                 filenamE = filenamE{end};
                 automagic.error_msg = ['Interpolation skipped because all channels are bad: ',filenamE];
             else
-                EEG = eeg_interp(EEG ,interpolate_chans , InterpolationParams.method);
+                EEGtoInterp = eeg_interp(EEGtoInterp ,[interpolate_chans misc_chans], InterpolationParams.method);
             end
-			%put the original icadata back into the structure
-            EEG.icasphere=orig_icasphere;
-            EEG.icachansind=orig_icachansind;
-            EEG.icaweights= orig_icaweights;
-            EEG.icawinv=orig_icawinv;
+            % now add only the interpolated EEG channels back to EEG struct
+            EEG.data(interpolate_chans,:) = EEGtoInterp.data(interpolate_chans,:);
 
             rating_badchans = unique([self.finalBadChans interpolate_chans]);
             rating_badchans = setdiff(rating_badchans, ...
                                 self.project.manuallyExcludedRBCChans);
-            qScore  = calcQuality(EEG, rating_badchans, ...
+            % index EEG channels for quality asssessment
+            eeg_chans = 1:EEG.nbchan;
+            if isfield(automagic, 'channelReduction')
+                if automagic.channelReduction.params.readdExcludedChans % in this case take original eeg indices. ET is also excluded by default
+                    eeg_chans = automagic.channelReduction.usedEEGChannels;
+                elseif automagic.channelReduction.params.addETdata % in this case, original eeg indices dont work, but we have to excluce the ET channels at the end
+                    eeg_chans = [1:EEG.nbchan-6]; % hard coded for now
+                end
+            end
+            qScore  = calcQuality(EEG, eeg_chans, rating_badchans, ...
                 self.project.qualityThresholds);
             qScoreIdx.OHA = arrayfun(@(x) ceil(length(x.OHA)/2), qScore);
             qScoreIdx.THV = arrayfun(@(x) ceil(length(x.THV)/2), qScore);

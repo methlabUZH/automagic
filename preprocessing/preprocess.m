@@ -129,7 +129,6 @@ if ~isempty(ICLabelParams)
     ICLabelParams.addETdataParams = p.Results.addETdataParams;
 end
 
-
 if isempty(Settings)
     Settings = Recs.Settings;
 end
@@ -144,11 +143,19 @@ addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, .
 
 data_orig = data; % for plot with original data
 
-% Set system dependent parameters and eeparate EEG from EOG
-[EEG, EOG, EEGSystem, MARAParams] = ...
+% Set system dependent parameters and separate EEG from EOG
+[EEG, EOG, EXCLUDED, EEGSystem, MARAParams] = ...
     systemDependentParse(data, EEGSystem, ChannelReductionParams, ...
     MARAParams, ORIGINAL_FILE);
 EEGRef = EEG;
+
+% free memory if EXCLUDED channel data is not supposed to be reattached
+% later
+if ~isempty(ChannelReductionParams)
+    if ~ChannelReductionParams.readdExcludedChans
+        clear EXCLUDED
+    end
+end
 
 % Trim data
 EEG.automagic.TrimData.performed = 'no';
@@ -302,7 +309,7 @@ EEG.automagic.rpca.performed = 'no';
 EEG.automagic.iclabel.performed = 'no';
 if ( ~isempty(ICLabelParams) )
     try
-        EEG = performICLabel(EEG, ICLabelParams);
+        [EEG, ET] = performICLabel(EEG, ICLabelParams);
         EEG.icachansind = find(~EEG.automagic.preprocessing.removedMask);
     catch ME
         message = ['ICLabel is not done on this subject, continue with the next steps: ' ...
@@ -410,7 +417,7 @@ if ~isempty(EEGSystem.refChan)
     clear chan_nb re_chan;
 end
 
-% Write back output
+% Write back output (ref channel)
 if ~isempty(EEGSystem.refChan)
     removedChans(removedChans >= EEGSystem.refChan.idx)=removedChans(removedChans >= EEGSystem.refChan.idx)+1;
     EEG.automagic.autoBadChans = removedChans;
@@ -418,12 +425,59 @@ if ~isempty(EEGSystem.refChan)
 else
     EEG.automagic.autoBadChans = removedChans;
 end
+
+% Put back excluded channels (only if wanted)
+if ~isempty(EEG.automagic.channelReduction.params)
+    if (EEG.automagic.channelReduction.params.readdExcludedChans && ...
+            ~isempty(EEG.automagic.channelReduction.excludedChannels))
+        excludedChans = sort(EEG.automagic.channelReduction.excludedChannels); % should be ordered (for step below)
+        for i_ch_excl = 1:length(excludedChans)
+            excluded_chan = excludedChans(i_ch_excl);
+            EEG.data = [EEG.data(1:excluded_chan-1,:); ...
+                EXCLUDED.data(i_ch_excl,:);...
+                EEG.data(excluded_chan:end,:)];
+            EXCLUDED.chanlocs(i_ch_excl).maraLabel = [];
+            EEG.chanlocs = [EEG.chanlocs(1:excluded_chan-1), ...
+                EXCLUDED.chanlocs(i_ch_excl), ...
+                EEG.chanlocs(excluded_chan:end)];
+        end
+        EEG.nbchan = size(EEG.data,1);
+        clear excluded_chan i_ch_excl
+
+        % Write back output (excluded channels)
+        for excluded_chan = excludedChans
+            removedChans(removedChans >= excluded_chan)=removedChans(removedChans >= excluded_chan)+1;
+        end
+    end
+end
+EEG.automagic.autoBadChans = removedChans;
+
 EEG.automagic.params = params;
 EEG.automagic = rmfield(EEG.automagic, 'preprocessing');
 
 if Settings.trackAllSteps
    allSteps = matfile(Settings.pathToSteps, 'Writable', true);
    allSteps.EEGFinal = EEG;
+end
+
+% attach Eyetracker data (if wanted)
+addETdata = true;
+EEG.automagic.channelReduction.params.addETdata = addETdata; % hard coded for now
+%addETevents = true; % might be seperately set, if preferred
+if exist('ET', 'var')
+    if ~isempty(ET) && EEG.automagic.channelReduction.params.addETdata
+        EEG.data = [EEG.data; ET.data]; % add to the very end, such that it doesnt affect any index
+        f = fieldnames(ET.chanlocs);
+        toKeep = fieldnames(EEG.chanlocs);
+        toRemove = f(~ismember(f,toKeep));
+        EEG.chanlocs = [EEG.chanlocs, rmfield(ET.chanlocs, toRemove)];
+        EEG.nbchan = size(EEG.data,1);
+%    end
+%    if ~isempty(ET) && addETevents
+        EEG.event = ET.event;
+        EEG.urevent = ET.urevent;
+        %EEG.eventdescription = ET.eventdescription;
+    end
 end
 
 %% Creating the final figure to save
@@ -488,6 +542,8 @@ if Settings.sortChans
 else
     final_idx = 1:size(EEG.data, 1);
 end
+% only keep original EEG channels (no ET, no excluded channels)
+final_idx = final_idx(ismember(final_idx, EEG.automagic.channelReduction.usedEEGChannels));
 
 %eeg figure
 subplot(13,1,2:3)
@@ -723,6 +779,9 @@ if Settings.sortChans
 else
     final_idx = 1:size(EEG.data, 1);
 end
+% only keep original EEG channels (no ET, no excluded channels)
+final_idx = final_idx(ismember(final_idx, EEG.automagic.channelReduction.usedEEGChannels));
+
 fig2 = figure('visible', 'off');
 ax = gca;
 % outerpos = ax.OuterPosition;

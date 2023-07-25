@@ -929,6 +929,7 @@ if get(handles.excludecheckbox, 'Value')
     
     handles.params.ChannelReductionParams.tobeExcludedChans = ...
         str2num(get(handles.excludeedit, 'String'));
+    handles.params.ChannelReductionParams.readdExcludedChans = true; % hard coded for now!
 else
     handles.params.ChannelReductionParams = struct([]);
 end

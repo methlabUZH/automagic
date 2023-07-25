@@ -77,7 +77,8 @@ classdef RecommendedParameters
         
         DetrendingParams = struct();
                         
-        ChannelReductionParams = struct('tobeExcludedChans', []);
+        ChannelReductionParams = struct('tobeExcludedChans', [], ...
+                                        'readdExcludedChans', false);
                                       
                                       
         EEGSystem = struct('name', 'Others',...
