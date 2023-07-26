@@ -22,7 +22,7 @@ function varargout = BIDSinputGUI(varargin)
 
 % Edit the above text to modify the response to help BIDSinputGUI
 
-% Last Modified by GUIDE v2.5 19-Aug-2019 10:33:22
+% Last Modified by GUIDE v2.5 26-Jul-2023 16:37:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -184,4 +184,3 @@ function derivativesSETcheckbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of derivativesBVAcheckbox
-
