@@ -68,7 +68,7 @@ classdef DefaultParameters
                                'ETguidedICA', 0, ...
                                'addETdataParams', struct());
                     
-        EOGRegressionParams = struct();
+        EOGRegressionParams = struct([]);
                         
         ChannelReductionParams = struct();
         
