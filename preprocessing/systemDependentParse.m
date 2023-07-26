@@ -455,7 +455,11 @@ else
 end
 
 % Seperate EEG channels from EOG channels
-[~, EOG] = evalc('pop_select( EEG , ''channel'', eog_channels)');
+if not(isempty(eog_channels))
+    [~, EOG] = evalc('pop_select( EEG , ''channel'', eog_channels)');
+else
+    [~, EOG] = evalc('pop_select( EEG , ''nochannel'', eeg_channels)'); % because somehow if eog_channels is empty, no channels are removed from EEG
+end
 [~, EEG] = evalc('pop_select( EEG , ''channel'', eeg_channels)');
 % Map original channel lists to new ones after the above separation
 if ~isempty(EEGSystem.refChan)

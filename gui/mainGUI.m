@@ -41,7 +41,7 @@ function varargout = mainGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 04-Apr-2022 15:22:35
+% Last Modified by GUIDE v2.5 25-Jul-2023 16:58:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -94,6 +94,10 @@ set(handles.mainGUI, 'Name', ['Automagic v.', handles.CGV.VERSION]);
 
 % Load the state and then the current project
 handles = load_state(handles);
+
+% disable text boxes for excluding channels, if the checkbox is not on 
+set(handles.excludeedit, 'Enable', 'off')
+set(handles.excludeMiscedit, 'Enable', 'off')
 
 % Update handles structure
 guidata(hObject, handles);
@@ -179,6 +183,10 @@ handles = update_selected_project(handles);
 % Load the project
 handles = load_selected_project(handles);
 
+% disable text boxes for excluding channels, if the checkbox is not on 
+set(handles.excludeedit, 'Enable', 'off')
+set(handles.excludeMiscedit, 'Enable', 'off')
+
 % Change back the cursor to an arrow
 set(handles.mainGUI, 'pointer', 'arrow')
 
@@ -252,7 +260,9 @@ if(strcmp(name, handles.CGV.NEW_PROJECT.LIST_NAME))
     set(handles.interpolatenumber, 'String', '')
 %     set(handles.excludecheckbox, 'Value', ~isempty(handles.params.ChannelReductionParams));
     set(handles.excludecheckbox, 'Value', 0);
+    set(handles.excludeMisccheckbox, 'Value', 0);
     set(handles.excludeedit, 'enable', 'off');
+    set(handles.excludeMiscedit, 'enable', 'off');
     set(handles.extedit, 'String', '')
     set(handles.srateedit, 'String', '')
     set(handles.checkbox1020, 'Value', 0)
@@ -340,6 +350,7 @@ if ~ exist(project.stateAddress, 'file')
         set(handles.interpolatenumber, 'String', '')
         set(handles.chanlocedit, 'String', '');
         set(handles.excludeedit, 'String', '');
+        set(handles.excludeMiscedit, 'String', '');
         set(handles.checkbox1020, 'Value', 0)
         % Disable modifications from gui
         switch_gui('off', 'on', handles);
@@ -413,6 +424,7 @@ set(handles.interpolatenumber, 'String', ...
 
 % Set reduce channel checkbox
 set(handles.excludecheckbox, 'Value', ~isempty(ChannelReductionParams));
+set(handles.excludeMisccheckbox, 'Value', ~isempty(ChannelReductionParams));
 
 % Disable modifications from gui
 switch_gui('off', 'on', handles);
@@ -436,6 +448,7 @@ set(handles.isBIDSformat, 'enable', mode);
 set(handles.createbutton, 'visible', mode)
 set(handles.deleteprojectbutton, 'visible', visibility)
 set(handles.excludecheckbox, 'enable', mode);
+set(handles.excludeMisccheckbox, 'enable', mode);
 set(handles.helpcreatepushbutton, 'visible', mode);
 set(handles.helpextpushbutton, 'visible', mode);
 set(handles.dirhelppushbutton, 'visible', mode);
@@ -459,6 +472,7 @@ set(handles.checkbox1020, 'enable', mode);
 if( strcmp(mode, 'off'))
     set(handles.chanlocedit, 'enable', mode);
     set(handles.excludeedit, 'enable', mode);
+    set(handles.excludeMiscedit, 'enable', mode);
     set(handles.loctypeedit, 'enable', mode);
     set(handles.choosechannelloc, 'enable', mode);
     set(handles.newreferenceradio, 'enable', mode)
@@ -470,6 +484,7 @@ elseif(strcmp(mode, 'on'))
     if( ~ get(handles.egiradio, 'Value'))
         set(handles.chanlocedit, 'enable', mode);
         set(handles.excludeedit, 'enable', mode);
+        set(handles.excludeMiscedit, 'enable', mode);
         set(handles.loctypeedit, 'enable', mode);
         set(handles.choosechannelloc, 'enable', mode);
         set(handles.newreferenceradio, 'enable', mode)
@@ -924,18 +939,35 @@ if(any(strcmp(ext, {handles.CGV.EXTENSIONS.text})) && isempty(sRate))
 end
 
 % Get reduce checkbox
-if get(handles.excludecheckbox, 'Value')
+if get(handles.excludecheckbox, 'Value') | get(handles.excludeMisccheckbox, 'Value')
     handles.params.ChannelReductionParams = struct();
     
-    handles.params.ChannelReductionParams.tobeExcludedChans = ...
-        str2num(get(handles.excludeedit, 'String'));
+    if get(handles.excludecheckbox, 'Value')
+        handles.params.ChannelReductionParams.tobeExcludedChans = ...
+            str2num(get(handles.excludeedit, 'String'));
+    end
+    if get(handles.excludeMisccheckbox, 'Value')
+        handles.params.ChannelReductionParams.tobeExcludedMiscChans = ...
+            str2num(get(handles.excludeMiscedit, 'String'));
+    end
 else
     handles.params.ChannelReductionParams = struct([]);
 end
 
+
+
 if( ~ get(handles.egiradio, 'Value') && ...
         get(handles.excludecheckbox, 'Value') && ...
         isempty(get(handles.excludeedit, 'String')))
+    popup_msg(['A list of channel indices seperated by space or',...
+        ' comma must be given to determine channels to be excluded'],...
+        'Error');
+    return;
+end
+
+if( ~ get(handles.egiradio, 'Value') && ...
+        get(handles.excludeMisccheckbox, 'Value') && ...
+        isempty(get(handles.excludeMiscedit, 'String')))
     popup_msg(['A list of channel indices seperated by space or',...
         ' comma must be given to determine channels to be excluded'],...
         'Error');
@@ -1357,6 +1389,8 @@ switch EEGSystem.name
         set(handles.choosechannelloc, 'enable', 'off');
         set(handles.excludeedit, 'enable', 'off');
         set(handles.excludeedit, 'String', '');
+        set(handles.excludeMiscedit, 'enable', 'off');
+        set(handles.excludeMiscedit, 'String', '');
         set(handles.newreferenceradio, 'Value', 1)
         set(handles.hasreferenceradio, 'value', 0)
         set(handles.hasreferenceedit, 'String', '')
@@ -1367,6 +1401,7 @@ switch EEGSystem.name
         set(handles.nonscalpradio, 'enable', 'off')
         set(handles.srateedit, 'enable', 'off')
         set(handles.excludecheckbox, 'Value',0)
+        set(handles.excludeMisccheckbox, 'Value',0)
         handles.params.ChannelReductionParams = struct();
     case 'Others'
         set(handles.egiradio, 'Value', 0);
@@ -1374,8 +1409,16 @@ switch EEGSystem.name
         set(handles.chanlocedit, 'String', EEGSystem.locFile);
         if(get(handles.excludecheckbox, 'Value'))
             set(handles.excludeedit, 'enable', 'on');
+        else
+            set(handles.excludeedit, 'enable', 'off');
+        end
+        if(get(handles.excludeMisccheckbox, 'Value'))
+            set(handles.excludeMiscedit, 'enable', 'on');
+        else
+            set(handles.excludeMiscedit, 'enable', 'off');
         end
         set(handles.excludeedit, 'enable', 'off');
+        set(handles.excludeMiscedit, 'enable', 'off');
         set(handles.loctypeedit, 'enable', 'on');
         set(handles.loctypeedit, 'String', EEGSystem.fileLocType);
         if isfield(ChannelReductionParams, 'tobeExcludedChans')
@@ -1383,6 +1426,12 @@ switch EEGSystem.name
                 num2str(ChannelReductionParams.tobeExcludedChans));
         else
             set(handles.excludeedit, 'String', num2str([]));
+        end
+        if isfield(ChannelReductionParams, 'tobeExcludedMiscChans')
+            set(handles.excludeMiscedit, 'String', ...
+                num2str(ChannelReductionParams.tobeExcludedMiscChans));
+        else
+            set(handles.excludeMiscedit, 'String', num2str([]));
         end
         set(handles.choosechannelloc, 'enable', 'on');
         
@@ -1908,3 +1957,45 @@ function helpisbidspushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 web('https://github.com/methlabUZH/automagic/wiki/BIDS-integration#read-from-bids-folder-structure', '-browser');
+
+
+
+function excludeMiscedit_Callback(hObject, eventdata, handles)
+% hObject    handle to excludeMiscedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of excludeMiscedit as text
+%        str2double(get(hObject,'String')) returns contents of excludeMiscedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function excludeMiscedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to excludeMiscedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+    
+
+% --- Executes on button press in excludeMisccheckbox.
+function excludeMisccheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to excludeMisccheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of excludeMisccheckbox
+if( ~ get(handles.egiradio, 'Value'))
+    if( get(handles.excludeMisccheckbox, 'Value'))
+        set(handles.excludeMiscedit, 'enable', 'on');
+    else
+        set(handles.excludeMiscedit, 'enable', 'off');
+        set(handles.excludeMiscedit, 'String', '');
+    end
+end

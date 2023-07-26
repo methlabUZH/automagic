@@ -142,7 +142,17 @@ addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, .
 % %%% ACHTUNG: testing
 % data = pop_select(data, 'point', [0, 5000]);
 
-data_orig = data; % for plot with original data
+% Ecxlude Misc. channels (i.e., save them in EEG.misc)
+if not(isempty(ChannelReductionParams))
+    if isfield(ChannelReductionParams, 'tobeExcludedMiscChans')
+        misc = pop_select(data, 'channel', ChannelReductionParams.tobeExcludedMiscChans);
+        data = pop_select(data, 'nochannel', ChannelReductionParams.tobeExcludedMiscChans);
+        data.misc = misc;
+    end
+end
+
+% for plot with original data
+data_orig = data; 
 
 % Set system dependent parameters and eeparate EEG from EOG
 [EEG, EOG, EEGSystem, MARAParams] = ...
