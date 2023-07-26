@@ -423,8 +423,8 @@ set(handles.interpolatenumber, 'String', ...
     [num2str(interpolate_count), ' files to interpolate'])
 
 % Set reduce channel checkbox
-set(handles.excludecheckbox, 'Value', ~isempty(ChannelReductionParams));
-set(handles.excludeMisccheckbox, 'Value', ~isempty(ChannelReductionParams));
+set(handles.excludecheckbox, 'Value', ~isempty(ChannelReductionParams) & isfield(ChannelReductionParams, 'tobeExcludedChans'));
+set(handles.excludeMisccheckbox, 'Value', ~isempty(ChannelReductionParams) & isfield(ChannelReductionParams, 'tobeExcludedMiscChans'));
 
 % Disable modifications from gui
 switch_gui('off', 'on', handles);
