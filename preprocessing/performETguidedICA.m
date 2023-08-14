@@ -46,14 +46,23 @@ SCREEN_X = str2double(params.screenWidth_edit);
 SCREEN_Y = str2double(params.screenHeight_edit);
 
 %% find first and last trigger, if not provided
+try
+    allstartTriggers = sscanf(params.startTrigger_edit,'%f');
+    allendTriggers = sscanf(params.endTrigger_edit,'%f');
+catch
+    allstartTriggers = [];
+    allendTriggers = [];
+end
 
-if isempty(params.startTrigger_edit) & isempty(params.endTrigger_edit)
+if isempty(allstartTriggers) & isempty(allendTriggers)
     startTrigger = str2double(EEG.event(1).type);
     endTrigger = str2double(EEG.event(end).type);
 else
-    startTrigger = str2double(params.startTrigger_edit);
-    endTrigger = str2double(params.endTrigger_edit);
+    % if triggers are a list (e.g., different blocks have diffrent triggers), find correspoding triggers
+    startTrigger = allstartTriggers (ismember(cellstr(num2str(allstartTriggers)), {EEG.event.type}));
+    endTrigger = allendTriggers( ismember(cellstr(num2str(allendTriggers)), {EEG.event.type}));
 end
+
 
 %% find corresponding et file - tricky, if more ET files in a folder
 
