@@ -54,13 +54,17 @@ catch
     allendTriggers = [];
 end
 
+% Sometimes the events have whitspaces in the names (e.g., {'911  '}). Remove 
+% leading and trailing whitespace from strings.
+eegevent = strtrim({EEG.event.type});
+
 if isempty(allstartTriggers) & isempty(allendTriggers)
     startTrigger = str2double(EEG.event(1).type);
     endTrigger = str2double(EEG.event(end).type);
 else
     % if triggers are a list (e.g., different blocks have diffrent triggers), find correspoding triggers
-    startTrigger = allstartTriggers (ismember(cellstr(num2str(allstartTriggers)), {EEG.event.type}));
-    endTrigger = allendTriggers( ismember(cellstr(num2str(allendTriggers)), {EEG.event.type}));
+    startTrigger = allstartTriggers (ismember(cellstr(num2str(allstartTriggers)), eegevent));
+    endTrigger = allendTriggers( ismember(cellstr(num2str(allendTriggers)), eegevent));
 end
 
 

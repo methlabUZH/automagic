@@ -114,18 +114,24 @@ end
 EEG_orig.automagic.iclabel.ETguidedICA.performed = 'no';
 try
     if ETguidedICA 
+        fprintf('Preparing data for ET guided ICA (OPTICAT) ... \n')
         [~, EEG] = evalc('performETguidedICA(EEG, addETdataParams)');
-        EEG.data = EEG.data(1:size(EEG_orig.data, 1), :); % remove ET data
+        % save the ET data to EEG.ET
+        fprintf('Separating ET data from EEG and storing ET data in EEG.ET ... \n')
+        EEG_orig.ET = pop_select(EEG, 'channel', [size(EEG_orig.data, 1) + 1 : size(EEG.data, 1)] );
+        % remove ET data from further preprocessing
+        EEG.data = EEG.data(1:size(EEG_orig.data, 1), :); 
         EEG.nbchan = EEG_orig.nbchan;
         EEG.chanlocs = EEG_orig.chanlocs;
         EEG_orig.automagic.iclabel.ETguidedICA.performed = 'yes';
     end
 catch ME
     ME.message
-    fprintf('\n ET guided ICA skipped. Continue with the standard ICA... \n')
+    fprintf('ET guided ICA skipped. Continue with the standard ICA... \n')
 end
 
 %% Run ICA
+fprintf('Running ICA ... \n')
 [~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
     
 if EEG_orig.etc.keep_comps
@@ -151,7 +157,7 @@ try
     end
 catch ME
     ME.message
-    fprintf('\n ET guided ICA skipped. Continue with the standard ICA... \n')
+    fprintf('ET guided ICA skipped. Continue with the standard ICA... \n')
 end
     
 %% perform IClabel  
