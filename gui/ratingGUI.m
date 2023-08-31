@@ -939,7 +939,7 @@ if(isa(block, 'Block'))
 
 end
  
-if ~isempty(EEG.icaact)
+if not(isempty(EEG.icaact)) | not(isempty(EEG.icawinv))
     viewICsGUI(handles, EEG)
 else
     popup_msg('ICA not performed on this subject...',...
