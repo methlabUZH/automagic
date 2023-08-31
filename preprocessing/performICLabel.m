@@ -114,10 +114,10 @@ end
 EEG_orig.automagic.iclabel.ETguidedICA.performed = 'no';
 try
     if ETguidedICA 
-        fprintf('Preparing data for ET guided ICA (OPTICAT) ... \n')
+        fprintf('Preparing data for ET guided ICA (OPTICAT)... \n')
         [~, EEG] = evalc('performETguidedICA(EEG, addETdataParams)');
         % save the ET data to EEG.ET
-        fprintf('Separating ET data from EEG and storing ET data in EEG.ET ... \n')
+        fprintf('Separating ET data from EEG and storing ET data in EEG.ET... \n')
         EEG_orig.ET = pop_select(EEG, 'channel', [size(EEG_orig.data, 1) + 1 : size(EEG.data, 1)] );
         % remove ET data from further preprocessing
         EEG.data = EEG.data(1:size(EEG_orig.data, 1), :); 
@@ -131,7 +131,7 @@ catch ME
 end
 
 %% Run ICA
-fprintf('Running ICA ... \n')
+fprintf('Running ICA... \n')
 [~, EEG, ~] = evalc('pop_runica(EEG, ''icatype'',''runica'',''chanind'',EEG.icachansind)');
     
 if EEG_orig.etc.keep_comps
@@ -213,7 +213,9 @@ end
 if ETguidedICA % remove the saccade intervals (containing spike potential)
     EEG.pnts = EEG_orig.pnts;
     EEG.times = EEG_orig.times;  
-    EEG.icaact = EEG.icaact(:, 1:EEG_orig.pnts);
+    if not(isempty(EEG.icaact))
+        EEG.icaact = EEG.icaact(:, 1:EEG_orig.pnts);
+    end
     EEG.data = EEG_orig.data;
     
     % concat comps
