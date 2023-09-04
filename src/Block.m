@@ -1390,7 +1390,7 @@ classdef Block < handle
                 relAdd = strsplit(relAdd, [self.fileName, self.fileExtension]);
                 relAdd = relAdd{1};
             end
-            self.resultFolder = [self.subject.resultFolder, slash, relAdd];
+            self.resultFolder = [self.project.resultFolder, self.subject.name, slash, relAdd];
             self.resultAddress = strcat(self.resultFolder, self.prefix, '_', self.fileName, '.mat');
             self.reducedAddress = self.extractReducedAddress(...
                 self.resultAddress, self.dsRate);
