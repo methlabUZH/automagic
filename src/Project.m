@@ -525,7 +525,6 @@ classdef Project < handle
                     automagic.error_msg = ME.message;      
                 end
                 
-                % write to log file
                 if( isempty(EEG) || isfield(automagic, 'error_msg'))
                     message = automagic.error_msg;
                     self.writeToLog(block.sourceAddress, message);
@@ -765,6 +764,8 @@ classdef Project < handle
                         % File has been here
                         
                         block = self.blockMap(uniqueName);
+                        block.updateAddresses(self.dataFolder, self.resultFolder, ...
+                                              self.params.EEGSystem.locFile);
                         % Add it to the new list anyways. So that if
                         % anything has been deleted, it's not copied to
                         % this new list.

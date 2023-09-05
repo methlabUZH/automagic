@@ -310,7 +310,7 @@ classdef Block < handle
             end
             
             pattern = '^[gobni]+i?p_';
-            fileData = dir(strcat(self.subject.resultFolder, slash, relAdd));                                        
+            fileData = dir(strcat(self.subject.resultFolder, slash, relAdd)); 
             fileNames = {fileData.name};  
             idx = regexp(fileNames, strcat(pattern, self.fileName, '.mat')); 
             inFiles = fileNames(~cellfun(@isempty,idx));
@@ -1392,6 +1392,7 @@ classdef Block < handle
             end
             self.resultFolder = [self.project.resultFolder, self.subject.name, slash, relAdd];
             self.resultAddress = strcat(self.resultFolder, self.prefix, '_', self.fileName, '.mat');
+            self.sourceAddress = [self.project.dataFolder, self.subject.name, slash, self.fileName, self.fileExtension];
             self.reducedAddress = self.extractReducedAddress(...
                 self.resultAddress, self.dsRate);
             
