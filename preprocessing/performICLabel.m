@@ -237,6 +237,7 @@ EEG.etc.ic_classification.ICLabel.all_classifications = EEG.etc.ic_classificatio
 
 % substract comps
 if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), components))
+    EEG.icaact = []; % let the eeglab recompute the icaact using not filtered data
     EEG = pop_subcomp(EEG, components);
 end
 

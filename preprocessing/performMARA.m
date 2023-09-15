@@ -204,6 +204,7 @@ EEG.data = EEG_orig.data;
 
 % Subtract components from data
 if ~isempty(setdiff_bc(1:size(EEG.icaweights,1), artcomps))
+    EEG.icaact = []; % let the eeglab recompute the icaact using not filtered data
     EEG = pop_subcomp(EEG, artcomps);
 end
 
