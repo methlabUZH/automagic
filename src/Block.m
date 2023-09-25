@@ -220,9 +220,25 @@ classdef Block < handle
             % the case and that file has been already rated import the 
             % rating data to this block, initialise otherwise.
             
-            if( exist(self.potentialResultAddress(), 'file'))
+            % Find the preprocessed file if any (empty char if there is no
+            % file).
+            extractedPrefix = self.extractPrefix(...
+                self.potentialResultAddress());
+            
+            % update 22.09.2023 - load only once to save time. Otherwise
+            % the automagic file was loaded twice every time
+            if ( exist(self.potentialResultAddress(), 'file')) | ...
+                ( (self.hasInformation(extractedPrefix) && ...
+                    exist(self.potentialResultAddress(), 'file')) )
+                % load the automagic file
                 preprocessed = matfile(self.potentialResultAddress());
                 automagic = preprocessed.automagic;
+            end
+            
+            if( exist(self.potentialResultAddress(), 'file'))
+
+%                 preprocessed = matfile(self.potentialResultAddress());
+%                 automagic = preprocessed.automagic;
                 
                 autParams = automagic.params;
                 autFields = fieldnames(autParams);
@@ -239,16 +255,14 @@ classdef Block < handle
                     throw(ME);
                 end 
             end
-            % Find the preprocessed file if any (empty char if there is no
-            % file).
-            extractedPrefix = self.extractPrefix(...
-                self.potentialResultAddress());
+            
+
             
             % If the prefix indicates that the block has been already rated
             if(self.hasInformation(extractedPrefix) && ...
                     exist(self.potentialResultAddress(), 'file'))
-                preprocessed = matfile(self.potentialResultAddress());
-                automagic = preprocessed.automagic;
+%                 preprocessed = matfile(self.potentialResultAddress());
+%                 automagic = preprocessed.automagic;
                 self.rate = automagic.rate;
                 self.tobeInterpolated = automagic.tobeInterpolated;
                 self.isInterpolated = automagic.isInterpolated;
@@ -288,6 +302,7 @@ classdef Block < handle
             
             % Build prefix and adress based on ratings
             self = self.updateResultAddress();
+
         end
         
         function resultAddress = potentialResultAddress(self)
@@ -393,11 +408,10 @@ classdef Block < handle
                 % rating calculation
                 try               
                     to_excl = self.project.manuallyExcludedRBCChans;
-                    preprocessed = matfile(self.resultAddress,'Writable',true);
-                    EEG = preprocessed.EEG;
+                    load(self.reducedAddress);
                     % exclude channels
-                    EEG.data(to_excl, :) = NaN;
-                    CHV = calcCHV(EEG, self.project.qualityThresholds);
+                    reduced.data(to_excl, :) = NaN;
+                    CHV = calcCHV(reduced, self.project.qualityThresholds);
                     newQScore = self.qualityScores;
                     if ~isstruct(newQScore)
                         newQScore = struct();
