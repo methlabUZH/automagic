@@ -1901,7 +1901,7 @@ classdef Project < handle
         function address = makeStateAddress(p_folder)
             % Return the address of the state file
             
-            address = strcat(p_folder, ...
+            address = fullfile(p_folder, ...
                 ConstantGlobalValues.stateFile.PROJECT_NAME);
         end
     end
