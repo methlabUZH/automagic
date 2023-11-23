@@ -1044,6 +1044,8 @@ classdef Project < handle
             
             self.stateAddress = self.makeStateAddress(pFolder);
             self.saveProject();
+            % update project
+            self.updateRatingStructures()
         end
         
         function ratedCount = getRatedCount(self)
