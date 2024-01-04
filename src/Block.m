@@ -1317,6 +1317,9 @@ classdef Block < handle
                 [~, data] = evalc('pop_loadbv(path, hdr)');
                 
             else
+                if exist('plugin_askinstall') & not(exist('ft_defaults.m'))
+                    if ~plugin_askinstall('Fieldtrip-lite', []), return; end
+                end
                 [~ , data] = evalc('pop_fileio(self.sourceAddress)');
             end 
         end
