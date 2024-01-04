@@ -412,11 +412,15 @@ classdef Block < handle
                     % exclude channels
                     reduced.data(to_excl, :) = NaN;
                     CHV = calcCHV(reduced, self.project.qualityThresholds);
+                    THV = calcTHV(reduced, self.project.qualityThresholds);
+                    OHA = calcOHA(reduced, self.project.qualityThresholds);
                     newQScore = self.qualityScores;
                     if ~isstruct(newQScore)
                         newQScore = struct();
                     end
                     newQScore.CHV = CHV;
+                    newQScore.THV = THV;
+                    newQScore.OHA = OHA;
                     self.qualityScores  = newQScore;
 
                 catch 

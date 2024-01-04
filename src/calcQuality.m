@@ -74,10 +74,10 @@ end
 %% Calculate the quality metrics
 
 % overall ratio of timepoints of high amplitude
-OHA = nansum(abs(X(:)) > settings.overallThresh)./(t.*c);
+OHA = calcOHA(EEG, settings);
 
 % ratio of timepoints of high variance
-THV = nansum(bsxfun(@gt, std(X,[],1)', settings.timeThresh), 1) ./t;
+THV = calcTHV(EEG, settings);
 
 % ratio of channels that have been interpolated
 RBC = calcRBC(bad_chans, c);
