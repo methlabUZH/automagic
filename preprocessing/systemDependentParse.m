@@ -158,6 +158,7 @@ if (~isempty(EEGSystem.name) && ...
                 'argument (or in the GUI)'])
         end
         
+        oldChanlocs = EEG.chanlocs;
         if(~ EEGSystem.sys10_20)
             [~, EEG] = evalc(['pop_chanedit(EEG,' ...
                 '''load'',{ EEGSystem.locFile , ''filetype'', EEGSystem.fileLocType})']);
@@ -165,6 +166,15 @@ if (~isempty(EEGSystem.name) && ...
             [~, EEG] = evalc(['pop_chanedit(EEG, ''lookup'', EEGSystem.sys10_20_file,' ...
                 '''load'',{ EEGSystem.locFile , ''filetype'', ''autodetect''})']);
         end
+        
+        % check, if EEG.chanlocs was updated
+        if isequaln(EEG.chanlocs, oldChanlocs)
+            disp('WARNING! Channel location file was provided, but EEG.chanlocs was not updated...')
+            disp('You can ignore this warning, if the correct channel location file was already loaded in EEG.chanlocs before...')
+            disp('Otherwise double check, if you provided correct channel location file...')
+        end
+        clear oldChanlocs
+            
     end
     
     % Make ICA map of channels

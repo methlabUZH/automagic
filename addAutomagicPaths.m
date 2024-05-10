@@ -106,3 +106,4 @@ else
     disp('Parallel Computing Toolbox installed...')
 end
 
+disp('Starting Automagic... First time takes longer...')
