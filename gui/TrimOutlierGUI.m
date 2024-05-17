@@ -55,6 +55,7 @@ function TrimOutlierGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 movegui(handles.figure1,'center')
 params = varargin{1};
 handles.params = params;
+handles.cancel =  false;
 
 % changing trimDataParams, if already exists
 if isfield(params,'TrimOutlierParams')
@@ -91,14 +92,18 @@ function varargout = TrimOutlierGUI_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = get(handles.edit_AmpTresh, 'String');
-varargout{2} = get(handles.edit_rejRange, 'String');
+if handles.cancel
+    varargout{1} = '';
+    varargout{2} = '';
+else
+    varargout{1} = get(handles.edit_AmpTresh, 'String'); % if empty, trimming won't be done
+    varargout{2} = get(handles.edit_rejRange, 'String'); % if empty, trimming won't be done
+end
 
 high.perform = get(handles.checkbox_tempHP, 'Value');
 high.freq = get(handles.edit_filtCutoff, 'String');
 high.order = get(handles.edit_filtOrder, 'String');
 varargout{3} = high;
-
 varargout{4} = get(handles.edit_numChans, 'String');
 
 guidata(hObject, handles);
@@ -121,6 +126,8 @@ function CancelButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+handles.cancel = true;  % Set the cancel flag
+guidata(hObject, handles);  % Update the handles structure
 close('Trim Outlier');
 
 

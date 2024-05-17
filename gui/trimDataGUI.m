@@ -59,6 +59,7 @@ set(handles.edit_firstTrigger,'Enable','off');
 set(handles.edit_lastTrigger,'Enable','off');
 set(handles.edit_paddingFirst,'Enable','off');
 set(handles.edit_paddingLast,'Enable','off');
+handles.cancel = false;
 
 % changing trimDataParams, if already exists
 if isfield(params,'TrimDataParams')
@@ -97,9 +98,14 @@ function varargout = trimDataGUI_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 % this values are passed to mainGUI
+
 varargout{1} = get(handles.checkbox_firstTrigger, 'Value');
 varargout{2} = get(handles.checkbox_lastTrigger, 'Value');
-varargout{3} = (varargout{1}|varargout{2});
+if handles.cancel
+    varargout{3} = false;
+else
+    varargout{3} = (varargout{1}|varargout{2});
+end
 varargout{4} = get(handles.edit_firstTrigger, 'String');
 varargout{5} = get(handles.edit_lastTrigger, 'String');
 varargout{6} = get(handles.edit_paddingFirst, 'String');
@@ -240,6 +246,8 @@ function button_Cancel_Callback(hObject, eventdata, handles)
 % hObject    handle to button_Cancel (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+handles.cancel = true;  % Set the cancel flag
+guidata(hObject, handles);  % Update the handles structure
 close('Trim Data'); % name of the window
 
 
