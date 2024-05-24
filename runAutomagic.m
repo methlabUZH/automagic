@@ -1,4 +1,5 @@
 %% start Automagic
+restoredefaultpath;
 
 mainGuiFile = 'mainGUI.m';
 
