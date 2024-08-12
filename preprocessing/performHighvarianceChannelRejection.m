@@ -66,7 +66,19 @@ rejected=rejected_full;
 % -------------------------------------
 % end of modifications
 
+% Save the original EEG.icachansind.
+% If we don't, pop_select() on line 642 will mark more components to remove 
+% than necessary (because EEG.icachansind contains the original channel indices, 
+% e.g., 1:128, but now the data has fewer channels).
+orig_icachansind = EEG_in.icachansind;
+EEG_in.icachansind = 1 : EEG_in.nbchan;
+
+% remove channels
 [~, EEG_out] = evalc('pop_select(EEG_in, ''nochannel'', find(rejected))');
+
+% recompute and save icachansind
+EEG_out.icachansind = orig_icachansind(not(rejected));
+EEG_out.etc.beforeICremove.icachansind = orig_icachansind;
 
 badChansMask(rejected) = true;
 newMask = removedMask;
