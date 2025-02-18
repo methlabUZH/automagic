@@ -63,5 +63,11 @@ Index = contains(parts, 't400_Classification');
 parts(Index) = [];
 eeglab_paths = strjoin(parts, pathsep);
 addpath(eeglab_paths);
-    
+
+% make sure that option_single is 0 (keep data in double) and
+% option_computeica is 1 (precompute ICA activations)
+% disp('Checking EEGLAB options...')
+% disp('Make sure that option_single is 0 and option_computeica is 1 ...')
+pop_editoptions('option_single', 0, 'option_computeica', 1);
+
 end
