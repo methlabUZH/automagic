@@ -139,15 +139,31 @@ clear p varargin;
 addPreprocessingPaths(struct('PrepParams', PrepParams, 'CRDParams', CRDParams, ...
     'RPCAParams', RPCAParams, 'MARAParams', MARAParams, 'ICLabelParams', ICLabelParams));
 
-% %%% ACHTUNG: testing
-% data = pop_select(data, 'point', [0, 5000]);
 
 % Ecxlude Misc. channels (i.e., save them in EEG.misc)
 if not(isempty(ChannelReductionParams))
     if isfield(ChannelReductionParams, 'tobeExcludedMiscChans')
+        disp('Extracting miscellaneous channels...');
         misc = pop_select(data, 'channel', ChannelReductionParams.tobeExcludedMiscChans);
+        disp('Removing miscellaneous channels and storing them in EEG.misc...');
         data = pop_select(data, 'nochannel', ChannelReductionParams.tobeExcludedMiscChans);
         data.misc = misc;
+        
+        % Adjust reference channel index, if provided. (can handle multiple refs)
+        if not(isempty(EEGSystem.refChan.idx))
+            originalRefIdx = EEGSystem.refChan.idx;
+            adjustedRefIdx = originalRefIdx;
+            
+            % For each reference channel, count removed channels with smaller indices
+            for idx = 1:length(originalRefIdx)
+                numRemovedBeforeRef = sum(ChannelReductionParams.tobeExcludedMiscChans < originalRefIdx(idx));
+                adjustedRefIdx(idx) = originalRefIdx(idx) - numRemovedBeforeRef;
+            end
+    
+            % Adjust reference channel index
+            EEGSystem.refChan.idx = adjustedRefIdx;
+            fprintf('Updated reference channel indices: [%s] (originally [%s]...)\n', num2str(EEGSystem.refChan.idx), num2str(originalRefIdx));
+        end
     end
 end
 
@@ -402,22 +418,38 @@ for chan_idx = 1:length(removedChans)
     EEGOrig.chanlocs(chan_nb).maraLabel = [];
     EEG.chanlocs = [EEG.chanlocs(1:chan_nb-1), ...
         EEGOrig.chanlocs(chan_nb), EEG.chanlocs(chan_nb:end)];
-    EEG.nbchan = size(EEG.data,1);
+    EEG.nbchan = size(EEG.data,1); 
 end
+clear chan_nb
 
-% Put back refrence channel
+% Put back reference channel(s)
 if ~isempty(EEGSystem.refChan)
-    refChan = EEGSystem.refChan.idx;
-    EEG.data = [EEG.data(1:refChan-1,:); ...
-        zeros(1,size(EEG.data,2));...
-        EEG.data(refChan:end,:)];
+    refChans = EEGSystem.refChan.idx;
     
-    EEGRef.chanlocs(refChan).maraLabel = [];
+    % ensure refChans is sorted in ascending order to avoid indexing issues
+    refChans = sort(refChans);
     
-    EEG.chanlocs = [EEG.chanlocs(1:refChan-1), EEGRef.chanlocs(refChan), ...
-        EEG.chanlocs(refChan:end)];
-    EEG.nbchan = size(EEG.data,1);
-    clear chan_nb re_chan;
+    % loop over chans
+    for i = 1:length(refChans)
+        refChanIdx = refChans(i);
+
+        % add zeros into EEG.data at the correct index
+        EEG.data = [EEG.data(1:refChanIdx-1, :); 
+                    zeros(1, size(EEG.data, 2));
+                    EEG.data(refChanIdx:end, :)];
+
+        EEGRef.chanlocs(1).maraLabel = '';
+        EEGRef.chanlocs(1).maraType = [];
+        if not(isfield(EEG.chanlocs(1), 'maraType'))
+            EEG.chanlocs(1).maraType = [];
+        end
+
+        % add channel information into EEG.chanlocs
+        EEG.chanlocs = [EEG.chanlocs(1:refChanIdx-1), EEGRef.chanlocs(refChanIdx), EEG.chanlocs(refChanIdx:end)]; 
+    end
+    
+    EEG.nbchan = size(EEG.data, 1);
+    clear refChanIdx refChans;
 end
 
 % Write back output
