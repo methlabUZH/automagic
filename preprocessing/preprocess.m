@@ -454,12 +454,15 @@ end
 
 % Write back output
 if ~isempty(EEGSystem.refChan)
-    removedChans(removedChans >= EEGSystem.refChan.idx)=removedChans(removedChans >= EEGSystem.refChan.idx)+1;
-    EEG.automagic.autoBadChans = removedChans;
-    
-else
-    EEG.automagic.autoBadChans = removedChans;
+    % Adjust removed channels indices for multiple reference channels
+    for i = 1:length(EEGSystem.refChan.idx)
+        refChanIdx = EEGSystem.refChan.idx(i);
+        removedChans(removedChans >= refChanIdx) = removedChans(removedChans >= refChanIdx) + 1;
+    end
 end
+
+% Store updated bad channel list
+EEG.automagic.autoBadChans = removedChans;
 EEG.automagic.params = params;
 EEG.automagic = rmfield(EEG.automagic, 'preprocessing');
 
