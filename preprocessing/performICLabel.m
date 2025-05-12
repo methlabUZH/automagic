@@ -218,6 +218,11 @@ if ETguidedICA % remove the saccade intervals (containing spike potential)
     end
     EEG.data = EEG_orig.data;
     
+    % shorten the ET data as well
+    EEG_orig.ET.data = EEG_orig.ET.data(:, 1:EEG_orig.pnts);
+    EEG_orig.ET.pnts = EEG_orig.pnts;
+    EEG_orig.ET.times = EEG_orig.times;  
+    
     % concat comps
     c = {components, eye_comps'};
     components = unique(cat(1, c{:}));
