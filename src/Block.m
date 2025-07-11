@@ -1413,7 +1413,7 @@ classdef Block < handle
             end
             self.resultFolder = [self.project.resultFolder, self.subject.name, slash, relAdd];
             self.resultAddress = strcat(self.resultFolder, self.prefix, '_', self.fileName, '.mat');
-            self.sourceAddress = [self.project.dataFolder, self.subject.name, slash, self.fileName, self.fileExtension];
+            self.sourceAddress = [self.project.dataFolder, self.subject.name, slash, relAdd, self.fileName, self.fileExtension];
             self.reducedAddress = self.extractReducedAddress(...
                 self.resultAddress, self.dsRate);
             

@@ -58,50 +58,59 @@ if sum(Index)<5
 end
 
 disp('Checking required toolbooxes...')
+toolboxes = ver;
 % Check that user has the Signal Processing Toolbox installed.
 hasIPT = license('test', 'Signal_Toolbox');
-if ~hasIPT
-  % User does not have the toolbox installed.
-  message = sprintf(['Sorry, but you do not seem to have the Signal Processing Toolbox.' ...
-                     '\nSome important functions might be missing which will result in error.' ...
-                     '\nDo you want to try to continue anyway?']);
-  reply = questdlg(message, 'Toolbox missing', 'Yes', 'No', 'Yes');
-  if strcmpi(reply, 'No')
-    % User said No, so exit.
-    return;
-  end
+if ~any(ismember({toolboxes.Name}, 'Signal Processing Toolbox'))    
+    if ~hasIPT
+      % User does not have the toolbox installed.
+      message = sprintf(['Sorry, but you do not seem to have the Signal Processing Toolbox.' ...
+                         '\nSome important functions might be missing which will result in error.' ...
+                         '\nDo you want to try to continue anyway?']);
+      reply = questdlg(message, 'Toolbox missing', 'Yes', 'No', 'Yes');
+      if strcmpi(reply, 'No')
+        % User said No, so exit.
+        return;
+      end
+    end
 else
     disp('Signal Processing Toolbox installed...')
 end
 
+
 % Check that user has the Statistics and Machine Learning Toolbox installed.
 hasIPT = license('test', 'Statistics_Toolbox');
-if ~hasIPT
-  % User does not have the toolbox installed.
-  message = sprintf(['Sorry, but you do not seem to have the Statistics and Machine Learning Toolbox.' ...
-                     '\nSome important functions might be missing which will result in error.' ...
-                     '\nDo you want to try to continue anyway?']);
-  reply = questdlg(message, 'Toolbox missing', 'Yes', 'No', 'Yes');
-  if strcmpi(reply, 'No')
-    % User said No, so exit.
-    return;
-  end
+if ~any(ismember({toolboxes.Name}, 'Statistics and Machine Learning Toolbox')) 
+    if ~hasIPT
+      % User does not have the toolbox installed.
+      message = sprintf(['Sorry, but you do not seem to have the Statistics and Machine Learning Toolbox.' ...
+                         '\nSome important functions might be missing which will result in error.' ...
+                         '\nDo you want to try to continue anyway?']);
+      reply = questdlg(message, 'Toolbox missing', 'Yes', 'No', 'Yes');
+      if strcmpi(reply, 'No')
+        % User said No, so exit.
+        return;
+      end
+    end
 else
     disp('Statistics and Machine Learning Toolbox installed...')
 end
 
 % Check that user has the Parallel Computing Toolbox installed.
+
 hasIPT = license('test', 'Distrib_Computing_Toolbox');
-if ~hasIPT
-  % User does not have the toolbox installed.
-  message = sprintf(['Sorry, but you do not seem to have the Parallel Computing Toolbox.' ...
-                     '\nSome preprocessing steps might take longer.' ...
-                     '\nDo you want to try to continue anyway?']);
-  reply = questdlg(message, 'Toolbox missing', 'Yes', 'No', 'Yes');
-  if strcmpi(reply, 'No')
-    % User said No, so exit.
-    return;
-  end
+if ~any(ismember({toolboxes.Name}, 'Parallel Computing Toolbox  ')) 
+    if ~hasIPT
+      % User does not have the toolbox installed.
+      message = sprintf(['Sorry, but you do not seem to have the Parallel Computing Toolbox.' ...
+                         '\nSome preprocessing steps might take longer.' ...
+                         '\nDo you want to try to continue anyway?']);
+      reply = questdlg(message, 'Toolbox missing', 'Yes', 'No', 'Yes');
+      if strcmpi(reply, 'No')
+        % User said No, so exit.
+        return;
+      end
+    end
 else
     disp('Parallel Computing Toolbox installed...')
 end
