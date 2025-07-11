@@ -59,9 +59,8 @@ end
 
 disp('Checking required toolbooxes...')
 toolboxes = ver;
-toolboxes(8:10) = [];
+
 % Check that user has the Signal Processing Toolbox installed.
-hasIPT = license('test', 'Signal_Toolbox');
 if ~any(ismember({toolboxes.Name}, 'Signal Processing Toolbox'))    
 
   % User does not have the toolbox installed.
@@ -80,7 +79,6 @@ end
 
 
 % Check that user has the Statistics and Machine Learning Toolbox installed.
-hasIPT = license('test', 'Statistics_Toolbox');
 if ~any(ismember({toolboxes.Name}, 'Statistics and Machine Learning Toolbox')) 
 
   % User does not have the toolbox installed.
@@ -98,8 +96,6 @@ else
 end
 
 % Check that user has the Parallel Computing Toolbox installed.
-
-hasIPT = license('test', 'Distrib_Computing_Toolbox');
 if ~any(ismember({toolboxes.Name}, 'Parallel Computing Toolbox  ')) 
 
   % User does not have the toolbox installed.
