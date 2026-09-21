@@ -116,7 +116,12 @@ end
 
 % Separate EEG from EOG
 [~, EEG_out] = evalc('pop_select( new_EEG , ''channel'', eeg_chans)');
-[~, EOG_out] = evalc('pop_select( new_EEG , ''channel'', eog_chans)');
+if ~isempty(eog_chans)
+    [~, EOG_out] = evalc('pop_select( new_EEG , ''channel'', eog_chans)');
+else
+    EOG_out = EOG_in;   % stays empty
+end
+
 
 %get data back if no notch filter is wanted
 if discardNotch

@@ -535,7 +535,21 @@ classdef Project < handle
                     message = automagic.badChanError;
                     self.writeToLog(block.sourceAddress, message);
                 end
-                
+
+                % SPEED: register the file as processed right away, so it
+                % is in the saved state even if MATLAB crashes before the
+                % end of the batch. Otherwise the next project update sees
+                % it as a "new result" and has to re-open its .mat file.
+                % NOTE: nProcessedFiles is deliberately NOT increased here:
+                % areFoldersChanged() compares it with the number of result
+                % files, and that difference is what triggers
+                % updateRatingStructures() on the next load, which rebuilds
+                % the ordered lists and counters. That update is now fast
+                % for these files because they are already in the list.
+                if ~ ismember(block.uniqueName, self.processedList)
+                    self.processedList{end + 1} = block.uniqueName;
+                end
+
                 if( self.current == -1)
                     self.current = 1;
                 end
@@ -702,11 +716,20 @@ classdef Project < handle
             
             filesCount = 0;
             nPreprocessedFile = 0;
+
+            % SPEED: hash set of previously processed blocks (O(1) lookup)
+            prevProcessed = containers.Map('KeyType', 'char', ...
+                'ValueType', 'logical');
+            for k = 1:numel(self.processedList)
+                prevProcessed(self.processedList{k}) = true;
+            end
+            lastWaitbar = tic;
+
             for i = 1:length(subjects)
                 if(usejava('Desktop') && ishandle(h))
                     waitbar((i-1) / length(subjects), h)
                 end
-                
+
                 subjectName = subjects{i};
                 subject = Subject([self.dataFolder subjectName], ...
                     [self.resultFolder subjectName]);
@@ -751,13 +774,24 @@ classdef Project < handle
                     end
                     splits = strsplit(nameTmp, ext);
                     fileName = splits{1};
-                    uniqueName = strcat(subjectName, '_', fileName);
-                    
+                    % SPEED/BUGFIX: use exactly the same key as Block does.
+                    % Previously 'subject_fileName' was used here, while a
+                    % Block in a subfolder (e.g. BIDS ses-1/eeg/) is stored
+                    % as 'subject_ses-1_eeg_fileName'. The lookup below then
+                    % always failed and EVERY block was rebuilt, re-opening
+                    % every result file on every update.
+                    uniqueName = Block.extractUniqueName(filePath, ...
+                        subject, fileName);
+
                     fprintf(['...Adding file ', fileName, '\n']);
-                    if(usejava('Desktop') && ishandle(h))
+                    % SPEED: redrawing the waitbar for every file is slow;
+                    % refresh it at most ~4 times per second.
+                    if(usejava('Desktop') && ishandle(h) && ...
+                            toc(lastWaitbar) > 0.25)
                         waitbar((i-1) / length(subjects), h, ...
                             ['Setting up project. Please wait.', ...
                             ' Adding file ', fileName, '...'])
+                        lastWaitbar = tic;
                     end
                     % Merge data and update blockList
                     if isKey(self.blockMap, uniqueName)
@@ -772,12 +806,16 @@ classdef Project < handle
                         map(block.uniqueName) = block;
                         list{filesCount} = block.uniqueName;
                         block.index = filesCount;
-                        if (~ isempty(block.potentialResultAddress))
+                        % SPEED: one folder listing per block, reused below
+                        hasResult = ~ isempty(block.potentialResultAddress);
+                        if hasResult
                             % Some results exist
-                            
-                            IndexC = strfind(self.processedList, uniqueName);
-                            Index = find(not(cellfun('isempty', IndexC)), 1);
-                            if( ~isempty(Index))
+
+                            % SPEED/BUGFIX: exact match in a hash map
+                            % instead of strfind over the whole list (which
+                            % also matched substrings, e.g. sub1_f1 in
+                            % sub1_f10).
+                            if isKey(prevProcessed, uniqueName)
                                 % Currently a result file exists. There has
                                 % been a result file before as well. So
                                 % don't do anything. Here we don't check
@@ -843,11 +881,12 @@ classdef Project < handle
                         map(block.uniqueName) = block;
                         list{filesCount} = block.uniqueName;
                         block.index = filesCount;
+                        hasResult = ~ isempty(block.potentialResultAddress);
                     end
-                    
+
                     % Update the processedList
-                    if (~ isempty(block.potentialResultAddress))
-                        
+                    if hasResult
+
                         switch block.rate
                             case self.CGV.RATINGS.Good
                                 gList = [gList block.index];
