@@ -221,25 +221,20 @@ classdef Block < handle
             % rating data to this block, initialise otherwise.
             
             % Find the preprocessed file if any (empty char if there is no
-            % file).
-            extractedPrefix = self.extractPrefix(...
-                self.potentialResultAddress());
-            
-            % update 22.09.2023 - load only once to save time. Otherwise
-            % the automagic file was loaded twice every time
-            if ( exist(self.potentialResultAddress(), 'file')) | ...
-                ( (self.hasInformation(extractedPrefix) && ...
-                    exist(self.potentialResultAddress(), 'file')) )
-                % load the automagic file
-                preprocessed = matfile(self.potentialResultAddress());
+            % file). SPEED: potentialResultAddress() lists the whole result
+            % folder (dir + regexp), so it is computed only once here
+            % instead of 5 times.
+            resAddr = self.potentialResultAddress();
+            extractedPrefix = self.extractPrefix(resAddr);
+            resExists = ~isempty(resAddr) && exist(resAddr, 'file') == 2;
+
+            % Load the automagic struct only once
+            if resExists
+                preprocessed = matfile(resAddr);
                 automagic = preprocessed.automagic;
             end
-            
-            if( exist(self.potentialResultAddress(), 'file'))
 
-%                 preprocessed = matfile(self.potentialResultAddress());
-%                 automagic = preprocessed.automagic;
-                
+            if resExists
                 autParams = automagic.params;
                 autFields = fieldnames(autParams);
                 idx = ismember(autFields, fieldnames(self.params));
@@ -259,10 +254,7 @@ classdef Block < handle
 
             
             % If the prefix indicates that the block has been already rated
-            if(self.hasInformation(extractedPrefix) && ...
-                    exist(self.potentialResultAddress(), 'file'))
-%                 preprocessed = matfile(self.potentialResultAddress());
-%                 automagic = preprocessed.automagic;
+            if(self.hasInformation(extractedPrefix) && resExists)
                 self.rate = automagic.rate;
                 self.tobeInterpolated = automagic.tobeInterpolated;
                 self.isInterpolated = automagic.isInterpolated;
@@ -1421,18 +1413,54 @@ classdef Block < handle
                 mkdir(self.resultFolder);
             end
             % Rename the file if it doesn't correspond to the actual rating
-            if( ~ strcmp(self.resultAddress, self.potentialResultAddress))
-                if( ~ isempty(self.potentialResultAddress) )
-                    movefile(self.potentialResultAddress, ...
-                        self.resultAddress);
+            % SPEED: list the result folder once instead of 3 times.
+            potAddr = self.potentialResultAddress();
+            if( ~ strcmp(self.resultAddress, potAddr))
+                if( ~ isempty(potAddr) )
+                    movefile(potAddr, self.resultAddress);
                 end
             end
         end
     end
     
+    %% Public static methods
+    methods(Static)
+
+        function uniqueName = extractUniqueName(address, subject, fileName)
+            % Return the uniqueName of this block. The uniqueName is the
+            % concatenation of the subject's name, the relative path
+            % inside the subject folder (e.g. ses-1_eeg_ for BIDS) and
+            % this raw file's name.
+            % (Public so that Project uses exactly the same key.)
+
+            slash = filesep;
+            if ispc
+                splits = strsplit(address, [slash slash subject.name slash]);
+            else
+                splits = strsplit(address, [slash subject.name slash]);
+            end
+            relAdd = '';
+            if length(splits) == 2
+                relAdd = splits{2};
+            end
+
+
+            if ~isempty(relAdd)
+                splits = strsplit(relAdd, [fileName, '.']);
+                relAdd = splits{1};
+            end
+
+            if ~isempty(relAdd)
+                relAdd = strrep(relAdd, slash, '_');
+            end
+
+            uniqueName = strcat(subject.name, '_', relAdd, fileName);
+        end
+    end
+
     %% Private utility static methods
     methods(Static, Access=private)
-        
+
         function prefix = extractPrefix(resultAddress)
                 % Given the resultAddress, take the prefix out of it and
                 % return. If results_adsress = '', then returns prefix = ''. 
@@ -1474,34 +1502,6 @@ classdef Block < handle
 
         end
         
-        function uniqueName = extractUniqueName(address, subject, fileName)
-            % Return the uniqueName of this block. The uniqueName is the
-            % concatenation of the subject's name and this raw file's name
-            
-            slash = filesep;
-            if ispc
-                splits = strsplit(address, [slash slash subject.name slash]);
-            else
-                splits = strsplit(address, [slash subject.name slash]);
-            end
-            relAdd = '';
-            if length(splits) == 2
-                relAdd = splits{2};
-            end
-            
-            
-            if ~isempty(relAdd)
-                splits = strsplit(relAdd, [fileName, '.']);
-                relAdd = splits{1};
-            end
-            
-            if ~isempty(relAdd)
-                relAdd = strrep(relAdd, slash, '_');
-            end
-            
-            uniqueName = strcat(subject.name, '_', relAdd, fileName);
-        end
-
         function bool = hasInformation(prefix)
             % Return true if the prefix indicates that this preprocessed
             % file has been already rated.
