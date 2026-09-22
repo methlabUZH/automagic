@@ -41,7 +41,7 @@ function varargout = mainGUI(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Last Modified by GUIDE v2.5 30-Aug-2023 17:46:07
+% Last Modified by GUIDE v2.5 25-Jul-2023 16:58:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -120,6 +120,19 @@ varargout{1} = handles.output;
 % project
 function handles = load_state(handles)
 % handles       main handles of this gui
+
+% If the gui is already open (mainGUI() is called again e.g. after
+% preprocessing, interpolation or closing the rating gui), remember which
+% project is selected so it stays selected. On a real startup there is no
+% project list yet.
+prevName = '';
+if isfield(handles, 'projectList') && isa(handles.projectList, 'containers.Map') ...
+        && isfield(handles, 'currentProject')
+    oldKeys = handles.projectList.keys;
+    if handles.currentProject >= 1 && handles.currentProject <= numel(oldKeys)
+        prevName = oldKeys{handles.currentProject};
+    end
+end
 if exist(handles.CGV.stateFile.ADDRESS, 'file')
     load(handles.CGV.stateFile.ADDRESS);
     if( isfield(state, 'version') && strcmp(state.version, handles.CGV.VERSION))
@@ -159,14 +172,21 @@ for i = 1:handles.projectList.Count
     end
 end
 
-% Always start with 'Create New Project...' selected, so that no existing
-% project is opened (and updated) automatically at startup.
-newIdx = find(strcmp(handles.projectList.keys, ...
-    handles.CGV.NEW_PROJECT.LIST_NAME), 1);
-if ~isempty(newIdx)
-    handles.currentProject = newIdx;
-end
 
+% Keep the selected project when the gui is refreshed; on a real startup
+% select 'Create New Project...', so that no existing project is opened
+% (and updated) automatically.
+selIdx = [];
+if ~isempty(prevName)
+    selIdx = find(strcmp(handles.projectList.keys, prevName), 1);
+end
+if isempty(selIdx)
+    selIdx = find(strcmp(handles.projectList.keys, ...
+        handles.CGV.NEW_PROJECT.LIST_NAME), 1);
+end
+if ~isempty(selIdx)
+    handles.currentProject = selIdx;
+end
 
 set(handles.existingpopupmenu,...
     'String', handles.projectList.keys, ...
@@ -1051,7 +1071,7 @@ if( ~get(handles.egiradio, 'Value') && ~isempty(EOGParams) && ...
         ' comma must be given to determine EOG channels'],...
         'Error');
     return;
-end        
+end
 
 params = handles.params;
 if isfield(params,'LangerLabSettings')
@@ -2007,19 +2027,3 @@ if( ~ get(handles.egiradio, 'Value'))
         set(handles.excludeMiscedit, 'String', '');
     end
 end
-
-
-% --- Executes on button press in pushbutton31Misc.
-function pushbutton31Misc_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton31Misc (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-web('https://github.com/methlabUZH/automagic/wiki/How-to-start#how-to-create-a-new-project', '-browser');
-
-
-% --- Executes on button press in pushbutton32EEG.
-function pushbutton32EEG_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton32EEG (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-web('https://github.com/methlabUZH/automagic/wiki/How-to-start#how-to-create-a-new-project', '-browser');
