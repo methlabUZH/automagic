@@ -461,8 +461,7 @@ project = handles.project;
 list = get(hObject, 'String');
 idx = get(hObject,'Value');
 unique_name = list{idx};
-IndexC = strfind(project.processedList, unique_name);
-Index = find(not(cellfun('isempty', IndexC)));
+Index = find(strcmp(project.processedList, unique_name), 1);
 if( isempty(Index) )
     Index = -1;
 end
