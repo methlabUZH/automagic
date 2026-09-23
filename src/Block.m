@@ -1124,12 +1124,12 @@ classdef Block < handle
             
             fprintf(fileID, sprintf(text.badchans.desc, ...
                 length(automagic.autoBadChans)));
-            if strcmp(automagic.prep.performed, 'yes')
+            if isfield(automagic, 'prep') && strcmp(automagic.prep.performed, 'yes')
                 fprintf(fileID, sprintf(text.badchans.prep, ...
                     length(automagic.prep.badChans)));
             end
             
-            if strcmp(automagic.crd.performed, 'yes')
+            if isfield(automagic, 'crd')  && strcmp(automagic.crd.performed, 'yes')
                 fprintf(fileID, sprintf(text.badchans.crd, ...
                     length(automagic.crd.badChans)));
             end

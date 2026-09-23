@@ -41,7 +41,7 @@ removedMask = EEG_in.automagic.preprocessing.removedMask;
 [s, ~] = size(EEG_in.data);
 badChansMask = false(1, s); clear s;
 
-rejected = var(EEG_in.data') <= sd_threshold;
+rejected = nanstd(EEG_in.data') <= sd_threshold;
 
 % Save the original EEG.icachansind.
 % If we don't, pop_select() on line 642 will mark more components to remove 

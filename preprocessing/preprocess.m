@@ -251,7 +251,7 @@ catch ME
     message = ['PREP is not done on this subject, continue with the next steps: ' ...
         ME.message];
     warning(message)
-    EEG.automagic.PREP.performed = 'FAILED';
+    EEG.automagic.prep.performed = 'FAILED';
     EEG.automagic.error_msg = message;
 end
 if Settings.trackAllSteps && ~isempty(PrepParams)
@@ -454,11 +454,20 @@ end
 
 % Write back output
 if ~isempty(EEGSystem.refChan)
-    % Adjust removed channels indices for multiple reference channels
-    for i = 1:length(EEGSystem.refChan.idx)
-        refChanIdx = EEGSystem.refChan.idx(i);
+    % Adjust indices for the reference channel(s) that were put back.
+    % The references must be processed in ascending order, otherwise the
+    % shift is wrong when there is more than one reference channel.
+    refChansSorted = sort(EEGSystem.refChan.idx);
+    for i = 1:length(refChansSorted)
+        refChanIdx = refChansSorted(i);
         removedChans(removedChans >= refChanIdx) = removedChans(removedChans >= refChanIdx) + 1;
+        % same shift for the ICA channel indices
+        if isfield(EEG, 'icachansind') && ~isempty(EEG.icachansind)
+            EEG.icachansind(EEG.icachansind >= refChanIdx) = ...
+                EEG.icachansind(EEG.icachansind >= refChanIdx) + 1;
+        end
     end
+    clear refChanIdx refChansSorted;
 end
 
 % Store updated bad channel list

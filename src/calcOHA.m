@@ -5,7 +5,7 @@ tmpData = EEG.data;
 % remove channels with NaNs
 tmpData(any(isnan(tmpData), 2), :) = [];
 
-c = size(tmpData,2);
+c = size(tmpData,1);
 t = size(tmpData,2);
 
 % if average reference
